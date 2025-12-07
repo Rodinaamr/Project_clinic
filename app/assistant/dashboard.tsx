@@ -1,34 +1,35 @@
 import LogoutModal from '@/components/LogoutModal';
+import RequireRole from '@/components/RequireRole';
 import Colors from '@/constants/colors';
 import { MOCK_APPOINTMENTS, MOCK_PAYMENTS } from '@/constants/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import {
-  Activity,
-  AlertCircle,
-  AlertTriangle,
-  Calendar,
-  CheckCircle,
-  Clock,
-  DollarSign,
-  FileText,
-  LogOut,
-  Shield,
-  Sparkles,
-  UserPlus,
-  Users
+    Activity,
+    AlertCircle,
+    AlertTriangle,
+    Calendar,
+    CheckCircle,
+    Clock,
+    DollarSign,
+    FileText,
+    LogOut,
+    Shield,
+    Sparkles,
+    UserPlus,
+    Users
 } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  Animated,
-  Dimensions,
-  Image,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
+    Animated,
+    Dimensions,
+    Image,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -95,6 +96,8 @@ export default function AssistantDashboard() {
       ),
     ]).start();
   }, []);
+
+  // Role check moved to RequireRole wrapper
 
   // Create shimmer interpolation
   const shimmerTranslate = shimmerAnim.interpolate({
@@ -251,15 +254,16 @@ export default function AssistantDashboard() {
   ];
 
   return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <LogoutModal
-        visible={showLogoutModal}
-        onConfirm={confirmLogout}
-        onCancel={cancelLogout}
-      />
+    <RequireRole allowedRoles={[ 'assistant' ]}>
+      <>
+        <Stack.Screen options={{ headerShown: false }} />
+        <LogoutModal
+          visible={showLogoutModal}
+          onConfirm={confirmLogout}
+          onCancel={cancelLogout}
+        />
 
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={[styles.container, { paddingTop: insets.top }]}> 
         {/* BACKGROUND LAYER */}
         <View style={styles.backgroundLayer}>
           <View style={styles.decorativePattern}>
@@ -568,6 +572,7 @@ export default function AssistantDashboard() {
         </Animated.ScrollView>
       </View>
     </>
+  </RequireRole>
   );
 }
 

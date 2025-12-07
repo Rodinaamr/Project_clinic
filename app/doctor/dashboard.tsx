@@ -1,38 +1,39 @@
 declare const window: any;
 
 import LogoutModal from '@/components/LogoutModal';
+import RequireRole from '@/components/RequireRole';
 import Colors from '@/constants/colors';
 import { MOCK_APPOINTMENTS } from '@/constants/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import {
-  Activity,
-  AlertCircle,
-  Brain,
-  Calendar,
-  Clock,
-  FileText,
-  FolderOpen,
-  Heart,
-  LogOut,
-  MessageSquare,
-  Shield,
-  Stethoscope,
-  Thermometer,
-  Users
+    Activity,
+    AlertCircle,
+    Brain,
+    Calendar,
+    Clock,
+    FileText,
+    FolderOpen,
+    Heart,
+    LogOut,
+    MessageSquare,
+    Shield,
+    Stethoscope,
+    Thermometer,
+    Users
 } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  Animated,
-  Dimensions,
-  Easing,
-  Image,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
+    Animated,
+    Dimensions,
+    Easing,
+    Image,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import PubMedWidget from '../../components/PubMedWidget';
@@ -100,6 +101,8 @@ export default function DoctorDashboard() {
     ]).start();
   }, []);
 
+  // Role check moved to RequireRole wrapper
+
   const getGreeting = (): string => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good Morning';
@@ -158,16 +161,17 @@ export default function DoctorDashboard() {
   );
 
   return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
+    <RequireRole allowedRoles={[ 'doctor' ]}>
+      <>
+        <Stack.Screen options={{ headerShown: false }} />
+        
+        <LogoutModal
+          visible={showLogoutModal}
+          onConfirm={confirmLogout}
+          onCancel={cancelLogout}
+        />
 
-      <LogoutModal
-        visible={showLogoutModal}
-        onConfirm={confirmLogout}
-        onCancel={cancelLogout}
-      />
-
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={[styles.container, { paddingTop: insets.top }]}> 
         {/* BACKGROUND LAYER */}
         <View style={styles.backgroundLayer}>
           <View style={styles.decorativePattern}>
@@ -491,6 +495,7 @@ export default function DoctorDashboard() {
         </Animated.ScrollView>
       </View>
     </>
+  </RequireRole>
   );
 }
 
