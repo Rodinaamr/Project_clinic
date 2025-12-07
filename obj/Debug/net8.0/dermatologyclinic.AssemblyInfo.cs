@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("dermatologyclinic")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+45f392e6073a8f99a0f0b596e4f837456dd0c314")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bc90f99b890e7149be6668e1ec3626a03008dc9e")]
 [assembly: System.Reflection.AssemblyProductAttribute("dermatologyclinic")]
 [assembly: System.Reflection.AssemblyTitleAttribute("dermatologyclinic")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
