@@ -2,6 +2,8 @@
 import Colors from '@/constants/colors';
 import { Check, Pill, Search, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
+// Static import of medications JSON for Metro bundler compatibility
+import medicationsData from '@/app/data/medications_New_prices_up_to_03-08-2024.json';
 import {
     ActivityIndicator,
     FlatList,
@@ -51,67 +53,39 @@ const DrugSearchDropdown: React.FC<DrugSearchDropdownProps> = ({
     loadDrugsData();
   }, []);
 
-  const loadDrugsData = async () => {
+  const loadDrugsData = () => {
     try {
-      console.log('Loading medications data from JSON file...');
-      
-      // Dynamically import the JSON file
-      const medicationsModule = await import('@/app/data/medications_New_prices_up_to_03-08-2024.json');
-      const medicationsData = medicationsModule.default;
-      
-      if (!medicationsData) {
+      console.log('Loading medications data from JSON file (static import)...');
+      const medications = (medicationsData as any) || {};
+
+      if (!medications) {
         console.error('Medications data is undefined or null');
         setIsLoading(false);
         return;
       }
-      
-      console.log('Medications data loaded:', medicationsData);
-      console.log('Type of medicationsData:', typeof medicationsData);
-      console.log('Is array?', Array.isArray(medicationsData));
-      
+
       let drugsArray: Drug[] = [];
-      
-      // Handle different JSON structures
-      if (Array.isArray(medicationsData)) {
-        // If JSON is directly an array
-        console.log('JSON is directly an array');
-        drugsArray = medicationsData;
-      } else if (medicationsData.drugs && Array.isArray(medicationsData.drugs)) {
-        // If JSON has { "drugs": [...] }
-        console.log('JSON has "drugs" array');
-        drugsArray = medicationsData.drugs;
-      } else if (medicationsData.data && Array.isArray(medicationsData.data)) {
-        // If JSON has { "data": [...] }
-        console.log('JSON has "data" array');
-        drugsArray = medicationsData.data;
+
+      if (Array.isArray(medications)) {
+        drugsArray = medications;
+      } else if (medications.drugs && Array.isArray(medications.drugs)) {
+        drugsArray = medications.drugs;
+      } else if (medications.data && Array.isArray(medications.data)) {
+        drugsArray = medications.data;
       } else {
-        // Try to find any array in the object
-        console.log('Searching for array in JSON keys...');
-        console.log('Available keys:', Object.keys(medicationsData));
-        
-        const keys = Object.keys(medicationsData);
+        const keys = Object.keys(medications);
         for (const key of keys) {
-          const value = medicationsData[key];
-          if (Array.isArray(value)) {
-            console.log(`Found array in key: "${key}" with ${value.length} items`);
-            
-            // Check if array contains drug-like objects
-            if (value.length > 0 && value[0] && typeof value[0] === 'object') {
-              // Check if it has drug properties
-              const sampleItem = value[0];
-              if ('tradename' in sampleItem || 'activeingredient' in sampleItem) {
-                drugsArray = value as Drug[];
-                console.log(`Confirmed as drugs array in key: "${key}"`);
-                break;
-              }
+          const value = medications[key];
+          if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object') {
+            const sampleItem = value[0];
+            if ('tradename' in sampleItem || 'activeingredient' in sampleItem) {
+              drugsArray = value as Drug[];
+              break;
             }
           }
         }
       }
-      
-      console.log(`Total drugs found: ${drugsArray.length}`);
-      
-      // Process and clean the data
+
       const processedDrugs = drugsArray.map((drug, index) => ({
         ...drug,
         id: drug.id || `drug-${index}`,
@@ -121,19 +95,10 @@ const DrugSearchDropdown: React.FC<DrugSearchDropdownProps> = ({
         new_price: drug.new_price || 'Not specified',
         form: drug.form || ''
       }));
-      
-      // Show first few items for debugging
-      if (processedDrugs.length > 0) {
-        console.log('First 3 drugs:');
-        processedDrugs.slice(0, 3).forEach((drug, i) => {
-          console.log(`${i + 1}. ${drug.tradename} (${drug.activeingredient})`);
-        });
-      }
-      
+
       setAllDrugs(processedDrugs);
       setFilteredDrugs(processedDrugs.slice(0, 20));
       setIsLoading(false);
-      
     } catch (error) {
       console.error('Error loading medications:', error);
       setIsLoading(false);

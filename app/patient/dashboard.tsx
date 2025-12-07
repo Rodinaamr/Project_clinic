@@ -1,3 +1,5 @@
+import LogoutModal from '@/components/LogoutModal';
+import RequireRole from '@/components/RequireRole';
 import Colors from '@/constants/colors';
 import { MOCK_APPOINTMENTS } from '@/constants/mockData';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,12 +26,13 @@ import {
     View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import LogoutModal from '@/components/LogoutModal';
 
 export default function PatientDashboard() {
   const router = useRouter();
   const { user, logout } = useAuth();
   const insets = useSafeAreaInsets();
+
+  // Role check moved to RequireRole wrapper
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -108,14 +111,15 @@ export default function PatientDashboard() {
   ];
 
   return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <LogoutModal
-        visible={showLogoutModal}
-        onConfirm={confirmLogout}
-        onCancel={cancelLogout}
-      />
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+    <RequireRole allowedRoles={[ 'patient' ]}>
+      <>
+        <Stack.Screen options={{ headerShown: false }} />
+        <LogoutModal
+          visible={showLogoutModal}
+          onConfirm={confirmLogout}
+          onCancel={cancelLogout}
+        />
+        <View style={[styles.container, { paddingTop: insets.top }]}> 
         <LinearGradient
           colors={[Colors.primary, Colors.primaryDark]}
           style={styles.header}
@@ -191,8 +195,9 @@ export default function PatientDashboard() {
             ))}
           </View>
         </Animated.ScrollView>
-      </View>
-    </>
+        </View>
+      </>
+    </RequireRole>
   );
 }
 
