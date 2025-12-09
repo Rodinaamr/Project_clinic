@@ -1,22 +1,31 @@
-﻿namespace dermatologyclinicApp.Models
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace dermatologyclinicApp.Models
 {
     public class Appointment
     {
-        public int AppointmentID { get; set; }
+        [Key]
+        public int Id { get; set; }  // ADD THIS LINE
 
-        public int PatientID { get; set; }
-        public Patient Patient { get; set; }
+        [Required]
+        public DateTime AppointmentDate { get; set; }
 
-        public int DoctorID { get; set; }
-        public Doctor Doctor { get; set; }
+        [Required]
+        public string? Status { get; set; } = "Scheduled"; // Add ? to make nullable
 
-        public DateTime Date { get; set; }
-        public TimeSpan StartingTime { get; set; }
-        public TimeSpan EndingTime { get; set; }
-        public string Status { get; set; }
+        public string? Notes { get; set; }
 
-        public ICollection<MedicalReport> MedicalReports { get; set; }
-        public ICollection<Payment> Payments { get; set; }
-        public ICollection<TreatmentReport> TreatmentReports { get; set; }
+        // Foreign Keys
+        public int? PatientId { get; set; } // Make nullable
+        public int? DoctorId { get; set; }  // Make nullable
+
+        // Navigation Properties (make them nullable)
+        [ForeignKey("PatientId")]
+        public virtual Patient? Patient { get; set; }
+
+        [ForeignKey("DoctorId")]
+        public virtual Doctor? Doctor { get; set; }
     }
 }
