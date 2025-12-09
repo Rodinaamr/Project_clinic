@@ -1,23 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace dermatologyclinicApp.Models
 {
     public class Doctor
     {
-        public int DoctorID { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Address { get; set; }
-        public string Phone { get; set; }
-        public string Email { get; set; }
-        public DateTime DateOfBirth { get; set; }
-        public int Age { get; set; }
-        public string Speciality { get; set; }
+        [Key]
+        public int Id { get; set; }
 
-        public ICollection<Appointment> Appointments { get; set; }
-        public ICollection<DoctorAssistant> DoctorAssistants { get; set; }
-        public ICollection<DoctorNurse> DoctorNurses { get; set; }
-        public ICollection<Feedback> Feedbacks { get; set; }
+        [Required]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required]
+        public string LastName { get; set; } = string.Empty;
+
+        public string? Specialization { get; set; }
+        public string? Email { get; set; }
+        public string? Phone { get; set; }
+
+        // Navigation properties
+        public virtual ICollection<Appointment>? Appointments { get; set; }
+        public virtual ICollection<Prescription>? Prescriptions { get; set; }
+        public virtual ICollection<MedicalReport>? MedicalReports { get; set; }
     }
 }

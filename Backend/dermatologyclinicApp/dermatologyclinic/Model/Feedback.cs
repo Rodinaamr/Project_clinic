@@ -1,17 +1,25 @@
-﻿namespace dermatologyclinicApp.Models
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace dermatologyclinicApp.Models
 {
     public class Feedback
     {
-        public int FeedbackID { get; set; }
+        [Key]
+        public int Id { get; set; }
 
-        public int PatientID { get; set; }
-        public Patient Patient { get; set; }
+        [Required]
+        public string Comment { get; set; } = string.Empty;
 
-        public int DoctorID { get; set; }
-        public Doctor Doctor { get; set; }
+        [Range(1, 5)]
+        public int Rating { get; set; }
 
-        public int Rating { get; set; }  // 1–5
-        public string Comment { get; set; }
+        public DateTime FeedbackDate { get; set; } = DateTime.Now;
+
+        public int PatientId { get; set; }
+
+        [ForeignKey("PatientId")]
+        public virtual Patient? Patient { get; set; }
     }
 }
-

@@ -1,16 +1,17 @@
-﻿namespace dermatologyclinicApp.Models
+﻿using System.ComponentModel.DataAnnotations;
 
+namespace dermatologyclinicApp.Models
 {
     public class Medication
     {
-        public int DrugID { get; set; }
+        [Key]
+        public int Id { get; set; }
 
-        public string Name { get; set; }
-        public string Company { get; set; }
-        public string Notes { get; set; }
-        public string DrugType { get; set; }   
+        [Required]
+        public string Name { get; set; } = string.Empty;
 
-        public ICollection<Prescription> Prescriptions { get; set; }
+        public string? Dosage { get; set; }
+        public string? Instructions { get; set; }
+        public decimal Price { get; set; }
     }
 }
-

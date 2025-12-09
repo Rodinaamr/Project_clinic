@@ -1,17 +1,31 @@
-﻿namespace YourProject.Models
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace dermatologyclinicApp.Models
 {
     public class Payment
     {
-        public int PaymentID { get; set; }
+        [Key]
+        public int Id { get; set; }
 
-        public int AppointmentID { get; set; }
-        public Appointment Appointment { get; set; }
-
-        public int PatientID { get; set; }
-        public Patient Patient { get; set; }
-
-        public DateTime Date { get; set; }
+        [Required]
         public decimal Amount { get; set; }
-        public string Status { get; set; }
+
+        public DateTime PaymentDate { get; set; } = DateTime.Now;
+
+        [Required]
+        public string PaymentMethod { get; set; } = "Cash"; // Cash, Credit Card, Insurance
+
+        public string Status { get; set; } = "Pending";
+
+        public int PatientId { get; set; }
+        public int AppointmentId { get; set; }
+
+        [ForeignKey("PatientId")]
+        public virtual Patient? Patient { get; set; }
+
+        [ForeignKey("AppointmentId")]
+        public virtual Appointment? Appointment { get; set; }
     }
 }

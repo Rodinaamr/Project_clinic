@@ -1,17 +1,28 @@
-﻿namespace dermatologyclinicApp.Models
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace dermatologyclinicApp.Models
 {
     public class TreatmentReport
     {
-        public int ID { get; set; }
+        [Key]
+        public int Id { get; set; }
 
-        public int PatientID { get; set; }
-        public Patient Patient { get; set; }
+        [Required]
+        public string TreatmentType { get; set; } = string.Empty; // Laser, Chemical Peel, etc.
 
-        public int AppointmentID { get; set; }
-        public Appointment Appointment { get; set; }
+        public string? Description { get; set; }
+        public DateTime TreatmentDate { get; set; } = DateTime.Now;
+        public string? Results { get; set; }
 
-        public string Type { get; set; }
-        public string Summary { get; set; }
+        public int PatientId { get; set; }
+        public int DoctorId { get; set; }
+
+        [ForeignKey("PatientId")]
+        public virtual Patient? Patient { get; set; }
+
+        [ForeignKey("DoctorId")]
+        public virtual Doctor? Doctor { get; set; }
     }
 }
-
