@@ -1,0 +1,425 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\model\\designtimedbcontextfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\model\\designtimedbcontextfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\controllers\\appointmentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\controllers\\appointmentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\dermatologyclinic.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\dermatologyclinic.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\controllers\\treatmentreportscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\controllers\\treatmentreportscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\controllers\\prescriptionscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\controllers\\prescriptionscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\controllers\\paymentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\controllers\\paymentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\controllers\\medicationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\controllers\\medicationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\model\\treatmentreport.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\model\\treatmentreport.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\model\\prescription.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\model\\prescription.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\model\\payment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\model\\payment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\model\\patient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\model\\patient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\model\\medication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\model\\medication.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\controllers\\medicalreportscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\controllers\\medicalreportscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\model\\medicalreport.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\model\\medicalreport.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\model\\feedback.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\model\\feedback.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\controllers\\feedbackscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\controllers\\feedbackscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\controllers\\assistantscontroller..cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\controllers\\assistantscontroller..cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\model\\assistant.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\model\\assistant.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\controllers\\patientscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\controllers\\patientscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\model\\appointment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\model\\appointment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\controllers\\doctorscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\controllers\\doctorscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\model\\doctor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\model\\doctor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|c:\\users\\20114\\downloads\\new folder\\project_clinic\\backend\\dermatologyclinicapp\\dermatologyclinic\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41633A1B-BD3F-421F-9028-E3FBD3F385E8}|dermatologyclinic\\dermatologyclinic.csproj|solutionrelative:dermatologyclinic\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{56df62a4-05a3-4e5b-aa1a-99371ccfb997}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Program.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Program.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Program.cs",
+              "RelativeToolTip": "dermatologyclinic\\Program.cs",
+              "ViewState": "AgIAACsAAAAAAAAAAAAIwEIAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-08T00:15:54.187Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\appsettings.json",
+              "RelativeDocumentMoniker": "dermatologyclinic\\appsettings.json",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\appsettings.json",
+              "RelativeToolTip": "dermatologyclinic\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-12-08T00:15:33.986Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DesignTimeDbContextFactory.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\DesignTimeDbContextFactory.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Model\\DesignTimeDbContextFactory.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\DesignTimeDbContextFactory.cs",
+              "RelativeToolTip": "dermatologyclinic\\Model\\DesignTimeDbContextFactory.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAAwBgAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-08T00:14:19.455Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "dermatologyclinic.csproj",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\dermatologyclinic.csproj",
+              "RelativeDocumentMoniker": "dermatologyclinic\\dermatologyclinic.csproj",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\dermatologyclinic.csproj",
+              "RelativeToolTip": "dermatologyclinic\\dermatologyclinic.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-12-07T21:12:33.148Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AppointmentsController.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\AppointmentsController.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Controllers\\AppointmentsController.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\AppointmentsController.cs",
+              "RelativeToolTip": "dermatologyclinic\\Controllers\\AppointmentsController.cs",
+              "ViewState": "AgIAADYAAAAAAAAAAAAowGYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T19:57:06.486Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "TreatmentReportsController.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\TreatmentReportsController.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Controllers\\TreatmentReportsController.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\TreatmentReportsController.cs",
+              "RelativeToolTip": "dermatologyclinic\\Controllers\\TreatmentReportsController.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAAAiwD4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:58:26.322Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "PrescriptionsController.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\PrescriptionsController.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Controllers\\PrescriptionsController.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\PrescriptionsController.cs",
+              "RelativeToolTip": "dermatologyclinic\\Controllers\\PrescriptionsController.cs",
+              "ViewState": "AgIAACwAAAAAAAAAAAAmwD4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:57:46.606Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "PaymentsController.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\PaymentsController.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Controllers\\PaymentsController.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\PaymentsController.cs",
+              "RelativeToolTip": "dermatologyclinic\\Controllers\\PaymentsController.cs",
+              "ViewState": "AgIAACwAAAAAAAAAAAAmwD4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:57:11.744Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "MedicationsController.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\MedicationsController.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Controllers\\MedicationsController.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\MedicationsController.cs",
+              "RelativeToolTip": "dermatologyclinic\\Controllers\\MedicationsController.cs",
+              "ViewState": "AgIAACwAAAAAAAAAAAAmwD4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:56:03.203Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "TreatmentReport.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\TreatmentReport.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Model\\TreatmentReport.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\TreatmentReport.cs",
+              "RelativeToolTip": "dermatologyclinic\\Model\\TreatmentReport.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAA6wBsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:54:34.057Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Prescription.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Prescription.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Model\\Prescription.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Prescription.cs",
+              "RelativeToolTip": "dermatologyclinic\\Model\\Prescription.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAA6wBwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:54:05.017Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "Medication.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Medication.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Model\\Medication.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Medication.cs",
+              "RelativeToolTip": "dermatologyclinic\\Model\\Medication.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAwwBAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:52:28.846Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "MedicalReport.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\MedicalReport.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Model\\MedicalReport.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\MedicalReport.cs",
+              "RelativeToolTip": "dermatologyclinic\\Model\\MedicalReport.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAmwBwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:51:29.419Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "MedicalReportsController.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\MedicalReportsController.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Controllers\\MedicalReportsController.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\MedicalReportsController.cs",
+              "RelativeToolTip": "dermatologyclinic\\Controllers\\MedicalReportsController.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAcwD4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:50:46.754Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "Feedback.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Feedback.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Model\\Feedback.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Feedback.cs",
+              "RelativeToolTip": "dermatologyclinic\\Model\\Feedback.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAADwvxQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:48:10.902Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "FeedbacksController.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\FeedbacksController.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Controllers\\FeedbacksController.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\FeedbacksController.cs",
+              "RelativeToolTip": "dermatologyclinic\\Controllers\\FeedbacksController.cs",
+              "ViewState": "AgIAACwAAAAAAAAAAAAwwD4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:45:08.036Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Patient.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Patient.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Model\\Patient.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Patient.cs",
+              "RelativeToolTip": "dermatologyclinic\\Model\\Patient.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:01:37.177Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Payment.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Payment.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Model\\Payment.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Payment.cs",
+              "RelativeToolTip": "dermatologyclinic\\Model\\Payment.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAA8wB4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T19:28:18.034Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "AssistantsController..cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\AssistantsController..cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Controllers\\AssistantsController..cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\AssistantsController..cs",
+              "RelativeToolTip": "dermatologyclinic\\Controllers\\AssistantsController..cs",
+              "ViewState": "AgIAACQAAAAAAAAAAAAswD4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:38:21.363Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "Assistant.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Assistant.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Model\\Assistant.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Assistant.cs",
+              "RelativeToolTip": "dermatologyclinic\\Model\\Assistant.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:40:49.471Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "PatientsController.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\PatientsController.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Controllers\\PatientsController.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\PatientsController.cs",
+              "RelativeToolTip": "dermatologyclinic\\Controllers\\PatientsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:07:38.835Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "Appointment.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Appointment.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Model\\Appointment.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Appointment.cs",
+              "RelativeToolTip": "dermatologyclinic\\Model\\Appointment.cs",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAAAAwAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T20:00:24.001Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "Doctor.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Doctor.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Model\\Doctor.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Model\\Doctor.cs",
+              "RelativeToolTip": "dermatologyclinic\\Model\\Doctor.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAswBkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T19:55:44.476Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "DoctorsController.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\DoctorsController.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\Controllers\\DoctorsController.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\Controllers\\DoctorsController.cs",
+              "RelativeToolTip": "dermatologyclinic\\Controllers\\DoctorsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T19:47:51.693Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "dermatologyclinic\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\ApplicationDbContext.cs",
+              "RelativeToolTip": "dermatologyclinic\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAgwBQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-07T19:18:04.953Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
