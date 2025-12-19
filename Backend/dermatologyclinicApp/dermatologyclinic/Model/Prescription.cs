@@ -9,6 +9,16 @@ namespace dermatologyclinicApp.Models
     {
         [Key]
         public int Id { get; set; }
+<<<<<<< HEAD
+        public DateTime PrescriptionDate { get; set; } = DateTime.Now;
+        public string? Instructions { get; set; }
+        public int PatientId { get; set; }
+        public int DoctorId { get; set; }
+        [ForeignKey("PatientId")]
+        public virtual Patient? Patient { get; set; }
+        [ForeignKey("DoctorId")]
+        public virtual Doctor? Doctor { get; set; }
+=======
 
         public DateTime PrescriptionDate { get; set; } = DateTime.Now;
 
@@ -24,6 +34,7 @@ namespace dermatologyclinicApp.Models
         public virtual Doctor? Doctor { get; set; }
 
         // Many-to-many with Medications
+>>>>>>> origin/main
         public virtual ICollection<Medication>? Medications { get; set; }
     }
 }
