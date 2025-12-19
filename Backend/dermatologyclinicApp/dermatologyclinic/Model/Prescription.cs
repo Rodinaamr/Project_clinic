@@ -1,16 +1,22 @@
-﻿namespace dermatologyclinicApp.Models
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace dermatologyclinicApp.Models
 {
     public class Prescription
     {
-        public int ID { get; set; }
-
-        public int ReportID { get; set; }
-        public MedicalReport MedicalReport { get; set; }
-
-        public int DrugID { get; set; }
-        public Medication Medication { get; set; }
-
-        public string Dosage { get; set; }
+        [Key]
+        public int Id { get; set; }
+        public DateTime PrescriptionDate { get; set; } = DateTime.Now;
+        public string? Instructions { get; set; }
+        public int PatientId { get; set; }
+        public int DoctorId { get; set; }
+        [ForeignKey("PatientId")]
+        public virtual Patient? Patient { get; set; }
+        [ForeignKey("DoctorId")]
+        public virtual Doctor? Doctor { get; set; }
+        public virtual ICollection<Medication>? Medications { get; set; }
     }
 }
-

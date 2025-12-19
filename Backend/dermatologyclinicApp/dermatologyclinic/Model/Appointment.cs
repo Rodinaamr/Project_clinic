@@ -1,22 +1,27 @@
-﻿namespace dermatologyclinicApp.Models
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace dermatologyclinicApp.Models
 {
     public class Appointment
     {
-        public int AppointmentID { get; set; }
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public DateTime AppointmentDate { get; set; }
+        
+        // Duration in minutes
+        public int Duration { get; set; } = 30;
 
-        public int PatientID { get; set; }
-        public Patient Patient { get; set; }
-
-        public int DoctorID { get; set; }
-        public Doctor Doctor { get; set; }
-
-        public DateTime Date { get; set; }
-        public TimeSpan StartingTime { get; set; }
-        public TimeSpan EndingTime { get; set; }
-        public string Status { get; set; }
-
-        public ICollection<MedicalReport> MedicalReports { get; set; }
-        public ICollection<Payment> Payments { get; set; }
-        public ICollection<TreatmentReport> TreatmentReports { get; set; }
+        [Required]
+        public string? Status { get; set; } = "Scheduled";
+        public string? Notes { get; set; }
+        public int? PatientId { get; set; }
+        public int? DoctorId { get; set; }
+        [ForeignKey("PatientId")]
+        public virtual Patient? Patient { get; set; }
+        [ForeignKey("DoctorId")]
+        public virtual Doctor? Doctor { get; set; }
     }
 }
