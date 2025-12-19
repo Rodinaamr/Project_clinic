@@ -8,32 +8,32 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import {
-    Activity,
-    AlertCircle,
-    Brain,
-    Calendar,
-    Clock,
-    FileText,
-    FolderOpen,
-    Heart,
-    LogOut,
-    MessageSquare,
-    Shield,
-    Stethoscope,
-    Thermometer,
-    Users
+  Activity,
+  AlertCircle,
+  Brain,
+  Calendar,
+  Clock,
+  FileText,
+  FolderOpen,
+  Heart,
+  LogOut,
+  MessageSquare,
+  Shield,
+  Stethoscope,
+  Thermometer,
+  Users
 } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    Animated,
-    Dimensions,
-    Easing,
-    Image,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
+  Animated,
+  Dimensions,
+  Easing,
+  Image,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import PubMedWidget from '../../components/PubMedWidget';
@@ -161,350 +161,350 @@ export default function DoctorDashboard() {
   );
 
   return (
-    <RequireRole allowedRoles={[ 'doctor' ]}>
+    <RequireRole allowedRoles={['doctor']}>
       <>
         <Stack.Screen options={{ headerShown: false }} />
-        
+
         <LogoutModal
           visible={showLogoutModal}
           onConfirm={confirmLogout}
           onCancel={cancelLogout}
         />
 
-        <View style={[styles.container, { paddingTop: insets.top }]}> 
-        {/* BACKGROUND LAYER */}
-        <View style={styles.backgroundLayer}>
-          <View style={styles.decorativePattern}>
-            {[...Array(12)].map((_, i) => (
-              <View key={i} style={[styles.decorativeDot, { 
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                opacity: 0.03 + Math.random() * 0.07,
-              }]} />
-            ))}
-          </View>
-          
-          {/* Medical Pattern */}
-          <Animated.View style={[styles.patternAnimationContainer, { transform: [{ translateY: floatAnim }] }]}>
-            {renderMedicalPattern()}
-          </Animated.View>
-        </View>
-
-        {/* MAIN CONTENT */}
-        <Animated.ScrollView
-          style={[styles.content, { opacity: fadeAnim }]}
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingBottom: insets.bottom + 40 },
-          ]}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* ENHANCED HEADER SECTION */}
-          <Animated.View 
-            style={[
-              styles.floatingHeader,
-              { transform: [{ translateY: floatAnim }] }
-            ]}
-          >
-            {/* Glow effect behind header */}
-            <View style={styles.headerGlow} />
-            
-            <LinearGradient
-              colors={[Colors.secondary, Colors.goldLight]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.headerContent}
-            >
-              {/* Shimmer effect */}
-              <Animated.View style={[
-                styles.shimmer,
-                { transform: [{ translateX: shimmerTranslate }] }
-              ]} />
-
-              <View style={styles.headerTop}>
-                <View style={styles.userInfo}>
-                  {/* Animated Avatar */}
-                  <Animated.View style={[
-                    styles.avatarContainer,
-                    { transform: [{ scale: pulseAnim }] }
-                  ]}>
-                    <Image 
-                      source={{ uri: user?.photo || '' }} 
-                      style={styles.avatar} 
-                    />
-                    <View style={styles.avatarRing}>
-                      <View style={styles.avatarRingInner} />
-                    </View>
-                    <Shield size={16} color={Colors.white} style={styles.verifiedBadge} />
-                  </Animated.View>
-
-                  <View style={styles.userDetails}>
-                    <View style={styles.greetingRow}>
-                      <Heart size={14} color={Colors.white} />
-                      <Text style={styles.greetingText}>{getGreeting()},</Text>
-                      <Activity size={14} color={Colors.white} style={styles.activityIcon} />
-                    </View>
-
-                    <View style={styles.nameContainer}>
-                      <Text style={styles.userName}>Dr. Wahid Lotfy</Text>
-                      <View style={styles.titleBadge}>
-                        <Text style={styles.titleText}>Dermatology</Text>
-                      </View>
-                    </View>
-
-                    <View style={styles.specialtyRow}>
-                      <Brain size={12} color={Colors.white} />
-                      <Text style={styles.specialtyMain}>& Aesthetic Medicine</Text>
-                    </View>
-                  </View>
-                </View>
-
-                <Pressable onPress={handleLogout} style={styles.logoutButton}>
-                  <LinearGradient
-                    colors={['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.1)']}
-                    style={styles.logoutGradient}
-                  >
-                    <LogOut size={20} color={Colors.white} />
-                  </LinearGradient>
-                </Pressable>
-              </View>
-
-              {/* ENHANCED STATS - KEEPING YOUR COLOR PALETTE */}
-              <View style={styles.statsContainer}>
-                {/* Scheduled - Circular Progress */}
-                <Pressable 
-                  style={styles.statItem}
-                  onPress={() => router.push('/doctor/appointments?filter=scheduled')}
-                >
-                  <View style={styles.statCircle}>
-                    <LinearGradient
-                      colors={[Colors.primary, Colors.secondary]}
-                      style={styles.statCircleGradient}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                    >
-                      <Calendar size={18} color={Colors.white} />
-                    </LinearGradient>
-                  </View>
-                  <View style={styles.statInfo}>
-                    <Text style={styles.statNumber}>{todayAppointments.length}</Text>
-                    <Text style={styles.statLabel}>Scheduled</Text>
-                    <Text style={styles.statSub}>Today</Text>
-                  </View>
-                </Pressable>
-
-                {/* Emergency - Pulsing Alert */}
-                <Pressable 
-                  style={styles.statItem}
-                  onPress={() => router.push('/doctor/appointments?filter=emergency')}
-                >
-                  <Animated.View style={[
-                    styles.emergencyPulse,
-                    { transform: [{ scale: pulseAnim }] }
-                  ]}>
-                    <View style={styles.emergencyCore}>
-                      <AlertCircle size={18} color={Colors.white} />
-                    </View>
-                    {emergencyCases > 0 && (
-                      <View style={styles.emergencyAlert}>
-                        <Text style={styles.emergencyAlertText}>!</Text>
-                      </View>
-                    )}
-                  </Animated.View>
-                  <View style={styles.statInfo}>
-                    <Text style={[styles.statNumber, styles.emergencyNumber]}>
-                      {emergencyCases}
-                    </Text>
-                    <Text style={[styles.statLabel, styles.emergencyLabel]}>
-                      Emergency
-                    </Text>
-                    {emergencyCases > 0 && (
-                      <Text style={styles.emergencyStatus}>Immediate</Text>
-                    )}
-                  </View>
-                </Pressable>
-
-                {/* Completed - Stack Visualization */}
-                <Pressable 
-                  style={styles.statItem}
-                  onPress={() => router.push('/doctor/appointments?filter=completed')}
-                >
-                  <View style={styles.completedStack}>
-                    {[...Array(3)].map((_, i) => (
-                      <View key={i} style={[styles.stackLayer, { top: i * -4 }]} />
-                    ))}
-                    <View style={styles.stackIcon}>
-                      <Users size={18} color={Colors.white} />
-                    </View>
-                  </View>
-                  <View style={styles.statInfo}>
-                    <Text style={styles.statNumber}>
-                      {MOCK_APPOINTMENTS.filter(apt => apt.status === 'completed').length}
-                    </Text>
-                    <Text style={styles.statLabel}>Completed</Text>
-                    <Text style={styles.statSub}>This Month</Text>
-                  </View>
-                </Pressable>
-              </View>
-            </LinearGradient>
-          </Animated.View>
-
-          {/* TODAY'S APPOINTMENTS - ENHANCED CARDS */}
-          <View style={styles.appointmentsSection}>
-            <View style={styles.sectionHeader}>
-              <Stethoscope size={20} color={Colors.primary} />
-              <Text style={styles.sectionTitle}>Today's Appointments</Text>
-              <View style={styles.sectionCount}>
-                <Text style={styles.sectionCountText}>{todayAppointments.length}</Text>
-              </View>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
+          {/* BACKGROUND LAYER */}
+          <View style={styles.backgroundLayer}>
+            <View style={styles.decorativePattern}>
+              {[...Array(12)].map((_, i) => (
+                <View key={i} style={[styles.decorativeDot, {
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  opacity: 0.03 + Math.random() * 0.07,
+                }]} />
+              ))}
             </View>
 
-            {todayAppointments.length === 0 ? (
-              <View style={styles.emptyState}>
-                <View style={styles.emptyIllustration}>
-                  <Calendar size={48} color={Colors.text.secondary} />
-                  <Animated.View style={[
-                    styles.emptyPulse,
-                    { transform: [{ scale: pulseAnim }] }
-                  ]} />
-                </View>
-                <Text style={styles.emptyText}>No appointments for today</Text>
-                <Text style={styles.emptySubtext}>Your schedule is clear</Text>
-              </View>
-            ) : (
-              todayAppointments.map(apt => (
-                <Animated.View
-                  key={apt.id}
-                  style={[
-                    styles.appointmentCard,
-                    { opacity: fadeAnim }
-                  ]}
-                >
-                  <LinearGradient
-                    colors={apt.isEmergency 
-                      ? [`${Colors.status.error}20`, `${Colors.status.error}10`] 
-                      : [Colors.white, Colors.offWhite]
-                    }
-                    style={styles.appointmentGradient}
-                  >
-                    <View style={styles.appointmentHeader}>
-                      <View style={styles.appointmentTime}>
-                        <Clock size={14} color={Colors.text.secondary} />
-                        <Text style={styles.timeText}>{apt.time}</Text>
-                        {apt.isEmergency && (
-                          <View style={styles.emergencyIndicator}>
-                            <View style={styles.emergencyPulseSmall} />
-                            <Thermometer size={10} color={Colors.white} />
-                          </View>
-                        )}
-                      </View>
-
-                      <View style={styles.patientStatus}>
-                        <View style={[
-                          styles.statusDot,
-                          apt.isEmergency && styles.statusDotEmergency
-                        ]} />
-                        <Text style={[
-                          styles.statusText,
-                          apt.isEmergency && styles.statusTextEmergency
-                        ]}>
-                          {apt.isEmergency ? 'EMERGENCY' : 'REGULAR'}
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View style={styles.patientInfo}>
-                      <View style={styles.patientAvatarPlaceholder}>
-                        <Text style={styles.patientInitial}>
-                          {apt.patientName.charAt(0).toUpperCase()}
-                        </Text>
-                      </View>
-                      <View style={styles.patientDetails}>
-                        <Text style={styles.patientName}>{apt.patientName}</Text>
-                        <View style={styles.patientMeta}>
-                          <Text style={styles.specialty}>{apt.specialty}</Text>
-                          <View style={styles.separator} />
-                          <Text style={styles.appointmentType}>Consultation</Text>
-                        </View>
-                      </View>
-                    </View>
-                  </LinearGradient>
-                </Animated.View>
-              ))
-            )}
+            {/* Medical Pattern */}
+            <Animated.View style={[styles.patternAnimationContainer, { transform: [{ translateY: floatAnim }] }]}>
+              {renderMedicalPattern()}
+            </Animated.View>
           </View>
 
-          {/* QUICK ACTIONS - ENHANCED BUT KEEPING YOUR STYLE */}
-          <View style={styles.quickActions}>
-            <Pressable
-              style={styles.actionButton}
-              onPress={() => router.push('/doctor/appointments')}
+          {/* MAIN CONTENT */}
+          <Animated.ScrollView
+            style={[styles.content, { opacity: fadeAnim }]}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingBottom: insets.bottom + 40 },
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* ENHANCED HEADER SECTION */}
+            <Animated.View
+              style={[
+                styles.floatingHeader,
+                { transform: [{ translateY: floatAnim }] }
+              ]}
             >
-              <LinearGradient
-                colors={[Colors.secondary, Colors.primary]}
-                style={styles.actionIconContainer}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <FileText size={22} color={Colors.white} />
-              </LinearGradient>
-              <View style={styles.actionTextContainer}>
-                <Text style={styles.actionText}>View All Appointments</Text>
-                <Text style={styles.actionSubtext}>Schedule & History</Text>
-              </View>
-            </Pressable>
+              {/* Glow effect behind header */}
+              <View style={styles.headerGlow} />
 
-            <Pressable
-              style={styles.actionButton}
-              onPress={() => router.push('/doctor/medical-records')}
-            >
-              <LinearGradient
-                colors={[Colors.primary, Colors.secondary]}
-                style={styles.actionIconContainer}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <FolderOpen size={22} color={Colors.white} />
-              </LinearGradient>
-              <View style={styles.actionTextContainer}>
-                <Text style={styles.actionText}>Medical Records</Text>
-                <Text style={styles.actionSubtext}>Patient Files</Text>
-              </View>
-            </Pressable>
-
-            <Pressable
-              style={styles.actionButton}
-              onPress={() => router.push('/doctor/patient-feedback')}
-            >
               <LinearGradient
                 colors={[Colors.secondary, Colors.goldLight]}
-                style={styles.actionIconContainer}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
+                style={styles.headerContent}
               >
-                <MessageSquare size={22} color={Colors.white} />
-              </LinearGradient>
-              <View style={styles.actionTextContainer}>
-                <Text style={styles.actionText}>Patient Feedback</Text>
-                <Text style={styles.actionSubtext}>Reviews & Ratings</Text>
-              </View>
-            </Pressable>
-          </View>
+                {/* Shimmer effect */}
+                <Animated.View style={[
+                  styles.shimmer,
+                  { transform: [{ translateX: shimmerTranslate }] }
+                ]} />
 
-          <PubMedWidget />
-        </Animated.ScrollView>
-      </View>
-    </>
-  </RequireRole>
+                <View style={styles.headerTop}>
+                  <View style={styles.userInfo}>
+                    {/* Animated Avatar */}
+                    <Animated.View style={[
+                      styles.avatarContainer,
+                      { transform: [{ scale: pulseAnim }] }
+                    ]}>
+                      <Image
+                        source={{ uri: user?.photo || '' }}
+                        style={styles.avatar}
+                      />
+                      <View style={styles.avatarRing}>
+                        <View style={styles.avatarRingInner} />
+                      </View>
+                      <Shield size={16} color={Colors.white} style={styles.verifiedBadge} />
+                    </Animated.View>
+
+                    <View style={styles.userDetails}>
+                      <View style={styles.greetingRow}>
+                        <Heart size={14} color={Colors.white} />
+                        <Text style={styles.greetingText}>{getGreeting()},</Text>
+                        <Activity size={14} color={Colors.white} style={styles.activityIcon} />
+                      </View>
+
+                      <View style={styles.nameContainer}>
+                        <Text style={styles.userName}>Dr. Wahid Lotfy</Text>
+                        <View style={styles.titleBadge}>
+                          <Text style={styles.titleText}>Dermatology</Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.specialtyRow}>
+                        <Brain size={12} color={Colors.white} />
+                        <Text style={styles.specialtyMain}>& Aesthetic Medicine</Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  <Pressable onPress={handleLogout} style={styles.logoutButton}>
+                    <LinearGradient
+                      colors={['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.1)']}
+                      style={styles.logoutGradient}
+                    >
+                      <LogOut size={20} color={Colors.white} />
+                    </LinearGradient>
+                  </Pressable>
+                </View>
+
+                {/* ENHANCED STATS - KEEPING YOUR COLOR PALETTE */}
+                <View style={styles.statsContainer}>
+                  {/* Scheduled - Circular Progress */}
+                  <Pressable
+                    style={styles.statItem}
+                    onPress={() => router.push('/doctor/appointments?filter=scheduled')}
+                  >
+                    <View style={styles.statCircle}>
+                      <LinearGradient
+                        colors={[Colors.primary, Colors.secondary]}
+                        style={styles.statCircleGradient}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                      >
+                        <Calendar size={18} color={Colors.white} />
+                      </LinearGradient>
+                    </View>
+                    <View style={styles.statInfo}>
+                      <Text style={styles.statNumber}>{todayAppointments.length}</Text>
+                      <Text style={styles.statLabel}>Scheduled</Text>
+                      <Text style={styles.statSub}>Today</Text>
+                    </View>
+                  </Pressable>
+
+                  {/* Emergency - Pulsing Alert */}
+                  <Pressable
+                    style={styles.statItem}
+                    onPress={() => router.push('/doctor/appointments?filter=emergency')}
+                  >
+                    <Animated.View style={[
+                      styles.emergencyPulse,
+                      { transform: [{ scale: pulseAnim }] }
+                    ]}>
+                      <View style={styles.emergencyCore}>
+                        <AlertCircle size={18} color={Colors.white} />
+                      </View>
+                      {emergencyCases > 0 && (
+                        <View style={styles.emergencyAlert}>
+                          <Text style={styles.emergencyAlertText}>!</Text>
+                        </View>
+                      )}
+                    </Animated.View>
+                    <View style={styles.statInfo}>
+                      <Text style={[styles.statNumber, styles.emergencyNumber]}>
+                        {emergencyCases}
+                      </Text>
+                      <Text style={[styles.statLabel, styles.emergencyLabel]}>
+                        Emergency
+                      </Text>
+                      {emergencyCases > 0 && (
+                        <Text style={styles.emergencyStatus}>Immediate</Text>
+                      )}
+                    </View>
+                  </Pressable>
+
+                  {/* Completed - Stack Visualization */}
+                  <Pressable
+                    style={styles.statItem}
+                    onPress={() => router.push('/doctor/appointments?filter=completed')}
+                  >
+                    <View style={styles.completedStack}>
+                      {[...Array(3)].map((_, i) => (
+                        <View key={i} style={[styles.stackLayer, { top: i * -4 }]} />
+                      ))}
+                      <View style={styles.stackIcon}>
+                        <Users size={18} color={Colors.white} />
+                      </View>
+                    </View>
+                    <View style={styles.statInfo}>
+                      <Text style={styles.statNumber}>
+                        {MOCK_APPOINTMENTS.filter(apt => apt.status === 'completed').length}
+                      </Text>
+                      <Text style={styles.statLabel}>Completed</Text>
+                      <Text style={styles.statSub}>This Month</Text>
+                    </View>
+                  </Pressable>
+                </View>
+              </LinearGradient>
+            </Animated.View>
+
+            {/* TODAY'S APPOINTMENTS - ENHANCED CARDS */}
+            <View style={styles.appointmentsSection}>
+              <View style={styles.sectionHeader}>
+                <Stethoscope size={20} color={Colors.primary} />
+                <Text style={styles.sectionTitle}>Today's Appointments</Text>
+                <View style={styles.sectionCount}>
+                  <Text style={styles.sectionCountText}>{todayAppointments.length}</Text>
+                </View>
+              </View>
+
+              {todayAppointments.length === 0 ? (
+                <View style={styles.emptyState}>
+                  <View style={styles.emptyIllustration}>
+                    <Calendar size={48} color={Colors.text.secondary} />
+                    <Animated.View style={[
+                      styles.emptyPulse,
+                      { transform: [{ scale: pulseAnim }] }
+                    ]} />
+                  </View>
+                  <Text style={styles.emptyText}>No appointments for today</Text>
+                  <Text style={styles.emptySubtext}>Your schedule is clear</Text>
+                </View>
+              ) : (
+                todayAppointments.map(apt => (
+                  <Animated.View
+                    key={apt.id}
+                    style={[
+                      styles.appointmentCard,
+                      { opacity: fadeAnim }
+                    ]}
+                  >
+                    <LinearGradient
+                      colors={apt.isEmergency
+                        ? [`${Colors.status.error}20`, `${Colors.status.error}10`]
+                        : [Colors.white, Colors.offWhite]
+                      }
+                      style={styles.appointmentGradient}
+                    >
+                      <View style={styles.appointmentHeader}>
+                        <View style={styles.appointmentTime}>
+                          <Clock size={14} color={Colors.text.secondary} />
+                          <Text style={styles.timeText}>{apt.time}</Text>
+                          {apt.isEmergency && (
+                            <View style={styles.emergencyIndicator}>
+                              <View style={styles.emergencyPulseSmall} />
+                              <Thermometer size={10} color={Colors.white} />
+                            </View>
+                          )}
+                        </View>
+
+                        <View style={styles.patientStatus}>
+                          <View style={[
+                            styles.statusDot,
+                            apt.isEmergency && styles.statusDotEmergency
+                          ]} />
+                          <Text style={[
+                            styles.statusText,
+                            apt.isEmergency && styles.statusTextEmergency
+                          ]}>
+                            {apt.isEmergency ? 'EMERGENCY' : 'REGULAR'}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.patientInfo}>
+                        <View style={styles.patientAvatarPlaceholder}>
+                          <Text style={styles.patientInitial}>
+                            {apt.patientName.charAt(0).toUpperCase()}
+                          </Text>
+                        </View>
+                        <View style={styles.patientDetails}>
+                          <Text style={styles.patientName}>{apt.patientName}</Text>
+                          <View style={styles.patientMeta}>
+                            <Text style={styles.specialty}>{apt.specialty}</Text>
+                            <View style={styles.separator} />
+                            <Text style={styles.appointmentType}>Consultation</Text>
+                          </View>
+                        </View>
+                      </View>
+                    </LinearGradient>
+                  </Animated.View>
+                ))
+              )}
+            </View>
+
+            {/* QUICK ACTIONS - ENHANCED BUT KEEPING YOUR STYLE */}
+            <View style={styles.quickActions}>
+              <Pressable
+                style={styles.actionButton}
+                onPress={() => router.push('/doctor/appointments')}
+              >
+                <LinearGradient
+                  colors={[Colors.secondary, Colors.primary]}
+                  style={styles.actionIconContainer}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <FileText size={22} color={Colors.white} />
+                </LinearGradient>
+                <View style={styles.actionTextContainer}>
+                  <Text style={styles.actionText}>View All Appointments</Text>
+                  <Text style={styles.actionSubtext}>Schedule & History</Text>
+                </View>
+              </Pressable>
+
+              <Pressable
+                style={styles.actionButton}
+                onPress={() => router.push('/doctor/medical-records')}
+              >
+                <LinearGradient
+                  colors={[Colors.primary, Colors.secondary]}
+                  style={styles.actionIconContainer}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <FolderOpen size={22} color={Colors.white} />
+                </LinearGradient>
+                <View style={styles.actionTextContainer}>
+                  <Text style={styles.actionText}>Medical Records</Text>
+                  <Text style={styles.actionSubtext}>Patient Files</Text>
+                </View>
+              </Pressable>
+
+              <Pressable
+                style={styles.actionButton}
+                onPress={() => router.push('/doctor/patient-feedback')}
+              >
+                <LinearGradient
+                  colors={[Colors.secondary, Colors.goldLight]}
+                  style={styles.actionIconContainer}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <MessageSquare size={22} color={Colors.white} />
+                </LinearGradient>
+                <View style={styles.actionTextContainer}>
+                  <Text style={styles.actionText}>Patient Feedback</Text>
+                  <Text style={styles.actionSubtext}>Reviews & Ratings</Text>
+                </View>
+              </Pressable>
+            </View>
+
+            <PubMedWidget />
+          </Animated.ScrollView>
+        </View>
+      </>
+    </RequireRole>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
+  container: {
+    flex: 1,
     backgroundColor: Colors.offWhite,
   },
-  
+
   backgroundLayer: {
     position: 'absolute',
     top: 0,
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: Colors.offWhite,
   },
-  
+
   decorativePattern: {
     position: 'absolute',
     top: 0,
@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  
+
   decorativeDot: {
     position: 'absolute',
     width: 40,
@@ -530,35 +530,35 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     opacity: 0.05,
   },
-  
+
   patternAnimationContainer: {
     position: 'absolute',
     top: 100,
     right: 20,
     opacity: 0.1,
   },
-  
+
   medicalPatternContainer: {
     alignItems: 'center',
   },
-  
+
   patternSegment: {
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 6,
   },
-  
+
   patternNode: {
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: Colors.primary,
   },
-  
+
   patternNodeRight: {
     marginLeft: 40,
   },
-  
+
   patternConnection: {
     position: 'absolute',
     width: 40,
@@ -567,16 +567,16 @@ const styles = StyleSheet.create({
     opacity: 0.3,
     left: 8,
   },
-  
+
   content: {
     flex: 1,
   },
-  
+
   scrollContent: {
     padding: 20,
     paddingTop: 10,
   },
-  
+
   floatingHeader: {
     marginBottom: 30,
     borderRadius: 28,
@@ -587,7 +587,7 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 8,
   },
-  
+
   headerGlow: {
     position: 'absolute',
     top: -50,
@@ -598,14 +598,14 @@ const styles = StyleSheet.create({
     opacity: 0.1,
     borderRadius: 75,
   },
-  
+
   headerContent: {
     padding: 24,
     borderRadius: 28,
     position: 'relative',
     overflow: 'hidden',
   },
-  
+
   shimmer: {
     position: 'absolute',
     top: 0,
@@ -615,25 +615,25 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     transform: [{ skewX: '-20deg' }],
   },
-  
+
   headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 30,
   },
-  
-  userInfo: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
+
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 16,
     flex: 1,
   },
-  
+
   avatarContainer: {
     position: 'relative',
   },
-  
+
   avatar: {
     width: 68,
     height: 68,
@@ -641,7 +641,7 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: 'rgba(255, 255, 255, 0.3)',
   },
-  
+
   avatarRing: {
     position: 'absolute',
     top: -6,
@@ -654,7 +654,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   avatarRingInner: {
     width: 76,
     height: 76,
@@ -662,7 +662,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-  
+
   verifiedBadge: {
     position: 'absolute',
     bottom: -2,
@@ -673,42 +673,42 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.white,
   },
-  
+
   userDetails: {
     flex: 1,
   },
-  
+
   greetingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     marginBottom: 6,
   },
-  
-  greetingText: { 
-    fontSize: 14, 
+
+  greetingText: {
+    fontSize: 14,
     color: Colors.white,
     opacity: 0.9,
     fontWeight: '500',
   },
-  
+
   activityIcon: {
     marginLeft: 'auto',
   },
-  
+
   nameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     marginBottom: 8,
   },
-  
-  userName: { 
-    fontSize: 24, 
-    fontWeight: '700', 
+
+  userName: {
+    fontSize: 24,
+    fontWeight: '700',
     color: Colors.white,
   },
-  
+
   titleBadge: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: 10,
@@ -717,32 +717,32 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
   },
-  
-  titleText: { 
-    fontSize: 11, 
-    color: Colors.white, 
+
+  titleText: {
+    fontSize: 11,
+    color: Colors.white,
     fontWeight: '600',
     letterSpacing: 0.5,
   },
-  
+
   specialtyRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  
-  specialtyMain: { 
-    fontSize: 14, 
-    color: Colors.white, 
+
+  specialtyMain: {
+    fontSize: 14,
+    color: Colors.white,
     opacity: 0.8,
     fontWeight: '400',
   },
-  
+
   logoutButton: {
     borderRadius: 16,
     overflow: 'hidden',
   },
-  
+
   logoutGradient: {
     width: 44,
     height: 44,
@@ -752,18 +752,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-  
+
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 12,
   },
-  
+
   statItem: {
     flex: 1,
     alignItems: 'center',
   },
-  
+
   statCircle: {
     width: 60,
     height: 60,
@@ -778,7 +778,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  
+
   statCircleGradient: {
     width: 50,
     height: 50,
@@ -786,7 +786,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   emergencyPulse: {
     width: 60,
     height: 60,
@@ -802,7 +802,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  
+
   emergencyCore: {
     width: 40,
     height: 40,
@@ -811,7 +811,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   emergencyAlert: {
     position: 'absolute',
     top: -5,
@@ -825,13 +825,13 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.status.error,
   },
-  
+
   emergencyAlertText: {
     color: Colors.status.error,
     fontSize: 10,
     fontWeight: '900',
   },
-  
+
   completedStack: {
     width: 60,
     height: 60,
@@ -840,7 +840,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   stackLayer: {
     position: 'absolute',
     width: 50,
@@ -850,7 +850,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: `${Colors.primary}30`,
   },
-  
+
   stackIcon: {
     width: 40,
     height: 40,
@@ -859,44 +859,44 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   statInfo: {
     alignItems: 'center',
   },
-  
-  statNumber: { 
-    fontSize: 24, 
-    fontWeight: '800', 
+
+  statNumber: {
+    fontSize: 24,
+    fontWeight: '800',
     color: Colors.white,
     marginBottom: 2,
     textShadowColor: 'rgba(0, 0, 0, 0.2)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
-  
+
   emergencyNumber: {
     color: Colors.white,
   },
-  
-  statLabel: { 
-    fontSize: 12, 
+
+  statLabel: {
+    fontSize: 12,
     color: Colors.white,
     opacity: 0.9,
     fontWeight: '600',
     marginBottom: 2,
   },
-  
+
   emergencyLabel: {
     color: Colors.white,
   },
-  
+
   statSub: {
     fontSize: 10,
     color: Colors.white,
     opacity: 0.7,
     fontWeight: '500',
   },
-  
+
   emergencyStatus: {
     fontSize: 9,
     color: Colors.white,
@@ -905,11 +905,11 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     opacity: 0.9,
   },
-  
+
   appointmentsSection: {
     marginBottom: 30,
   },
-  
+
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -917,14 +917,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 4,
   },
-  
+
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: Colors.text.primary,
     flex: 1,
   },
-  
+
   sectionCount: {
     backgroundColor: `${Colors.primary}15`,
     paddingHorizontal: 10,
@@ -933,13 +933,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: `${Colors.primary}30`,
   },
-  
+
   sectionCountText: {
     fontSize: 12,
     fontWeight: '700',
     color: Colors.primary,
   },
-  
+
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -955,12 +955,12 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  
+
   emptyIllustration: {
     position: 'relative',
     marginBottom: 16,
   },
-  
+
   emptyPulse: {
     position: 'absolute',
     top: -10,
@@ -971,19 +971,19 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: `${Colors.primary}15`,
   },
-  
+
   emptyText: {
     fontSize: 16,
     fontWeight: '600',
     color: Colors.text.primary,
     marginBottom: 4,
   },
-  
+
   emptySubtext: {
     fontSize: 12,
     color: Colors.text.secondary,
   },
-  
+
   appointmentCard: {
     marginBottom: 12,
     borderRadius: 16,
@@ -994,30 +994,30 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 4,
   },
-  
+
   appointmentGradient: {
     padding: 20,
   },
-  
+
   appointmentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
   },
-  
+
   appointmentTime: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  
-  timeText: { 
-    fontSize: 14, 
-    fontWeight: '600', 
+
+  timeText: {
+    fontSize: 14,
+    fontWeight: '600',
     color: Colors.text.primary,
   },
-  
+
   emergencyIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1027,48 +1027,48 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     gap: 4,
   },
-  
+
   emergencyPulseSmall: {
     width: 6,
     height: 6,
     borderRadius: 3,
     backgroundColor: Colors.white,
   },
-  
+
   patientStatus: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
-  
+
   statusDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
     backgroundColor: Colors.primary,
   },
-  
+
   statusDotEmergency: {
     backgroundColor: Colors.status.error,
   },
-  
+
   statusText: {
     fontSize: 10,
     fontWeight: '700',
     color: Colors.primary,
     letterSpacing: 0.5,
   },
-  
+
   statusTextEmergency: {
     color: Colors.status.error,
   },
-  
+
   patientInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
-  
+
   patientAvatarPlaceholder: {
     width: 44,
     height: 44,
@@ -1077,52 +1077,52 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   patientInitial: {
     fontSize: 18,
     fontWeight: '700',
     color: Colors.white,
   },
-  
+
   patientDetails: {
     flex: 1,
   },
-  
-  patientName: { 
-    fontSize: 16, 
-    fontWeight: '600', 
+
+  patientName: {
+    fontSize: 16,
+    fontWeight: '600',
     color: Colors.text.primary,
     marginBottom: 4,
   },
-  
+
   patientMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  
-  specialty: { 
-    fontSize: 12, 
+
+  specialty: {
+    fontSize: 12,
     color: Colors.text.secondary,
   },
-  
+
   separator: {
     width: 1,
     height: 10,
     backgroundColor: `${Colors.text.secondary}30`,
   },
-  
+
   appointmentType: {
     fontSize: 12,
     color: Colors.primary,
     fontWeight: '500',
   },
-  
+
   quickActions: {
     marginTop: 16,
     gap: 12,
   },
-  
+
   actionButton: {
     backgroundColor: Colors.white,
     borderRadius: 16,
@@ -1136,7 +1136,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  
+
   actionIconContainer: {
     width: 48,
     height: 48,
@@ -1144,18 +1144,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   actionTextContainer: {
     flex: 1,
   },
-  
-  actionText: { 
-    fontSize: 15, 
-    fontWeight: '600', 
+
+  actionText: {
+    fontSize: 15,
+    fontWeight: '600',
     color: Colors.text.primary,
     marginBottom: 2,
   },
-  
+
   actionSubtext: {
     fontSize: 11,
     color: Colors.text.secondary,
