@@ -36,6 +36,79 @@ yarn-error.*
 *.tsbuildinfo
 .vercel
 
+<<<<<<< HEAD
+# Visual Studio / .NET
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+bin/
+obj/
+*.cache
+*.dll
+*.exe
+*.pdb
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+*.DotSettings.user
+.vscode/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options
+.vs/
+.vscode/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+
+# Entity Framework
+*.edmx.diagram
+*.edmx.sql
+
+# Database
+*.mdf
+*.ldf
+*.ndf
+=======
 # Visual Studio and .NET
 .vs/
 **/[Bb]in/
@@ -55,3 +128,4 @@ Backend/**/.vs/
 **/App_Data/
 **/Logs/
 **/node_modules/
+>>>>>>> origin/main
