@@ -32,8 +32,8 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "app/doctor/medical-prescription.tsx",
-    "app/types/**/*.d.ts",  // Add this line
-    "app/types/**/*.ts"     // Add this line
+    "app/types/**/*.d.ts",  
+    "app/types/**/*.ts"     
   ],
   "exclude": [
     "node_modules"
