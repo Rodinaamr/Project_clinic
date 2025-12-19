@@ -36,6 +36,7 @@ yarn-error.*
 *.tsbuildinfo
 .vercel
 
+<<<<<<< HEAD
 # Visual Studio / .NET
 .vs/
 *.suo
@@ -107,3 +108,24 @@ _ReSharper*/
 *.mdf
 *.ldf
 *.ndf
+=======
+# Visual Studio and .NET
+.vs/
+**/[Bb]in/
+**/[Oo]bj/
+*.user
+*.suo
+*.shell_history
+*.userosscache
+*.sln.docstates
+.vs/
+Backend/**/bin/
+Backend/**/obj/
+Backend/**/.vs/
+**/Generated/
+**/bin/
+**/obj/
+**/App_Data/
+**/Logs/
+**/node_modules/
+>>>>>>> origin/main

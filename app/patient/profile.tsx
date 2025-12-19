@@ -1,130 +1,69 @@
-import React, { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 const Profile = () => {
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    fullName: 'Sarah Johnson',
-    email: 'sarah.johnson@example.com',
-    phone: '+1 (555) 123-4567',
-    dateOfBirth: 'March 15, 1990',
-    address: '123 Main St, New York, NY',
+    fullName: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    dateOfBirth: (user as any)?.age ? `${new Date().getFullYear() - (user as any).age}-01-01` : 'Not Set',
+    address: 'Not Set',
     bloodType: 'O+',
-    allergies: 'Penicillin, Peanuts',
-    medications: 'Topical Cream, Vitamins',
+    allergies: 'None',
+    medications: 'None',
   });
 
-  // ===== WORKING BUTTONS =====
+  useEffect(() => {
+    if (user) {
+      setProfile(prev => ({
+        ...prev,
+        fullName: user.name || prev.fullName,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone
+      }));
+    }
+  }, [user]);
 
-  // 1. Edit Profile Button
   const handleEditProfile = () => {
     setIsEditing(true);
     Alert.alert('✏️ Edit Mode', 'You can now edit your profile information.');
   };
 
-  // 2. Save Changes Button
   const handleSaveChanges = () => {
     setIsEditing(false);
-    Alert.alert(
-      '✅ Profile Saved',
-      'Your profile has been updated successfully!',
-      [{ text: 'OK' }]
-    );
+    Alert.alert('✅ Profile Saved', 'Your profile has been updated successfully!');
   };
 
-  // 3. Cancel Edit Button
   const handleCancelEdit = () => {
     setIsEditing(false);
     Alert.alert('Edit Cancelled', 'No changes were made.');
   };
 
-  // 4. Change Photo Button
   const handleChangePhoto = () => {
-    Alert.alert(
-      '📷 Change Profile Photo',
-      'Choose an option:',
-      [
-        {
-          text: '📸 Take Photo',
-          onPress: () => Alert.alert('Camera', 'Opening camera...')
-        },
-        {
-          text: '🖼️ Choose from Gallery',
-          onPress: () => Alert.alert('Gallery', 'Opening photo gallery...')
-        },
-        {
-          text: '👤 Use Default Avatar',
-          onPress: () => Alert.alert('Avatar', 'Default avatar selected')
-        },
-        { text: 'Cancel', style: 'cancel' }
-      ]
-    );
+    Alert.alert('📷 Change Profile Photo', 'Feature coming soon...');
   };
 
-  // 5. Update Field
   const updateField = (field: string, value: string) => {
     setProfile(prev => ({ ...prev, [field]: value }));
   };
 
-  // 6. Verify Email Button
   const handleVerifyEmail = () => {
-    Alert.alert(
-      '📧 Verify Email',
-      'Verification email sent to sarah.johnson@example.com',
-      [
-        { text: 'Resend Email', onPress: () => Alert.alert('Email Resent', 'Check your inbox') },
-        { text: 'Enter Code', onPress: () => showVerificationCodeInput() },
-        { text: 'Cancel', style: 'cancel' }
-      ]
-    );
+    Alert.alert('📧 Verify Email', `Verification email sent to ${profile.email}`);
   };
 
-  const showVerificationCodeInput = () => {
-    Alert.prompt(
-      'Enter Verification Code',
-      'Enter the 6-digit code sent to your email:',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Verify',
-          onPress: (code?: string) => {
-            if (code && code.length === 6) {
-              Alert.alert('✅ Email Verified!', 'Your email has been verified successfully.');
-            } else {
-              Alert.alert('❌ Invalid Code', 'Please enter a valid 6-digit code.');
-            }
-          }
-        }
-      ],
-      'plain-text'
-    );
-  };
-
-  // 7. Download Medical Records
   const handleDownloadRecords = () => {
-    Alert.alert(
-      '📄 Download Records',
-      'Choose format:',
-      [
-        {
-          text: '📋 PDF Format',
-          onPress: () => Alert.alert('Downloading...', 'PDF file will be saved to your device')
-        },
-        {
-          text: '📊 Excel Format',
-          onPress: () => Alert.alert('Downloading...', 'Excel file will be saved to your device')
-        },
-        { text: 'Cancel', style: 'cancel' }
-      ]
-    );
+    Alert.alert('📄 Download Records', 'Generating PDF...');
   };
 
   return (
@@ -135,24 +74,21 @@ const Profile = () => {
       </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        
-        {/* Profile Photo Section */}
         <View style={styles.photoSection}>
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
-              <Text style={styles.avatarText}>SJ</Text>
+              <Text style={styles.avatarText}>{profile.fullName.split(' ').map(n => n[0]).join('').toUpperCase() || 'P'}</Text>
             </View>
             <TouchableOpacity style={styles.changePhotoButton} onPress={handleChangePhoto}>
               <Text style={styles.changePhotoText}>📷 Change Photo</Text>
             </TouchableOpacity>
           </View>
-          
+
           <Text style={styles.profileName}>{profile.fullName}</Text>
           <Text style={styles.profileEmail}>{profile.email}</Text>
-          <Text style={styles.profileId}>Patient ID: PT-12345</Text>
+          <Text style={styles.profileId}>Patient ID: PT-{user?.id || '000'}</Text>
         </View>
 
-        {/* Edit/Save Buttons */}
         <View style={styles.actionButtons}>
           {!isEditing ? (
             <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
@@ -170,96 +106,41 @@ const Profile = () => {
           )}
         </View>
 
-        {/* Personal Information */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Personal Information</Text>
-          
           <View style={styles.infoCard}>
-            <InfoField 
-              label="Full Name" 
-              value={profile.fullName}
-              editable={isEditing}
-              onChange={(value: string) => updateField('fullName', value)}
-            />
-            <InfoField 
-              label="Email" 
+            <InfoField label="Full Name" value={profile.fullName} editable={isEditing} onChange={(v: string) => updateField('fullName', v)} />
+            <InfoField
+              label="Email"
               value={profile.email}
               editable={isEditing}
-              onChange={(value: string) => updateField('email', value)}
-              rightButton={
-                <TouchableOpacity onPress={handleVerifyEmail}>
-                  <Text style={styles.verifyButton}>Verify</Text>
-                </TouchableOpacity>
-              }
+              onChange={(v: string) => updateField('email', v)}
+              rightButton={<TouchableOpacity onPress={handleVerifyEmail}><Text style={styles.verifyButton}>Verify</Text></TouchableOpacity>}
             />
-            <InfoField 
-              label="Phone" 
-              value={profile.phone}
-              editable={isEditing}
-              onChange={(value: string) => updateField('phone', value)}
-            />
-            <InfoField 
-              label="Date of Birth" 
-              value={profile.dateOfBirth}
-              editable={isEditing}
-              onChange={(value: string) => updateField('dateOfBirth', value)}
-            />
-            <InfoField 
-              label="Address" 
-              value={profile.address}
-              editable={isEditing}
-              onChange={(value: string) => updateField('address', value)}
-            />
+            <InfoField label="Phone" value={profile.phone} editable={isEditing} onChange={(v: string) => updateField('phone', v)} />
+            <InfoField label="Date of Birth" value={profile.dateOfBirth} editable={isEditing} onChange={(v: string) => updateField('dateOfBirth', v)} />
+            <InfoField label="Address" value={profile.address} editable={isEditing} onChange={(v: string) => updateField('address', v)} />
           </View>
         </View>
 
-        {/* Medical Information */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Medical Information</Text>
-          
           <View style={styles.infoCard}>
-            <InfoField 
-              label="Blood Type" 
-              value={profile.bloodType}
-              editable={isEditing}
-              onChange={(value: string) => updateField('bloodType', value)}
-            />
-            <InfoField 
-              label="Allergies" 
-              value={profile.allergies}
-              editable={isEditing}
-              onChange={(value: string) => updateField('allergies', value)}
-            />
-            <InfoField 
-              label="Current Medications" 
-              value={profile.medications}
-              editable={isEditing}
-              onChange={(value: string) => updateField('medications', value)}
-            />
+            <InfoField label="Blood Type" value={profile.bloodType} editable={isEditing} onChange={(v: string) => updateField('bloodType', v)} />
+            <InfoField label="Allergies" value={profile.allergies} editable={isEditing} onChange={(v: string) => updateField('allergies', v)} />
+            <InfoField label="Current Medications" value={profile.medications} editable={isEditing} onChange={(v: string) => updateField('medications', v)} />
           </View>
         </View>
 
-        {/* Download Records Button */}
-        <TouchableOpacity 
-          style={styles.downloadButton}
-          onPress={handleDownloadRecords}
-        >
+        <TouchableOpacity style={styles.downloadButton} onPress={handleDownloadRecords}>
           <Text style={styles.downloadButtonText}>📥 Download Medical Records</Text>
         </TouchableOpacity>
 
-        {/* Emergency Contact */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Emergency Contact</Text>
-          
           <View style={styles.emergencyCard}>
             <Text style={styles.emergencyName}>John Johnson (Father)</Text>
             <Text style={styles.emergencyPhone}>📞 +1 (555) 987-6543</Text>
-            <TouchableOpacity 
-              style={styles.editContactButton}
-              onPress={() => Alert.alert('Edit Contact', 'Edit emergency contact feature')}
-            >
-              <Text style={styles.editContactText}>Edit Contact</Text>
-            </TouchableOpacity>
           </View>
         </View>
 
@@ -273,12 +154,7 @@ const InfoField = ({ label, value, editable = false, onChange, rightButton }: an
   <View style={styles.infoField}>
     <Text style={styles.infoLabel}>{label}</Text>
     {editable ? (
-      <TextInput
-        style={styles.infoInput}
-        value={value}
-        onChangeText={onChange}
-        placeholder={value}
-      />
+      <TextInput style={styles.infoInput} value={value} onChangeText={onChange} />
     ) : (
       <View style={styles.valueContainer}>
         <Text style={styles.infoValue}>{value}</Text>

@@ -2,7 +2,10 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+<<<<<<< HEAD
 using Microsoft.EntityFrameworkCore.Metadata;
+=======
+>>>>>>> origin/main
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using dermatologyclinicApp.Models;
 
@@ -18,9 +21,28 @@ namespace dermatologyclinic.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.0")
+<<<<<<< HEAD
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+=======
+                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+
+            modelBuilder.Entity("PrescriptionMedication", b =>
+                {
+                    b.Property<int>("PrescriptionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MedicationId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PrescriptionId", "MedicationId");
+
+                    b.HasIndex("MedicationId");
+
+                    b.ToTable("PrescriptionMedications", (string)null);
+                });
+>>>>>>> origin/main
 
             modelBuilder.Entity("dermatologyclinicApp.Models.Appointment", b =>
                 {
@@ -28,26 +50,42 @@ namespace dermatologyclinic.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+<<<<<<< HEAD
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("AppointmentDate")
                         .HasColumnType("datetime2");
+=======
+                    b.Property<DateTime>("AppointmentDate")
+                        .HasColumnType("datetime(6)");
+>>>>>>> origin/main
 
                     b.Property<int?>("DoctorId")
                         .HasColumnType("int");
 
+<<<<<<< HEAD
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
+=======
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+>>>>>>> origin/main
 
                     b.Property<int?>("PatientId")
                         .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
+<<<<<<< HEAD
                         .HasColumnType("nvarchar(max)");
+=======
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+>>>>>>> origin/main
 
                     b.HasKey("Id");
 
@@ -55,7 +93,11 @@ namespace dermatologyclinic.Migrations
 
                     b.HasIndex("PatientId");
 
+<<<<<<< HEAD
                     b.ToTable("Appointments");
+=======
+                    b.ToTable("Appointments", (string)null);
+>>>>>>> origin/main
                 });
 
             modelBuilder.Entity("dermatologyclinicApp.Models.Assistant", b =>
@@ -64,6 +106,7 @@ namespace dermatologyclinic.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+<<<<<<< HEAD
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
@@ -86,6 +129,37 @@ namespace dermatologyclinic.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Assistants");
+=======
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Role")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Assistants", (string)null);
+>>>>>>> origin/main
                 });
 
             modelBuilder.Entity("dermatologyclinicApp.Models.Doctor", b =>
@@ -94,6 +168,7 @@ namespace dermatologyclinic.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+<<<<<<< HEAD
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
@@ -139,6 +214,37 @@ namespace dermatologyclinic.Migrations
                     b.HasIndex("DoctorId");
 
                     b.ToTable("DoctorAssistants");
+=======
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Specialization")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Doctors", (string)null);
+>>>>>>> origin/main
                 });
 
             modelBuilder.Entity("dermatologyclinicApp.Models.Feedback", b =>
@@ -147,6 +253,7 @@ namespace dermatologyclinic.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+<<<<<<< HEAD
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Comment")
@@ -155,6 +262,15 @@ namespace dermatologyclinic.Migrations
 
                     b.Property<DateTime>("FeedbackDate")
                         .HasColumnType("datetime2");
+=======
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<DateTime>("FeedbackDate")
+                        .HasColumnType("datetime(6)");
+>>>>>>> origin/main
 
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
@@ -166,7 +282,11 @@ namespace dermatologyclinic.Migrations
 
                     b.HasIndex("PatientId");
 
+<<<<<<< HEAD
                     b.ToTable("Feedback");
+=======
+                    b.ToTable("Feedback", (string)null);
+>>>>>>> origin/main
                 });
 
             modelBuilder.Entity("dermatologyclinicApp.Models.MedicalReport", b =>
@@ -175,26 +295,46 @@ namespace dermatologyclinic.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+<<<<<<< HEAD
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Diagnosis")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+=======
+                    b.Property<string>("Diagnosis")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+>>>>>>> origin/main
 
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
 
                     b.Property<string>("Notes")
+<<<<<<< HEAD
                         .HasColumnType("nvarchar(max)");
+=======
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+>>>>>>> origin/main
 
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ReportDate")
+<<<<<<< HEAD
                         .HasColumnType("datetime2");
 
                     b.Property<string>("TreatmentPlan")
                         .HasColumnType("nvarchar(max)");
+=======
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("TreatmentPlan")
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+>>>>>>> origin/main
 
                     b.HasKey("Id");
 
@@ -202,7 +342,11 @@ namespace dermatologyclinic.Migrations
 
                     b.HasIndex("PatientId");
 
+<<<<<<< HEAD
                     b.ToTable("MedicalReports");
+=======
+                    b.ToTable("MedicalReports", (string)null);
+>>>>>>> origin/main
                 });
 
             modelBuilder.Entity("dermatologyclinicApp.Models.Medication", b =>
@@ -211,6 +355,7 @@ namespace dermatologyclinic.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+<<<<<<< HEAD
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Dosage")
@@ -234,6 +379,27 @@ namespace dermatologyclinic.Migrations
                     b.HasIndex("PrescriptionId");
 
                     b.ToTable("Medications");
+=======
+                    b.Property<string>("Dosage")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Instructions")
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Medications", (string)null);
+>>>>>>> origin/main
                 });
 
             modelBuilder.Entity("dermatologyclinicApp.Models.Patient", b =>
@@ -242,6 +408,7 @@ namespace dermatologyclinic.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+<<<<<<< HEAD
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
@@ -267,6 +434,40 @@ namespace dermatologyclinic.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Patients");
+=======
+                    b.Property<string>("Address")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Patients", (string)null);
+>>>>>>> origin/main
                 });
 
             modelBuilder.Entity("dermatologyclinicApp.Models.Payment", b =>
@@ -275,10 +476,15 @@ namespace dermatologyclinic.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+<<<<<<< HEAD
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
+=======
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(10,2)");
+>>>>>>> origin/main
 
                     b.Property<int>("AppointmentId")
                         .HasColumnType("int");
@@ -287,6 +493,7 @@ namespace dermatologyclinic.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("PaymentDate")
+<<<<<<< HEAD
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PaymentMethod")
@@ -296,6 +503,18 @@ namespace dermatologyclinic.Migrations
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+=======
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+>>>>>>> origin/main
 
                     b.HasKey("Id");
 
@@ -303,7 +522,11 @@ namespace dermatologyclinic.Migrations
 
                     b.HasIndex("PatientId");
 
+<<<<<<< HEAD
                     b.ToTable("Payments");
+=======
+                    b.ToTable("Payments", (string)null);
+>>>>>>> origin/main
                 });
 
             modelBuilder.Entity("dermatologyclinicApp.Models.Prescription", b =>
@@ -312,19 +535,31 @@ namespace dermatologyclinic.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+<<<<<<< HEAD
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+=======
+>>>>>>> origin/main
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
 
                     b.Property<string>("Instructions")
+<<<<<<< HEAD
                         .HasColumnType("nvarchar(max)");
+=======
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+>>>>>>> origin/main
 
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("PrescriptionDate")
+<<<<<<< HEAD
                         .HasColumnType("datetime2");
+=======
+                        .HasColumnType("datetime(6)");
+>>>>>>> origin/main
 
                     b.HasKey("Id");
 
@@ -332,7 +567,11 @@ namespace dermatologyclinic.Migrations
 
                     b.HasIndex("PatientId");
 
+<<<<<<< HEAD
                     b.ToTable("Prescriptions");
+=======
+                    b.ToTable("Prescriptions", (string)null);
+>>>>>>> origin/main
                 });
 
             modelBuilder.Entity("dermatologyclinicApp.Models.TreatmentReport", b =>
@@ -341,10 +580,16 @@ namespace dermatologyclinic.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+<<<<<<< HEAD
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+=======
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+>>>>>>> origin/main
 
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
@@ -353,6 +598,7 @@ namespace dermatologyclinic.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Results")
+<<<<<<< HEAD
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("TreatmentDate")
@@ -361,6 +607,18 @@ namespace dermatologyclinic.Migrations
                     b.Property<string>("TreatmentType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+=======
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<DateTime>("TreatmentDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("TreatmentType")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+>>>>>>> origin/main
 
                     b.HasKey("Id");
 
@@ -368,24 +626,54 @@ namespace dermatologyclinic.Migrations
 
                     b.HasIndex("PatientId");
 
+<<<<<<< HEAD
                     b.ToTable("TreatmentReports");
+=======
+                    b.ToTable("TreatmentReports", (string)null);
+                });
+
+            modelBuilder.Entity("PrescriptionMedication", b =>
+                {
+                    b.HasOne("dermatologyclinicApp.Models.Medication", null)
+                        .WithMany()
+                        .HasForeignKey("MedicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("dermatologyclinicApp.Models.Prescription", null)
+                        .WithMany()
+                        .HasForeignKey("PrescriptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+>>>>>>> origin/main
                 });
 
             modelBuilder.Entity("dermatologyclinicApp.Models.Appointment", b =>
                 {
                     b.HasOne("dermatologyclinicApp.Models.Doctor", "Doctor")
                         .WithMany("Appointments")
+<<<<<<< HEAD
                         .HasForeignKey("DoctorId");
 
                     b.HasOne("dermatologyclinicApp.Models.Patient", "Patient")
                         .WithMany("Appointments")
                         .HasForeignKey("PatientId");
+=======
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("dermatologyclinicApp.Models.Patient", "Patient")
+                        .WithMany("Appointments")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.SetNull);
+>>>>>>> origin/main
 
                     b.Navigation("Doctor");
 
                     b.Navigation("Patient");
                 });
 
+<<<<<<< HEAD
             modelBuilder.Entity("dermatologyclinicApp.Models.DoctorAssistant", b =>
                 {
                     b.HasOne("dermatologyclinicApp.Models.Assistant", "Assistant")
@@ -405,6 +693,8 @@ namespace dermatologyclinic.Migrations
                     b.Navigation("Doctor");
                 });
 
+=======
+>>>>>>> origin/main
             modelBuilder.Entity("dermatologyclinicApp.Models.Feedback", b =>
                 {
                     b.HasOne("dermatologyclinicApp.Models.Patient", "Patient")
@@ -421,7 +711,11 @@ namespace dermatologyclinic.Migrations
                     b.HasOne("dermatologyclinicApp.Models.Doctor", "Doctor")
                         .WithMany("MedicalReports")
                         .HasForeignKey("DoctorId")
+<<<<<<< HEAD
                         .OnDelete(DeleteBehavior.Cascade)
+=======
+                        .OnDelete(DeleteBehavior.Restrict)
+>>>>>>> origin/main
                         .IsRequired();
 
                     b.HasOne("dermatologyclinicApp.Models.Patient", "Patient")
@@ -435,6 +729,7 @@ namespace dermatologyclinic.Migrations
                     b.Navigation("Patient");
                 });
 
+<<<<<<< HEAD
             modelBuilder.Entity("dermatologyclinicApp.Models.Medication", b =>
                 {
                     b.HasOne("dermatologyclinicApp.Models.Prescription", null)
@@ -442,18 +737,28 @@ namespace dermatologyclinic.Migrations
                         .HasForeignKey("PrescriptionId");
                 });
 
+=======
+>>>>>>> origin/main
             modelBuilder.Entity("dermatologyclinicApp.Models.Payment", b =>
                 {
                     b.HasOne("dermatologyclinicApp.Models.Appointment", "Appointment")
                         .WithMany()
                         .HasForeignKey("AppointmentId")
+<<<<<<< HEAD
                         .OnDelete(DeleteBehavior.Cascade)
+=======
+                        .OnDelete(DeleteBehavior.Restrict)
+>>>>>>> origin/main
                         .IsRequired();
 
                     b.HasOne("dermatologyclinicApp.Models.Patient", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId")
+<<<<<<< HEAD
                         .OnDelete(DeleteBehavior.Cascade)
+=======
+                        .OnDelete(DeleteBehavior.Restrict)
+>>>>>>> origin/main
                         .IsRequired();
 
                     b.Navigation("Appointment");
@@ -466,7 +771,11 @@ namespace dermatologyclinic.Migrations
                     b.HasOne("dermatologyclinicApp.Models.Doctor", "Doctor")
                         .WithMany("Prescriptions")
                         .HasForeignKey("DoctorId")
+<<<<<<< HEAD
                         .OnDelete(DeleteBehavior.Cascade)
+=======
+                        .OnDelete(DeleteBehavior.Restrict)
+>>>>>>> origin/main
                         .IsRequired();
 
                     b.HasOne("dermatologyclinicApp.Models.Patient", "Patient")
@@ -485,7 +794,11 @@ namespace dermatologyclinic.Migrations
                     b.HasOne("dermatologyclinicApp.Models.Doctor", "Doctor")
                         .WithMany()
                         .HasForeignKey("DoctorId")
+<<<<<<< HEAD
                         .OnDelete(DeleteBehavior.Cascade)
+=======
+                        .OnDelete(DeleteBehavior.Restrict)
+>>>>>>> origin/main
                         .IsRequired();
 
                     b.HasOne("dermatologyclinicApp.Models.Patient", "Patient")
@@ -516,11 +829,14 @@ namespace dermatologyclinic.Migrations
 
                     b.Navigation("Prescriptions");
                 });
+<<<<<<< HEAD
 
             modelBuilder.Entity("dermatologyclinicApp.Models.Prescription", b =>
                 {
                     b.Navigation("Medications");
                 });
+=======
+>>>>>>> origin/main
 #pragma warning restore 612, 618
         }
     }

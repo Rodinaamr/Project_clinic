@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { assistantApi } from './services/api';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -22,6 +23,32 @@ export default function LandingPage() {
   const slideAnim = useRef(new Animated.Value(50)).current;
   const scaleAnim1 = useRef(new Animated.Value(0.8)).current;
   const scaleAnim2 = useRef(new Animated.Value(0.8)).current;
+
+  // ==================== BACKEND CONNECTION TEST ====================
+  useEffect(() => {
+    // Test backend connection automatically on app start
+    const testBackendConnection = async () => {
+      try {
+        console.log('🧪 Auto-testing backend connection...');
+        const response = await assistantApi.getAll();
+        console.log('✅ BACKEND CONNECTED!', {
+          status: response.status,
+          data: response.data,
+          count: response.data.length
+        });
+        console.log('🌐 Frontend (Expo) successfully connected to backend (ASP.NET)!');
+      } catch (error: any) {
+        console.error('❌ BACKEND CONNECTION FAILED:', error.message);
+        console.log('💡 Troubleshooting:');
+        console.log('1. Is backend running? (Visual Studio F5)');
+        console.log('2. Check: https://localhost:7078/api/Assistants');
+        console.log('3. CORS enabled in Program.cs?');
+      }
+    };
+
+    testBackendConnection();
+  }, []);
+  // ==================== END CONNECTION TEST ====================
 
   useEffect(() => {
     if (isAuthenticated && user) {
