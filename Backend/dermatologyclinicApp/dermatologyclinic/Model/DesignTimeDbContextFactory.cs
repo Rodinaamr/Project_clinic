@@ -5,21 +5,25 @@ using System.IO;
 
 namespace dermatologyclinicApp.Models
 {
-    public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
+    public class DesignTimeDbContextFactory
+        : IDesignTimeDbContextFactory<ApplicationDbContext>
     {
         public ApplicationDbContext CreateDbContext(string[] args)
         {
-            IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
+            var basePath = Directory.GetCurrentDirectory();
+
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(basePath)
+                .AddJsonFile("appsettings.json", optional: false)
                 .Build();
 
-            var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
-            builder.UseSqlServer(connectionString);
+            optionsBuilder.UseMySQL(
+                configuration.GetConnectionString("DefaultConnection")
+            );
 
-            return new ApplicationDbContext(builder.Options);
+            return new ApplicationDbContext(optionsBuilder.Options);
         }
     }
 }

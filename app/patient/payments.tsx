@@ -1,20 +1,39 @@
+import { paymentsApi } from '@/app/services';
 import Colors from '@/constants/colors';
-import { MOCK_PAYMENTS } from '@/constants/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { Stack } from 'expo-router';
 import { CreditCard } from 'lucide-react-native';
-import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function PaymentsPage() {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  
-  const userPayments = MOCK_PAYMENTS.filter(p => p.patientId === user?.id);
-  const totalPaid = userPayments
-    .filter(p => p.status === 'paid')
-    .reduce((sum, p) => sum + p.amount, 0);
+  const [payments, setPayments] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPayments = async () => {
+      if (!user?.id) return;
+      try {
+        const response = await paymentsApi.getAll();
+        if (response.data) {
+          const userPayments = response.data.filter((p: any) => String(p.patientId) === String(user.id));
+          setPayments(userPayments);
+        }
+      } catch (err) {
+        console.error('Error fetching payments:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPayments();
+  }, [user?.id]);
+
+  const totalPaid = payments
+    .filter(p => p.status === 'Paid')
+    .reduce((sum, p) => sum + Number(p.amount), 0);
 
   return (
     <>
@@ -32,46 +51,53 @@ export default function PaymentsPage() {
           { paddingBottom: insets.bottom + 20 },
         ]}
       >
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryLabel}>Total Paid</Text>
-          <Text style={styles.summaryAmount}>${totalPaid}</Text>
-        </View>
-
-        {userPayments.map((payment) => (
-          <View key={payment.id} style={styles.paymentCard}>
-            <View style={styles.paymentHeader}>
-              <CreditCard size={20} color={Colors.gold} />
-              <View style={styles.paymentInfo}>
-                <Text style={styles.paymentName}>{payment.treatmentName}</Text>
-                <Text style={styles.paymentDate}>
-                  {new Date(payment.date).toLocaleDateString()}
-                </Text>
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.gold} />
+            <Text style={styles.loadingText}>Fetching your payments...</Text>
+          </View>
+        ) : payments.length > 0 ? (
+          payments.map((payment: any) => (
+            <View key={payment.id} style={styles.paymentCard}>
+              <View style={styles.paymentHeader}>
+                <CreditCard size={20} color={Colors.gold} />
+                <View style={styles.paymentInfo}>
+                  <Text style={styles.paymentName}>{payment.paymentMethod || 'Hospital Care'}</Text>
+                  <Text style={styles.paymentDate}>
+                    {new Date(payment.paymentDate).toLocaleDateString()}
+                  </Text>
+                </View>
               </View>
-            </View>
-            <View style={styles.paymentFooter}>
-              <Text style={styles.paymentAmount}>${payment.amount}</Text>
-              <View
-                style={[
-                  styles.statusBadge,
-                  payment.status === 'paid'
-                    ? styles.statusPaid
-                    : styles.statusPending,
-                ]}
-              >
-                <Text
+              <View style={styles.paymentFooter}>
+                <Text style={styles.paymentAmount}>${payment.amount}</Text>
+                <View
                   style={[
-                    styles.statusText,
-                    payment.status === 'paid'
-                      ? styles.statusTextPaid
-                      : styles.statusTextPending,
+                    styles.statusBadge,
+                    payment.status === 'Paid'
+                      ? styles.statusPaid
+                      : styles.statusPending,
                   ]}
                 >
-                  {payment.status === 'paid' ? 'Paid' : 'Pending'}
-                </Text>
+                  <Text
+                    style={[
+                      styles.statusText,
+                      payment.status === 'Paid'
+                        ? styles.statusTextPaid
+                        : styles.statusTextPending,
+                    ]}
+                  >
+                    {payment.status}
+                  </Text>
+                </View>
               </View>
             </View>
+          ))
+        ) : (
+          <View style={styles.emptyState}>
+            <CreditCard size={64} color={Colors.border.medium} />
+            <Text style={styles.emptyText}>No payment history found</Text>
           </View>
-        ))}
+        )}
       </ScrollView>
     </>
   );
@@ -167,5 +193,25 @@ const styles = StyleSheet.create({
   },
   statusTextPending: {
     color: Colors.status.pending,
+  },
+  loadingContainer: {
+    paddingVertical: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: Colors.text.secondary,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: Colors.text.secondary,
+    marginTop: 16,
   },
 });

@@ -1,29 +1,29 @@
+import { appointmentsApi } from '@/app/services';
 import LogoutModal from '@/components/LogoutModal';
 import RequireRole from '@/components/RequireRole';
 import Colors from '@/constants/colors';
-import { MOCK_APPOINTMENTS } from '@/constants/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import {
-    Bell,
-    Calendar,
-    Clock,
-    CreditCard,
-    FileText,
-    LogOut,
-    MessageSquare,
-    Phone,
+  Bell,
+  Calendar,
+  Clock,
+  CreditCard,
+  FileText,
+  LogOut,
+  MessageSquare,
+  Phone,
 } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    Animated,
-    Image,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
+  Animated,
+  Image,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -36,9 +36,7 @@ export default function PatientDashboard() {
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [nextAppointment] = useState(
-    MOCK_APPOINTMENTS.find(apt => apt.patientId === user?.id && apt.status === 'reserved')
-  );
+  const [nextAppointment, setNextAppointment] = useState<any>(null); // Start null, fetch async
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -46,7 +44,45 @@ export default function PatientDashboard() {
       duration: 600,
       useNativeDriver: true,
     }).start();
-  }, [fadeAnim]);
+
+    // Fetch appointments
+    const fetchAppointments = async () => {
+      if (!user?.id) return;
+      try {
+        const response = await appointmentsApi.getAll();
+        if (response.data) {
+          // Filter for this patient
+          // Note: User ID in auth is string, backend IDs are int usually. Comparison needs care.
+          const myAppointments = response.data.filter((apt: any) =>
+            String(apt.patientId) === String(user.id) &&
+            apt.status !== 'canceled' &&
+            apt.status !== 'completed'
+          );
+
+          // Sort by date to find next one
+          myAppointments.sort((a: any, b: any) => new Date(a.appointmentDate).getTime() - new Date(b.appointmentDate).getTime());
+
+          // Find first one in future or today
+          const now = new Date();
+          now.setHours(0, 0, 0, 0);
+          const next = myAppointments.find((apt: any) => new Date(apt.appointmentDate) >= now);
+
+          if (next) {
+            setNextAppointment({
+              date: next.appointmentDate,
+              time: new Date(next.appointmentDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              specialty: next.notes?.split(',')[0]?.replace('Specialty: ', '') || 'General',
+              status: next.status
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch appointments for dashboard:', err);
+      }
+    };
+
+    fetchAppointments();
+  }, [fadeAnim, user?.id]);
 
   const handleLogout = () => {
     setShowLogoutModal(true);
@@ -111,7 +147,7 @@ export default function PatientDashboard() {
   ];
 
   return (
-    <RequireRole allowedRoles={[ 'patient' ]}>
+    <RequireRole allowedRoles={['patient']}>
       <>
         <Stack.Screen options={{ headerShown: false }} />
         <LogoutModal
@@ -119,82 +155,82 @@ export default function PatientDashboard() {
           onConfirm={confirmLogout}
           onCancel={cancelLogout}
         />
-        <View style={[styles.container, { paddingTop: insets.top }]}> 
-        <LinearGradient
-          colors={[Colors.primary, Colors.primaryDark]}
-          style={styles.header}
-        >
-          <View style={styles.headerTop}>
-            <View style={styles.userInfo}>
-              <Image
-                source={{ uri: user?.photo }}
-                style={styles.avatar}
-              />
-              <View>
-                <Text style={styles.welcomeText}>Welcome back,</Text>
-                <Text style={styles.userName}>{user?.name}</Text>
+        <View style={[styles.container, { paddingTop: insets.top }]}>
+          <LinearGradient
+            colors={[Colors.primary, Colors.primaryDark]}
+            style={styles.header}
+          >
+            <View style={styles.headerTop}>
+              <View style={styles.userInfo}>
+                <Image
+                  source={{ uri: user?.photo }}
+                  style={styles.avatar}
+                />
+                <View>
+                  <Text style={styles.welcomeText}>Welcome back,</Text>
+                  <Text style={styles.userName}>{user?.name}</Text>
+                </View>
               </View>
+              <Pressable onPress={handleLogout} style={styles.logoutButton}>
+                <LogOut size={24} color={Colors.white} />
+              </Pressable>
             </View>
-            <Pressable onPress={handleLogout} style={styles.logoutButton}>
-              <LogOut size={24} color={Colors.white} />
-            </Pressable>
-          </View>
 
-          {nextAppointment && (
-            <View style={styles.notificationCard}>
-              <View style={styles.notificationIcon}>
-                <Bell size={20} color={Colors.primary} />
-              </View>
-              <View style={styles.notificationContent}>
-                <Text style={styles.notificationTitle}>Next Appointment</Text>
-                <View style={styles.appointmentDetails}>
-                  <Clock size={14} color={Colors.text.secondary} />
-                  <Text style={styles.appointmentText}>
-                    {new Date(nextAppointment.date).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}{' '}
-                    at {nextAppointment.time}
+            {nextAppointment && (
+              <View style={styles.notificationCard}>
+                <View style={styles.notificationIcon}>
+                  <Bell size={20} color={Colors.primary} />
+                </View>
+                <View style={styles.notificationContent}>
+                  <Text style={styles.notificationTitle}>Next Appointment</Text>
+                  <View style={styles.appointmentDetails}>
+                    <Clock size={14} color={Colors.text.secondary} />
+                    <Text style={styles.appointmentText}>
+                      {new Date(nextAppointment.date).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}{' '}
+                      at {nextAppointment.time}
+                    </Text>
+                  </View>
+                  <Text style={styles.appointmentSpecialty}>
+                    {nextAppointment.specialty}
                   </Text>
                 </View>
-                <Text style={styles.appointmentSpecialty}>
-                  {nextAppointment.specialty}
-                </Text>
               </View>
-            </View>
-          )}
-        </LinearGradient>
+            )}
+          </LinearGradient>
 
-        <Animated.ScrollView
-          style={styles.content}
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingBottom: insets.bottom + 20 },
-          ]}
-          showsVerticalScrollIndicator={false}
-        >
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          
-          <View style={styles.menuGrid}>
-            {menuItems.map((item, index) => (
-              <Pressable
-                key={index}
-                style={({ pressed }) => [
-                  styles.menuItem,
-                  pressed && styles.menuItemPressed,
-                ]}
-                onPress={() => router.push(item.route)}
-              >
-                <View style={[styles.menuIconContainer, { backgroundColor: `${item.color}20` }]}>
-                  <item.icon size={24} color={item.color} strokeWidth={2} />
-                </View>
-                <Text style={styles.menuTitle}>{item.title}</Text>
-                <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
-              </Pressable>
-            ))}
-          </View>
-        </Animated.ScrollView>
+          <Animated.ScrollView
+            style={styles.content}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingBottom: insets.bottom + 20 },
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
+            <Text style={styles.sectionTitle}>Quick Actions</Text>
+
+            <View style={styles.menuGrid}>
+              {menuItems.map((item, index) => (
+                <Pressable
+                  key={index}
+                  style={({ pressed }) => [
+                    styles.menuItem,
+                    pressed && styles.menuItemPressed,
+                  ]}
+                  onPress={() => router.push(item.route)}
+                >
+                  <View style={[styles.menuIconContainer, { backgroundColor: `${item.color}20` }]}>
+                    <item.icon size={24} color={item.color} strokeWidth={2} />
+                  </View>
+                  <Text style={styles.menuTitle}>{item.title}</Text>
+                  <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </Animated.ScrollView>
         </View>
       </>
     </RequireRole>

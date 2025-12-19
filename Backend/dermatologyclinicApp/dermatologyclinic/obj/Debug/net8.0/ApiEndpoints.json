@@ -1,12 +1,18 @@
 [
   {
     "ContainingType": "dermatologyclinicApp.Controllers.AppointmentsController",
-    "Method": "GetAppointments",
+    "Method": "GetUpcomingAppointments",
     "RelativePath": "api/Appointments",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "days",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": [
       {
         "Type": "System.Collections.Generic.IEnumerable\u00601[[dermatologyclinicApp.Models.Appointment, dermatologyclinic, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
@@ -21,7 +27,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.AppointmentsController",
-    "Method": "PostAppointment",
+    "Method": "CreateAppointment",
     "RelativePath": "api/Appointments",
     "HttpMethod": "POST",
     "IsController": true,
@@ -47,15 +53,20 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.AppointmentsController",
-    "Method": "GetAppointment",
+    "Method": "UpdateAppointment",
     "RelativePath": "api/Appointments/{id}",
-    "HttpMethod": "GET",
+    "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "id",
         "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "appointment",
+        "Type": "dermatologyclinicApp.Models.Appointment",
         "IsRequired": true
       }
     ],
@@ -73,28 +84,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.AppointmentsController",
-    "Method": "PutAppointment",
-    "RelativePath": "api/Appointments/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "appointment",
-        "Type": "dermatologyclinicApp.Models.Appointment",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "dermatologyclinicApp.Controllers.AppointmentsController",
-    "Method": "DeleteAppointment",
+    "Method": "CancelAppointment",
     "RelativePath": "api/Appointments/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
@@ -109,8 +99,28 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "dermatologyclinicApp.Controllers.AppointmentsController",
+    "Method": "GetTodayAppointments",
+    "RelativePath": "api/Appointments/today",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[dermatologyclinicApp.Models.Appointment, dermatologyclinic, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "dermatologyclinicApp.Controllers.AssistantsController",
-    "Method": "GetAssistants",
+    "Method": "GetAll",
     "RelativePath": "api/Assistants",
     "HttpMethod": "GET",
     "IsController": true,
@@ -130,7 +140,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.AssistantsController",
-    "Method": "PostAssistant",
+    "Method": "Create",
     "RelativePath": "api/Assistants",
     "HttpMethod": "POST",
     "IsController": true,
@@ -156,7 +166,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.AssistantsController",
-    "Method": "GetAssistant",
+    "Method": "GetById",
     "RelativePath": "api/Assistants/{id}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -182,7 +192,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.AssistantsController",
-    "Method": "PutAssistant",
+    "Method": "Update",
     "RelativePath": "api/Assistants/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
@@ -203,7 +213,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.AssistantsController",
-    "Method": "DeleteAssistant",
+    "Method": "Delete",
     "RelativePath": "api/Assistants/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
@@ -218,8 +228,96 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "dermatologyclinicApp.Controllers.DoctorAssistantsController",
+    "Method": "GetAll",
+    "RelativePath": "api/DoctorAssistants",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[dermatologyclinicApp.Models.DoctorAssistant, dermatologyclinic, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "dermatologyclinicApp.Controllers.DoctorAssistantsController",
+    "Method": "Create",
+    "RelativePath": "api/DoctorAssistants",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "doctorAssistant",
+        "Type": "dermatologyclinicApp.Models.DoctorAssistant",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "dermatologyclinicApp.Models.DoctorAssistant",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "dermatologyclinicApp.Controllers.DoctorAssistantsController",
+    "Method": "GetById",
+    "RelativePath": "api/DoctorAssistants/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "dermatologyclinicApp.Models.DoctorAssistant",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "dermatologyclinicApp.Controllers.DoctorAssistantsController",
+    "Method": "Delete",
+    "RelativePath": "api/DoctorAssistants/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "dermatologyclinicApp.Controllers.DoctorsController",
-    "Method": "GetDoctors",
+    "Method": "GetAll",
     "RelativePath": "api/Doctors",
     "HttpMethod": "GET",
     "IsController": true,
@@ -239,33 +337,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.DoctorsController",
-    "Method": "PostDoctor",
-    "RelativePath": "api/Doctors",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "doctor",
-        "Type": "dermatologyclinicApp.Models.Doctor",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "dermatologyclinicApp.Models.Doctor",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "dermatologyclinicApp.Controllers.DoctorsController",
-    "Method": "GetDoctor",
+    "Method": "GetById",
     "RelativePath": "api/Doctors/{id}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -291,44 +363,69 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.DoctorsController",
-    "Method": "PutDoctor",
-    "RelativePath": "api/Doctors/{id}",
-    "HttpMethod": "PUT",
+    "Method": "GetAvailable",
+    "RelativePath": "api/Doctors/available",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
+        "Name": "date",
+        "Type": "System.DateTime",
+        "IsRequired": false
       },
       {
-        "Name": "doctor",
-        "Type": "dermatologyclinicApp.Models.Doctor",
-        "IsRequired": true
+        "Name": "startTime",
+        "Type": "System.TimeSpan",
+        "IsRequired": false
+      },
+      {
+        "Name": "endTime",
+        "Type": "System.TimeSpan",
+        "IsRequired": false
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[dermatologyclinicApp.Models.Doctor, dermatologyclinic, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.DoctorsController",
-    "Method": "DeleteDoctor",
-    "RelativePath": "api/Doctors/{id}",
-    "HttpMethod": "DELETE",
+    "Method": "GetBySpeciality",
+    "RelativePath": "api/Doctors/speciality/{speciality}",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "id",
-        "Type": "System.Int32",
+        "Name": "speciality",
+        "Type": "System.String",
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[dermatologyclinicApp.Models.Doctor, dermatologyclinic, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.FeedbacksController",
-    "Method": "GetFeedbacks",
+    "Method": "GetAll",
     "RelativePath": "api/Feedbacks",
     "HttpMethod": "GET",
     "IsController": true,
@@ -348,7 +445,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.FeedbacksController",
-    "Method": "PostFeedback",
+    "Method": "Create",
     "RelativePath": "api/Feedbacks",
     "HttpMethod": "POST",
     "IsController": true,
@@ -374,7 +471,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.FeedbacksController",
-    "Method": "GetFeedback",
+    "Method": "GetById",
     "RelativePath": "api/Feedbacks/{id}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -400,7 +497,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.FeedbacksController",
-    "Method": "PutFeedback",
+    "Method": "Update",
     "RelativePath": "api/Feedbacks/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
@@ -421,7 +518,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.FeedbacksController",
-    "Method": "DeleteFeedback",
+    "Method": "Delete",
     "RelativePath": "api/Feedbacks/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
@@ -437,7 +534,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.MedicalReportsController",
-    "Method": "GetMedicalReports",
+    "Method": "GetAll",
     "RelativePath": "api/MedicalReports",
     "HttpMethod": "GET",
     "IsController": true,
@@ -457,7 +554,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.MedicalReportsController",
-    "Method": "PostMedicalReport",
+    "Method": "Create",
     "RelativePath": "api/MedicalReports",
     "HttpMethod": "POST",
     "IsController": true,
@@ -483,7 +580,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.MedicalReportsController",
-    "Method": "GetMedicalReport",
+    "Method": "GetById",
     "RelativePath": "api/MedicalReports/{id}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -509,7 +606,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.MedicalReportsController",
-    "Method": "PutMedicalReport",
+    "Method": "Update",
     "RelativePath": "api/MedicalReports/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
@@ -530,7 +627,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.MedicalReportsController",
-    "Method": "DeleteMedicalReport",
+    "Method": "Delete",
     "RelativePath": "api/MedicalReports/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
@@ -546,7 +643,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.MedicationsController",
-    "Method": "GetMedications",
+    "Method": "GetAll",
     "RelativePath": "api/Medications",
     "HttpMethod": "GET",
     "IsController": true,
@@ -566,7 +663,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.MedicationsController",
-    "Method": "PostMedication",
+    "Method": "Create",
     "RelativePath": "api/Medications",
     "HttpMethod": "POST",
     "IsController": true,
@@ -592,7 +689,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.MedicationsController",
-    "Method": "GetMedication",
+    "Method": "GetById",
     "RelativePath": "api/Medications/{id}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -618,7 +715,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.MedicationsController",
-    "Method": "PutMedication",
+    "Method": "Update",
     "RelativePath": "api/Medications/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
@@ -639,7 +736,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.MedicationsController",
-    "Method": "DeleteMedication",
+    "Method": "Delete",
     "RelativePath": "api/Medications/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
@@ -655,12 +752,18 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.PatientsController",
-    "Method": "GetPatients",
+    "Method": "Search",
     "RelativePath": "api/Patients",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "query",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": [
       {
         "Type": "System.Collections.Generic.IEnumerable\u00601[[dermatologyclinicApp.Models.Patient, dermatologyclinic, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
@@ -675,7 +778,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.PatientsController",
-    "Method": "PostPatient",
+    "Method": "Register",
     "RelativePath": "api/Patients",
     "HttpMethod": "POST",
     "IsController": true,
@@ -701,7 +804,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.PatientsController",
-    "Method": "GetPatient",
+    "Method": "GetById",
     "RelativePath": "api/Patients/{id}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -726,45 +829,8 @@
     ]
   },
   {
-    "ContainingType": "dermatologyclinicApp.Controllers.PatientsController",
-    "Method": "PutPatient",
-    "RelativePath": "api/Patients/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "patient",
-        "Type": "dermatologyclinicApp.Models.Patient",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "dermatologyclinicApp.Controllers.PatientsController",
-    "Method": "DeletePatient",
-    "RelativePath": "api/Patients/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
     "ContainingType": "dermatologyclinicApp.Controllers.PaymentsController",
-    "Method": "GetPayments",
+    "Method": "GetAll",
     "RelativePath": "api/Payments",
     "HttpMethod": "GET",
     "IsController": true,
@@ -784,7 +850,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.PaymentsController",
-    "Method": "PostPayment",
+    "Method": "Create",
     "RelativePath": "api/Payments",
     "HttpMethod": "POST",
     "IsController": true,
@@ -810,7 +876,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.PaymentsController",
-    "Method": "GetPayment",
+    "Method": "GetById",
     "RelativePath": "api/Payments/{id}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -836,7 +902,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.PaymentsController",
-    "Method": "PutPayment",
+    "Method": "Update",
     "RelativePath": "api/Payments/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
@@ -857,7 +923,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.PaymentsController",
-    "Method": "DeletePayment",
+    "Method": "Delete",
     "RelativePath": "api/Payments/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
@@ -873,7 +939,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.PrescriptionsController",
-    "Method": "GetPrescriptions",
+    "Method": "GetAll",
     "RelativePath": "api/Prescriptions",
     "HttpMethod": "GET",
     "IsController": true,
@@ -893,7 +959,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.PrescriptionsController",
-    "Method": "PostPrescription",
+    "Method": "Create",
     "RelativePath": "api/Prescriptions",
     "HttpMethod": "POST",
     "IsController": true,
@@ -919,7 +985,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.PrescriptionsController",
-    "Method": "GetPrescription",
+    "Method": "GetById",
     "RelativePath": "api/Prescriptions/{id}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -945,7 +1011,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.PrescriptionsController",
-    "Method": "PutPrescription",
+    "Method": "Update",
     "RelativePath": "api/Prescriptions/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
@@ -966,7 +1032,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.PrescriptionsController",
-    "Method": "DeletePrescription",
+    "Method": "Delete",
     "RelativePath": "api/Prescriptions/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
@@ -982,7 +1048,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.TreatmentReportsController",
-    "Method": "GetTreatmentReports",
+    "Method": "GetAll",
     "RelativePath": "api/TreatmentReports",
     "HttpMethod": "GET",
     "IsController": true,
@@ -1002,7 +1068,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.TreatmentReportsController",
-    "Method": "PostTreatmentReport",
+    "Method": "Create",
     "RelativePath": "api/TreatmentReports",
     "HttpMethod": "POST",
     "IsController": true,
@@ -1028,7 +1094,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.TreatmentReportsController",
-    "Method": "GetTreatmentReport",
+    "Method": "GetById",
     "RelativePath": "api/TreatmentReports/{id}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -1054,7 +1120,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.TreatmentReportsController",
-    "Method": "PutTreatmentReport",
+    "Method": "Update",
     "RelativePath": "api/TreatmentReports/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
@@ -1075,7 +1141,7 @@
   },
   {
     "ContainingType": "dermatologyclinicApp.Controllers.TreatmentReportsController",
-    "Method": "DeleteTreatmentReport",
+    "Method": "Delete",
     "RelativePath": "api/TreatmentReports/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
@@ -1088,5 +1154,122 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "dermatologyclinic.Controllers.UsersController",
+    "Method": "Get",
+    "RelativePath": "api/Users",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "dermatologyclinic.Controllers.UsersController",
+    "Method": "Post",
+    "RelativePath": "api/Users",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "value",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "dermatologyclinic.Controllers.UsersController",
+    "Method": "Get",
+    "RelativePath": "api/Users/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.String",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "dermatologyclinic.Controllers.UsersController",
+    "Method": "Put",
+    "RelativePath": "api/Users/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "value",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "dermatologyclinic.Controllers.UsersController",
+    "Method": "Delete",
+    "RelativePath": "api/Users/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
   }
 ]

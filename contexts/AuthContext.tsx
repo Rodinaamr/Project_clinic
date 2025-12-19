@@ -1,5 +1,6 @@
 import createContextHook from '@nkzw/create-context-hook';
 import { useCallback, useMemo, useState } from 'react';
+import { patientsApi as patientApi } from '../app/services';
 
 const ROLE_IMAGES = {
   patient: 'https://cdn-icons-png.flaticon.com/512/3001/3001764.png',
@@ -72,17 +73,43 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 800));
 
-    const credentials = MOCK_CREDENTIALS[email.toLowerCase()];
-
-    if (credentials && credentials.password === password) {
-      const foundUser = MOCK_USERS.find((u) => u.id === credentials.userId);
-      if (foundUser) {
-        setUser(foundUser);
-        setIsLoading(false);
-        return true;
+    try {
+      // 1. Try Backend Login
+      try {
+        const response = await patientApi.login({ email, password });
+        if (response.data) {
+          const p = response.data;
+          const newUser: User = {
+            id: String(p.id),
+            name: `${p.firstName} ${p.lastName}`,
+            email: p.email,
+            role: 'patient', // Assuming patient login for now
+            phone: p.phone,
+            photo: ROLE_IMAGES['patient'],
+            // age/gender might need another call or calculated if not returned
+          };
+          setUser(newUser);
+          setIsLoading(false);
+          return true;
+        }
+      } catch (backendErr) {
+        console.warn('Backend login failed, trying mocks...', backendErr);
       }
+
+      // 2. Fallback to MOCK_CREDENTIALS (for "Sarah", "Michael", "Doctor", "Assistant")
+      // This ensures existing mock flows (like doctor/assistant login) still work if backend only has patients
+      const credentials = MOCK_CREDENTIALS[email.toLowerCase()];
+      if (credentials && credentials.password === password) {
+        const foundUser = MOCK_USERS.find((u) => u.id === credentials.userId);
+        if (foundUser) {
+          setUser(foundUser);
+          setIsLoading(false);
+          return true;
+        }
+      }
+    } catch (err) {
+      console.error(err);
     }
 
     setIsLoading(false);
@@ -102,34 +129,72 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
       age?: string | number,
       gender?: string
     ): Promise<boolean> => {
+      // Client-side validation (extra check)
+      if (!password || password.length < 6) {
+        setIsLoading(false);
+        return false;
+      }
+
       setIsLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // ✅ Dynamic gender-based icons
-      const maleIcon = "https://cdn-icons-png.flaticon.com/512/3001/3001764.png";
-      const femaleIcon = "https://cdn-icons-png.flaticon.com/512/4648/4648273.png";
+      try {
+        // Split full name into first/last
+        const parts = name.trim().split(/\s+/);
+        const firstName = parts[0] || name;
+        const lastName = parts.slice(1).join(' ') || parts[0] || '-';
 
-      const newUser: User = {
-        id: `patient-${Date.now()}`,
-        name,
-        email,
-        role: 'patient',
-        phone,
+        // Calculate approx DateOfBirth from Age
+        let dateOfBirth = new Date().toISOString();
+        if (age) {
+          const ageNum = Number(age);
+          if (!isNaN(ageNum)) {
+            const year = new Date().getFullYear() - ageNum;
+            dateOfBirth = new Date(year, 0, 1).toISOString();
+          }
+        }
 
-        // ✅ New fields
-        gender: gender ?? undefined,
-        age: age !== undefined ? Number(age) : undefined,
+        const payload: any = {
+          firstName,
+          lastName,
+          email,
+          phone,
+          password,
+          gender, // backend needs to support this or it will be ignored
+          dateOfBirth,
+          address: '' // Optional
+        };
 
-        // ✅ Gender-based photo logic
-        photo: gender === "female" ? femaleIcon : maleIcon,
-      };
+        console.log('Registering with payload:', payload);
 
-      MOCK_USERS.push(newUser);
-      MOCK_CREDENTIALS[email.toLowerCase()] = { password, userId: newUser.id };
+        // using the new service (we need to update import too)
+        const response = await patientApi.create(payload);
 
-      setUser(newUser);
-      setIsLoading(false);
-      return true;
+        // backend returns created patient
+        const created = response?.data;
+        if (created) {
+          const newUser: User = {
+            id: String(created.id),
+            name: `${created.firstName} ${created.lastName}`,
+            email: created.email,
+            role: 'patient',
+            phone: created.phone,
+            photo: ROLE_IMAGES['patient'],
+            age: age ? Number(age) : undefined,
+            gender: gender
+          };
+
+          setUser(newUser);
+          setIsLoading(false);
+          return true;
+        }
+
+        setIsLoading(false);
+        return false;
+      } catch (err: any) {
+        console.error('Registration error detailing:', err.response?.data || err.message);
+        setIsLoading(false);
+        return false;
+      }
     },
     []
   );

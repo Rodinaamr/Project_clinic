@@ -1,17 +1,20 @@
+import { appointmentsApi } from '@/app/services';
 import Colors from '@/constants/colors';
 import { SPECIALTIES, Specialty, TIME_SLOTS } from '@/constants/mockData';
+import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import { AlertCircle, Calendar, Check, Clock } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    Alert,
-    Animated,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Alert,
+  Animated,
+  Platform, // Ensure Platform is imported
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -46,25 +49,90 @@ export default function BookAppointmentPage() {
 
   const availableDates = getNextDays(14);
 
-  const handleConfirmBooking = () => {
+  const { user } = useAuth();
+  const [isBooking, setIsBooking] = useState(false);
+
+  // ... (keep fadeAnim effect)
+
+  const handleConfirmBooking = async () => {
     if (!selectedSpecialty || !selectedDate || !selectedTime) {
       Alert.alert('Incomplete', 'Please select specialty, date, and time');
       return;
     }
 
-    Alert.alert(
-      'Booking Confirmed! ✓',
-      `Your appointment for ${selectedSpecialty} has been booked for ${new Date(
-        selectedDate
-      ).toLocaleDateString()} at ${selectedTime}.\n\nConfirmation sent via Email & SMS.`,
-      [
-        {
-          text: 'View My Appointments',
-          onPress: () => router.push('/patient/dashboard' as any),
-        },
-        { text: 'OK', style: 'cancel' },
-      ]
-    );
+    if (!user?.id) {
+      Alert.alert('Error', 'You must be logged in to book an appointment');
+      return;
+    }
+
+    setIsBooking(true);
+
+    try {
+      // Combine date and time
+      // selectedDate is likely YYYY-MM-DD from toISOString().split('T')[0]
+      // selectedTime is like "09:00" or "09:00 AM"
+
+      const [hours, minutesPart] = selectedTime.replace(/(AM|PM)/, '').trim().split(':');
+      let hour = parseInt(hours);
+      // specific logic for AM/PM if time string has it (mock data implies 09:00 format maybe?)
+      // Assuming 24h or simple parse for now based on typical mock data "09:00", "14:30"
+
+      const appointmentDateTime = new Date(selectedDate);
+      appointmentDateTime.setHours(hour, parseInt(minutesPart || '0'), 0);
+
+      // Since backend expects ISO string
+      const isoDate = appointmentDateTime.toISOString();
+
+      const notes = `Specialty: ${selectedSpecialty}, Emergency: ${isEmergency ? 'Yes' : 'No'}`;
+
+      let patientId = parseInt(user.id);
+      if (isNaN(patientId)) {
+        console.warn('User ID is not a number:', user.id);
+        // Fallback for mock users or testing: Use 0 or handle error
+        // For now, let's error out to inform user they need a real account
+        Alert.alert('Booking Error', 'You are using a mock account. Please Sign Up/Login with a real account to book.');
+        setIsBooking(false);
+        return;
+      }
+
+      const payload = {
+        appointmentDate: isoDate,
+        status: 'Scheduled',
+        notes: notes,
+        patientId: patientId,
+        doctorId: null
+      };
+
+      console.log('Booking appointment:', payload);
+
+      const response = await appointmentsApi.create(payload);
+      console.log('✅ Booking success:', response.data);
+
+      const successMessage = `Your appointment for ${selectedSpecialty} has been booked for ${new Date(selectedDate).toLocaleDateString()} at ${selectedTime}.`;
+
+      if (Platform.OS === 'web') {
+        (window as any).alert(`Booking Confirmed! ✓\n\n${successMessage}`);
+        router.push('/patient/dashboard' as any);
+      } else {
+        Alert.alert(
+          'Booking Confirmed! ✓',
+          `${successMessage}\n\nConfirmation sent via Email & SMS.`,
+          [
+            {
+              text: 'View My Appointments',
+              onPress: () => router.push('/patient/dashboard' as any),
+            },
+            { text: 'OK', style: 'cancel' },
+          ]
+        );
+      }
+    } catch (error: any) {
+      console.error('Booking failed detailed:', error);
+      const backendError = error.response?.data?.error || error.response?.data?.title || error.message;
+      Alert.alert('Booking Failed', `Could not create appointment. \nReason: ${JSON.stringify(backendError)}`);
+    } finally {
+      setIsBooking(false);
+    }
   };
 
   return (
@@ -233,8 +301,10 @@ export default function BookAppointmentPage() {
           style={({ pressed }) => [
             styles.confirmButton,
             pressed && styles.buttonPressed,
+            isBooking && { opacity: 0.7 } // Visual feedback for disabled state
           ]}
           onPress={handleConfirmBooking}
+          disabled={isBooking}
         >
           <LinearGradient
             colors={[Colors.primary, Colors.primaryDark]}
@@ -242,8 +312,10 @@ export default function BookAppointmentPage() {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            <Text style={styles.confirmButtonText}>Confirm Booking</Text>
-            <Check size={20} color={Colors.white} strokeWidth={2.5} />
+            <Text style={styles.confirmButtonText}>
+              {isBooking ? 'Booking...' : 'Confirm Booking'}
+            </Text>
+            {!isBooking && <Check size={20} color={Colors.white} strokeWidth={2.5} />}
           </LinearGradient>
         </Pressable>
       </Animated.ScrollView>
