@@ -40,13 +40,52 @@ namespace dermatologyclinicApp.Controllers
         }
 
         // POST: api/Appointments
+        // POST: api/Appointments
         [HttpPost]
         public async Task<ActionResult<Appointment>> PostAppointment(Appointment appointment)
         {
-            _context.Appointments.Add(appointment);
-            await _context.SaveChangesAsync();
+            Console.WriteLine("📥 POST Appointment requested");
+            Console.WriteLine($"   Date: {appointment.AppointmentDate}");
+            Console.WriteLine($"   PatientId: {appointment.PatientId}");
+            Console.WriteLine($"   DoctorId: {appointment.DoctorId}");
+            Console.WriteLine($"   Status: {appointment.Status}");
+            Console.WriteLine($"   Notes: {appointment.Notes}");
 
-            return CreatedAtAction("GetAppointment", new { id = appointment.Id }, appointment);
+            try
+            {
+                // Explicitly ignore Doctor if ID is null to prevent validation issues
+                if (appointment.DoctorId == null)
+                {
+                    appointment.Doctor = null;
+                }
+                
+                // Explicitly ignore Patient navigation property if ID is set (let EF handle FK)
+                if (appointment.PatientId != null) 
+                {
+                    appointment.Patient = null;
+                }
+
+                _context.Appointments.Add(appointment);
+                await _context.SaveChangesAsync();
+                
+                Console.WriteLine($"✅ Appointment created successfully with ID: {appointment.Id}");
+                return CreatedAtAction("GetAppointment", new { id = appointment.Id }, appointment);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error creating appointment: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"   Inner Exception: {ex.InnerException.Message}");
+                }
+                
+                // Return details to frontend
+                return StatusCode(500, new { 
+                    error = "Database error", 
+                    details = ex.Message, 
+                    inner = ex.InnerException?.Message 
+                });
+            }
         }
 
         // PUT: api/Appointments/5

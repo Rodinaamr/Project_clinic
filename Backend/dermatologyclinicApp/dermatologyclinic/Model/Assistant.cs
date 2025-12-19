@@ -16,5 +16,8 @@ namespace dermatologyclinicApp.Models
         public string? Email { get; set; }
         public string? Phone { get; set; }
         public string? Role { get; set; }
+
+        [Required]
+        public string Password { get; set; } = string.Empty;
     }
 }

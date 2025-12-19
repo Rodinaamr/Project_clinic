@@ -18,6 +18,9 @@ namespace dermatologyclinicApp.Models
         public string? Email { get; set; }
         public string? Phone { get; set; }
 
+        [Required]
+        public string Password { get; set; } = string.Empty;
+
         // Navigation properties
         public virtual ICollection<Appointment>? Appointments { get; set; }
         public virtual ICollection<Prescription>? Prescriptions { get; set; }

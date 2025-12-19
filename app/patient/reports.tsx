@@ -1,17 +1,37 @@
+import { medicalReportsApi } from '@/app/services';
 import Colors from '@/constants/colors';
-import { MOCK_REPORTS } from '@/constants/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { Stack } from 'expo-router';
 import { FileText } from 'lucide-react-native';
-import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ReportsPage() {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-  
-  const userReports = MOCK_REPORTS.filter(r => r.patientId === user?.id);
+  const [reports, setReports] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      if (!user?.id) return;
+      try {
+        const response = await medicalReportsApi.getAll();
+        if (response.data) {
+          // Filter reports for this patient
+          const userReports = response.data.filter((r: any) => String(r.patientId) === String(user.id));
+          setReports(userReports);
+        }
+      } catch (err) {
+        console.error('Error fetching reports:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, [user?.id]);
 
   return (
     <>
@@ -29,20 +49,26 @@ export default function ReportsPage() {
           { paddingBottom: insets.bottom + 20 },
         ]}
       >
-        {userReports.length > 0 ? (
-          userReports.map((report) => (
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.secondary} />
+            <Text style={styles.loadingText}>Fetching your reports...</Text>
+          </View>
+        ) : reports.length > 0 ? (
+          reports.map((report: any) => (
             <View key={report.id} style={styles.reportCard}>
               <View style={styles.reportHeader}>
                 <FileText size={24} color={Colors.secondary} />
                 <View style={styles.reportInfo}>
-                  <Text style={styles.reportTitle}>{report.title}</Text>
+                  <Text style={styles.reportTitle}>{report.diagnosis}</Text>
                   <Text style={styles.reportDate}>
-                    {new Date(report.date).toLocaleDateString()}
+                    {new Date(report.reportDate).toLocaleDateString()}
                   </Text>
                 </View>
               </View>
-              <Text style={styles.reportSummary}>{report.summary}</Text>
-              <Text style={styles.reportDoctor}>Dr. {report.doctorName}</Text>
+              <Text style={styles.reportSummary}>{report.treatmentPlan || 'No treatment plan provided.'}</Text>
+              {report.notes && <Text style={styles.reportSummary}>{report.notes}</Text>}
+              <Text style={styles.reportDoctor}>Case ID: {report.id}</Text>
             </View>
           ))
         ) : (
@@ -114,5 +140,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.text.secondary,
     marginTop: 16,
+  },
+  loadingContainer: {
+    paddingVertical: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: Colors.text.secondary,
   },
 });
