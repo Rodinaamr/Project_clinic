@@ -1,50 +1,186 @@
-# Welcome to your Expo app 👋
+# Clinic Management System
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+![CI](https://github.com/Rodinaamr/Project_clinic/actions/workflows/main.yml/badge.svg)
 
-## Get started
+## 📋 Overview
+The **Clinic Management System** is a cross-platform application developed to streamline clinic operations and enhance coordination between doctors and receptionists.  
+The system enables efficient management of appointments, patient histories, diagnoses, and payments while maintaining ethical standards and data integrity in healthcare.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 🚀 Key Features
 
-2. Start the app
+### 👨‍⚕️ Doctor Module
+- Interactive dashboard displaying today's scheduled patients and appointment statuses  
+- Individual diagnosis pages for entering medical notes, prescriptions, and medications  
+- Medication selection box with integrated search functionality (planned Egyptian Medication Database integration)  
+- Full access to patient history and prior visit summaries  
 
-   ```bash
-   npx expo start
-   ```
+### 📋 Receptionist Module
+- Comprehensive and searchable patient directory  
+- Appointment booking, patient registration, and payment tracking  
+- Edit-only policy for patient and medical records to ensure ethical data handling  
+- No deletion of medical data to preserve clinical integrity  
 
-In the output, you'll find options to open the app in a
+### 🔧 General Features
+- Role-based dashboards for doctors and receptionists  
+- Clear and responsive user interface for smooth navigation  
+- Reusable sidebar components and modular architecture for scalability  
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 🏗️ System Design
 
-## Get a fresh project
+### 📊 Entity-Relationship Diagram (ERD)
+The ERD defines relationships among key clinical entities including patients, doctors, appointments, diagnoses, and medications.  
+The data model supports future expansion such as billing, laboratory reports, and analytics modules.
 
-When you're ready, run:
+**Documentation:** `clinic_ERD.drawio.pdf`
 
-```bash
-npm run reset-project
+### 🎨 Wireframe Design
+The system interface follows structured wireframes to ensure role-based clarity, minimal navigation, and optimized user experience.
+
+**Documentation:** `clinic_wireframe.pdf`
+
+---
+
+## 💻 Technology Overview
+
+| Layer | Description |
+|-------|-------------|
+| **Frontend** | Cross-platform application using **Expo** |
+| **Routing** | Role-based navigation |
+| **Language** | **TypeScript** |
+| **Styling** | Custom native styling |
+| **Data Layer** | Dummy JSON arrays (planned database integration) |
+| **Future Integration** | Egyptian Medication Database |
+
+---
+
+## 🏗️ Project Architecture
+
+### **Frontend Architecture (React Native/Expo)**
+```
+Frontend/
+├── app/                    # Main application structure
+│   ├── auth/               # Authentication screens
+│   │   ├── patient-login.tsx
+│   │   ├── patient-register.tsx
+│   │   └── staff-login.tsx
+│   │
+│   ├── doctor/             # Doctor-specific features
+│   │   ├── appointments.tsx
+│   │   ├── dashboard.tsx
+│   │   ├── medical-records.tsx
+│   │   └── patient-feedback.tsx
+│   │
+│   ├── patient/            # Patient-specific features
+│   │   ├── book-appointment.tsx
+│   │   ├── dashboard.tsx
+│   │   ├── profile.tsx
+│   │   ├── payments.tsx
+│   │   └── feedback.tsx
+│   │
+│   └── services/           # API service layer
+│       ├── api.ts          # HTTP client configuration
+│       ├── patients.ts     # Patient-related API calls
+│       ├── appointments.ts # Appointment API calls
+│       ├── doctors.ts      # Doctor API calls
+│       └── users.ts        # User and authentication APIs
+│
+├── components/             # Reusable UI components
+├── constants/              # Application constants and configurations
+├── contexts/               # React Context providers
+├── hooks/                  # Custom React hooks
+└── scripts/                # Build and utility scripts
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### **Backend Architecture (ASP.NET Core)**
+```
+Backend/
+├── Controllers/            # RESTful API controllers
+│   ├── PatientsController.cs
+│   ├── AppointmentsController.cs
+│   ├── DoctorsController.cs
+│   └── AuthenticationController.cs
+│
+├── Models/                 # Entity models and DTOs
+│   ├── Patient.cs
+│   ├── Appointment.cs
+│   ├── Doctor.cs
+│   └── User.cs
+│
+├── Services/               # Business logic layer
+│   ├── PatientService.cs
+│   ├── AppointmentService.cs
+│   └── AuthenticationService.cs
+│
+├── FrontendServices/       # Services supporting frontend integration
+├── Properties/             # Application configuration properties
+├── Migrations/             # Entity Framework Core migrations
+└── ApplicationDbContext.cs # Database context
+```
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+## 🔮 Planned Enhancements
+- Integration with **Egyptian Medication Database**
+- **Secure authentication** and role-based access control
+- **Cloud-based storage** for patient and appointment data
+- **Analytics dashboard** for patient flow and performance insights
+- **Internal messaging system** between clinic staff
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## ⚖️ Ethical Data Policy
+This system follows a strict **edit-only data policy**, ensuring that medical records cannot be deleted.  
+This preserves historical accuracy and aligns with ethical standards in healthcare information management.
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 👥 Developed By
+- **Rodayna Abdelrahman**
+- **Malak Salama**
+- **Malak Chaaban**
+- **Nour Abdelal**
+- **Eshraq Nabil**
+
+---
+
+## 📚 Documentation
+- `clinic_ERD.drawio.pdf` — Database structure and entity relationships
+- `clinic_wireframe.pdf` — Interface wireframes and navigation flow
+- `clinical_workflow.pdf` — System workflow and process logic
+
+---
+
+## 🖼️ System Screenshots
+
+<img width="1904" height="911" alt="Clinic System Dashboard" src="https://github.com/user-attachments/assets/3fd22ebb-4f72-4b94-902b-3452066fec40" />
+
+<img width="1912" height="903" alt="Patient Management Interface" src="https://github.com/user-attachments/assets/5a25ea45-58a7-49a7-9540-1d08e96d1f21" />
+
+<img width="1911" height="906" alt="Appointment Scheduling" src="https://github.com/user-attachments/assets/aabd5bc4-fca7-46ea-9466-184b0176f94a" />
+
+---
+
+## 🛠️ Installation & Setup
+
+### 1. Clone the repository:
+```bash
+git clone https://github.com/Rodinaamr/Project_clinic.git
+cd Project_clinic
+```
+
+### 2. Install dependencies:
+```bash
+npm install
+```
+
+### 3. Run the application:
+```bash
+npx expo start
+```
+
+---
+
