@@ -1,7 +1,7 @@
-using dermatologyclinic.Model;
+using dermatologyclinicApp.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace dermatologyclinic.Data
+namespace dermatologyclinicApp.Data
 {
     public static class DbSeeder
     {
