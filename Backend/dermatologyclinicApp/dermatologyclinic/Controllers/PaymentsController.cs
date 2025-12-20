@@ -1,63 +1,67 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using dermatologyclinicApp.Models;
+using dermatologyclinicApp.Repositories.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace dermatologyclinicApp.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class PaymentsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IPaymentRepository _repository;
 
-        public PaymentsController(ApplicationDbContext context)
+        public PaymentsController(IPaymentRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Payment>>> GetPayments()
+        public async Task<ActionResult<IEnumerable<Payment>>> GetAll()
         {
-            return await _context.Payments.ToListAsync();
+            return Ok(await _repository.GetAllAsync());
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Payment>> GetPayment(int id)
+        public async Task<ActionResult<Payment>> GetById(int id)
         {
-            var payment = await _context.Payments.FindAsync(id);
-            if (payment == null) return NotFound();
-            return payment;
+            var payment = await _repository.GetByIdAsync(id);
+            if (payment == null)
+                return NotFound();
+            return Ok(payment);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Payment>> PostPayment(Payment payment)
+        public async Task<ActionResult<Payment>> Create(Payment payment)
         {
-            _context.Payments.Add(payment);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction("GetPayment", new { id = payment.Id }, payment);
+            await _repository.AddAsync(payment);
+            await _repository.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetById), new { id = payment.Id }, payment);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPayment(int id, Payment payment)
+        public async Task<IActionResult> Update(int id, Payment payment)
         {
-            if (id != payment.Id) return BadRequest();
-            _context.Entry(payment).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            if (id != payment.Id)
+                return BadRequest();
+
+            _repository.Update(payment);
+            await _repository.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePayment(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var payment = await _context.Payments.FindAsync(id);
-            if (payment == null) return NotFound();
+            var payment = await _repository.GetByIdAsync(id);
+            if (payment == null)
+                return NotFound();
 
-            _context.Payments.Remove(payment);
-            await _context.SaveChangesAsync();
+            _repository.Remove(payment);
+            await _repository.SaveChangesAsync();
             return NoContent();
         }
     }
 }
+
