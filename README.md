@@ -12,12 +12,202 @@
 
 ---
 
-## 📋 Overview
-The **Clinic Management System** is a cross-platform application developed to streamline clinic operations and enhance coordination between doctors and receptionists.  
-The system enables efficient management of appointments, patient histories, diagnoses, and payments while maintaining ethical standards and data integrity in healthcare.
+1 Purpose
 
----
+This document describes the functional and non-functional requirements of the Clinic Management System.
+The purpose of this system is to help dermatology clinics manage doctors, patients, appointments, and medical records efficiently through a centralized digital platform.
 
+This document is intended for:
+
+Developers
+
+Project supervisors / TAs
+
+Stakeholders
+
+Testers
+
+2 Scope
+
+The Clinic Management System is a web/mobile-based application that allows:
+
+Patients to book and manage appointments
+
+Doctors to view schedules and patient records
+
+Admins to manage users and clinic data
+
+The system aims to reduce paperwork, improve scheduling accuracy, and enhance patient experience.
+
+3 Definitions, Acronyms, and Abbreviations
+
+CMS: Clinic Management System
+
+Admin: System administrator
+
+SRS: Software Requirements Specification
+
+UI/UX: User Interface / User Experience
+
+4 Overall Description
+ Product Perspective
+
+The system is a standalone application with:
+
+Frontend (Web / Mobile)
+
+Backend API
+
+Database for storing clinic data
+
+It interacts with users via authenticated accounts and role-based access.
+
+2.2 User Classes and Characteristics
+User Type	Description
+Admin	Manages doctors, system settings, and clinic data
+Doctor	Views appointments, patient records
+Patient	Books appointments and views medical history
+2.3 Operating Environment
+
+Frontend: Web or Mobile Application
+
+Backend: RESTful API
+
+Database: Relational Database
+
+Hosting: Cloud-based deployment
+
+2.4 Assumptions and Constraints
+Assumptions
+
+Users have internet access
+
+Users possess basic digital literacy
+
+Doctors and admins are registered by the clinic
+
+Constraints
+
+Must use GitHub for version control
+
+Must support deployment on a cloud platform
+
+Must follow security best practices
+
+3. Functional Requirements
+3.1 User Authentication
+
+The system shall allow users to register and log in.
+
+The system shall authenticate users based on roles (Admin, Doctor, Patient).
+
+The system shall prevent unauthorized access.
+
+3.2 Patient Management
+
+The system shall allow admins to add, update, and delete patient records.
+
+The system shall store patient personal and medical information.
+
+Patients shall be able to view their own data only.
+
+3.3 Doctor Management
+
+The system shall allow admins to add and manage doctors.
+
+Doctors shall be able to view their profiles and schedules.
+
+Doctors shall access assigned patient records.
+
+3.4 Appointment Management
+
+Patients shall be able to book appointments.
+
+The system shall prevent double booking.
+
+Doctors shall view daily and weekly appointments.
+
+Appointments shall be editable or cancellable.
+
+3.5 Medical Records
+
+Doctors shall add diagnosis and treatment notes.
+
+Medical records shall be stored securely.
+
+Patients may view their medical history (read-only).
+
+3.6 Admin Dashboard
+
+Admin shall manage users.
+
+Admin shall view system statistics.
+
+Admin shall control system configurations.
+
+4. Non-Functional Requirements
+4.1 Performance
+
+The system shall respond within 2 seconds for normal operations.
+
+The system shall support multiple concurrent users.
+
+4.2 Security
+
+Passwords shall be encrypted.
+
+Role-based access control shall be enforced.
+
+Sensitive data shall be protected from unauthorized access.
+
+4.3 Usability
+
+The system shall have a simple and intuitive UI.
+
+The system shall be accessible on different devices.
+
+Error messages shall be clear and helpful.
+
+4.4 Reliability & Availability
+
+The system shall have minimal downtime.
+
+Data shall be backed up regularly.
+
+4.5 Maintainability
+
+The code shall be modular and well-documented.
+
+The system shall be easy to update and extend.
+
+4.6 Scalability
+
+The system shall support adding new clinics or departments in the future.
+
+The system shall handle increased user load.
+
+5. External Interface Requirements
+5.1 User Interface
+
+Responsive UI
+
+Forms for login, booking, and data management
+
+5.2 Software Interfaces
+
+REST API for frontend-backend communication
+
+Database interface for CRUD operations
+
+6. Future Enhancements
+
+Online payment integration
+
+Notifications and reminders
+
+Analytics dashboard
+
+Mobile application version
 ## 🚀 Key Features
 
 ### 👨‍⚕️ Doctor Module
