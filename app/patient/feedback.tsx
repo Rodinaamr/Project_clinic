@@ -1,70 +1,54 @@
+import { feedbacksApi } from '@/app/services';
 import Colors from '@/constants/colors';
+import { useAuth } from '@/contexts/AuthContext';
 import { Stack } from 'expo-router';
 import { Calendar, MessageSquare, Star } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  View,
+  View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// Mock feedback data - NO PATIENT NAMES
-const MOCK_FEEDBACK = [
-  {
-    id: '1',
-    rating: 5,
-    comment: 'Exceptional service! The doctor was very thorough and explained everything clearly.',
-    date: 'October 16, 2025',
-    category: 'Consultation',
-  },
-  {
-    id: '2',
-    rating: 4,
-    comment: 'Good experience overall, but the waiting time could be improved.',
-    date: 'October 15, 2025',
-    category: 'Follow-up',
-  },
-  {
-    id: '3',
-    rating: 5,
-    comment: 'Very professional and caring. Felt listened to and well taken care of.',
-    date: 'October 14, 2025',
-    category: 'Consultation',
-  },
-  {
-    id: '4',
-    rating: 3,
-    comment: 'Average experience. Could have been more attentive to my concerns.',
-    date: 'October 13, 2025',
-    category: 'Emergency',
-  },
-  {
-    id: '5',
-    rating: 5,
-    comment: 'Outstanding care! Would highly recommend to anyone.',
-    date: 'October 12, 2025',
-    category: 'Consultation',
-  },
-];
-
 export default function DoctorFeedbackView() {
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
+  const [feedbackList, setFeedbackList] = useState<any[]>([]);
   const [filter, setFilter] = useState<'all' | 'positive' | 'negative'>('all');
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Calculate average rating
-  const totalReviews = MOCK_FEEDBACK.length;
-  const averageRating = MOCK_FEEDBACK.reduce((sum, feedback) => sum + feedback.rating, 0) / totalReviews;
-  const positiveReviews = MOCK_FEEDBACK.filter(f => f.rating >= 4).length;
-  const fiveStarReviews = MOCK_FEEDBACK.filter(f => f.rating === 5).length;
-  
-  // Filter feedback based on selection
-  const filteredFeedback = MOCK_FEEDBACK.filter(feedback => {
+  useEffect(() => {
+    const fetchFeedback = async () => {
+      try {
+        const response = await feedbacksApi.getAll();
+        if (response.data) {
+          setFeedbackList(response.data);
+        }
+      } catch (err) {
+        console.error('Error fetching feedback:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchFeedback();
+  }, []);
+
+  // Calculate stats from real data
+  const totalReviews = feedbackList.length;
+  const averageRating = totalReviews > 0
+    ? feedbackList.reduce((sum, f) => sum + f.rating, 0) / totalReviews
+    : 0;
+  const fiveStarReviews = feedbackList.filter(f => f.rating === 5).length;
+
+  // Filter feedback
+  const filteredFeedback = feedbackList.filter(f => {
     if (filter === 'all') return true;
-    if (filter === 'positive') return feedback.rating >= 4;
-    return feedback.rating <= 3;
+    if (filter === 'positive') return f.rating >= 4;
+    return f.rating <= 3;
   });
 
   return (
@@ -76,7 +60,7 @@ export default function DoctorFeedbackView() {
           headerTintColor: Colors.white,
         }}
       />
-      
+
       <ScrollView
         style={styles.container}
         contentContainerStyle={[
@@ -133,14 +117,19 @@ export default function DoctorFeedbackView() {
 
         {/* Feedback List */}
         <Text style={styles.sectionTitle}>Recent Feedback</Text>
-        
-        {filteredFeedback.length === 0 ? (
+
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.primary} />
+            <Text style={styles.loadingText}>Fetching feedback...</Text>
+          </View>
+        ) : filteredFeedback.length === 0 ? (
           <View style={styles.emptyState}>
             <MessageSquare size={48} color={Colors.text.secondary} />
             <Text style={styles.emptyText}>No feedback available</Text>
           </View>
         ) : (
-          filteredFeedback.map(feedback => (
+          filteredFeedback.map((feedback: any) => (
             <View key={feedback.id} style={styles.feedbackCard}>
               <View style={styles.feedbackHeader}>
                 {/* Rating stars */}
@@ -153,24 +142,23 @@ export default function DoctorFeedbackView() {
                       fill={star <= feedback.rating ? Colors.gold : 'transparent'}
                     />
                   ))}
-                  <Text style={styles.ratingText}>{feedback.rating.toFixed(1)}</Text>
+                  <Text style={styles.ratingText}>{Number(feedback.rating).toFixed(1)}</Text>
                 </View>
-                
-                {/* Date and category - NO PATIENT NAME */}
+
+                {/* Date */}
                 <View style={styles.feedbackMeta}>
                   <View style={styles.metaItem}>
                     <Calendar size={14} color={Colors.text.secondary} />
-                    <Text style={styles.metaText}>{feedback.date}</Text>
-                  </View>
-                  <View style={styles.categoryBadge}>
-                    <Text style={styles.categoryText}>{feedback.category}</Text>
+                    <Text style={styles.metaText}>
+                      {new Date(feedback.feedbackDate).toLocaleDateString()}
+                    </Text>
                   </View>
                 </View>
               </View>
 
-              {/* Comment only - NO PATIENT NAME */}
+              {/* Comment */}
               <Text style={styles.comment}>{feedback.comment}</Text>
-              
+
               {/* Separator line */}
               <View style={styles.separator} />
             </View>
@@ -331,5 +319,15 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
     color: Colors.text.secondary,
     marginTop: 12,
+  },
+  loadingContainer: {
+    paddingVertical: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: Colors.text.secondary,
   },
 });
