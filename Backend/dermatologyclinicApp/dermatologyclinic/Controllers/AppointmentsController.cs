@@ -1,142 +1,89 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using dermatologyclinicApp.Models;
+using dermatologyclinicApp.Services;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace dermatologyclinicApp.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class AppointmentsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly AppointmentService _appointmentService;
 
-        public AppointmentsController(ApplicationDbContext context)
+        public AppointmentsController(AppointmentService appointmentService)
         {
-            _context = context;
+            _appointmentService = appointmentService;
         }
 
-        // GET: api/Appointments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Appointment>>> GetAppointments()
+        public async Task<ActionResult<IEnumerable<Appointment>>> GetUpcomingAppointments(int days = 7)
         {
-            return await _context.Appointments.ToListAsync();
+            var appointments = await _appointmentService.GetUpcomingAppointmentsAsync(days);
+            return Ok(appointments);
         }
 
-        // GET: api/Appointments/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Appointment>> GetAppointment(int id)
+        [HttpGet("today")]
+        public async Task<ActionResult<IEnumerable<Appointment>>> GetTodayAppointments()
         {
-            var appointment = await _context.Appointments.FindAsync(id);
-
-            if (appointment == null)
-            {
-                return NotFound();
-            }
-
-            return appointment;
+            var appointments = await _appointmentService.GetTodayAppointmentsAsync();
+            return Ok(appointments);
         }
 
-        // POST: api/Appointments
-        // POST: api/Appointments
         [HttpPost]
-        public async Task<ActionResult<Appointment>> PostAppointment(Appointment appointment)
+        public async Task<ActionResult<Appointment>> CreateAppointment(Appointment appointment)
         {
-            Console.WriteLine("📥 POST Appointment requested");
-            Console.WriteLine($"   Date: {appointment.AppointmentDate}");
-            Console.WriteLine($"   PatientId: {appointment.PatientId}");
-            Console.WriteLine($"   DoctorId: {appointment.DoctorId}");
-            Console.WriteLine($"   Status: {appointment.Status}");
-            Console.WriteLine($"   Notes: {appointment.Notes}");
-
             try
             {
-                // Explicitly ignore Doctor if ID is null to prevent validation issues
-                if (appointment.DoctorId == null)
-                {
-                    appointment.Doctor = null;
-                }
-                
-                // Explicitly ignore Patient navigation property if ID is set (let EF handle FK)
-                if (appointment.PatientId != null) 
-                {
-                    appointment.Patient = null;
-                }
-
-                _context.Appointments.Add(appointment);
-                await _context.SaveChangesAsync();
-                
-                Console.WriteLine($"✅ Appointment created successfully with ID: {appointment.Id}");
-                return CreatedAtAction("GetAppointment", new { id = appointment.Id }, appointment);
+                var createdAppointment = await _appointmentService.CreateAppointmentAsync(appointment);
+                return CreatedAtAction(nameof(GetUpcomingAppointments), new { id = createdAppointment.Id }, createdAppointment);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error creating appointment: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine($"   Inner Exception: {ex.InnerException.Message}");
-                }
-                
-                // Return details to frontend
-                return StatusCode(500, new { 
-                    error = "Database error", 
-                    details = ex.Message, 
-                    inner = ex.InnerException?.Message 
-                });
+                return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
 
-        // PUT: api/Appointments/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAppointment(int id, Appointment appointment)
+        public async Task<ActionResult<Appointment>> UpdateAppointment(int id, Appointment appointment)
         {
             if (id != appointment.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(appointment).State = EntityState.Modified;
+                return BadRequest("Appointment ID mismatch");
 
             try
             {
-                await _context.SaveChangesAsync();
+                var updatedAppointment = await _appointmentService.UpdateAppointmentAsync(id, appointment);
+                return Ok(updatedAppointment);
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AppointmentExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // DELETE: api/Appointments/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAppointment(int id)
-        {
-            var appointment = await _context.Appointments.FindAsync(id);
-            if (appointment == null)
+            catch (KeyNotFoundException)
             {
                 return NotFound();
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
 
-            _context.Appointments.Remove(appointment);
-            await _context.SaveChangesAsync();
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> CancelAppointment(int id)
+        {
+            var result = await _appointmentService.CancelAppointmentAsync(id);
+            if (!result)
+                return NotFound();
 
             return NoContent();
         }
-
-        private bool AppointmentExists(int id)
-        {
-            return _context.Appointments.Any(e => e.Id == id);
-        }
     }
 }
+
