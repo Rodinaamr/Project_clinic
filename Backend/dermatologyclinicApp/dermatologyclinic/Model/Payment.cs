@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -8,7 +8,6 @@ namespace dermatologyclinicApp.Models
     {
         [Key]
         public int Id { get; set; }
-<<<<<<< HEAD
         [Required]
         public decimal Amount { get; set; }
         public DateTime PaymentDate { get; set; } = DateTime.Now;
@@ -19,26 +18,8 @@ namespace dermatologyclinicApp.Models
         public int AppointmentId { get; set; }
         [ForeignKey("PatientId")]
         public virtual Patient? Patient { get; set; }
-=======
-
-        [Required]
-        public decimal Amount { get; set; }
-
-        public DateTime PaymentDate { get; set; } = DateTime.Now;
-
-        [Required]
-        public string PaymentMethod { get; set; } = "Cash"; // Cash, Credit Card, Insurance
-
-        public string Status { get; set; } = "Pending";
-
-        public int PatientId { get; set; }
-        public int AppointmentId { get; set; }
-
-        [ForeignKey("PatientId")]
-        public virtual Patient? Patient { get; set; }
-
->>>>>>> origin/main
         [ForeignKey("AppointmentId")]
         public virtual Appointment? Appointment { get; set; }
     }
 }
+
