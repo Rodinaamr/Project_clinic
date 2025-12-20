@@ -1,3 +1,4 @@
+[![CI Pipeline](https://github.com/Rodinaamr/Project_clinic/actions/workflows/node.js.yml/badge.svg)](https://github.com/Rodinaamr/Project_clinic/actions/workflows/node.js.yml)
 # Clinic Management System
 
 ## Overview
