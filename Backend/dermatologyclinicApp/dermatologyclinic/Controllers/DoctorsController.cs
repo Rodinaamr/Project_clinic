@@ -1,103 +1,50 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using dermatologyclinicApp.Models;
+using dermatologyclinicApp.Repositories.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace dermatologyclinicApp.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class DoctorsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IDoctorRepository _doctorRepository;
 
-        public DoctorsController(ApplicationDbContext context)
+        public DoctorsController(IDoctorRepository doctorRepository)
         {
-            _context = context;
+            _doctorRepository = doctorRepository;
         }
 
-        // GET: api/Doctors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctors()
+        public async Task<ActionResult<IEnumerable<Doctor>>> GetAll()
         {
-            return await _context.Doctors.ToListAsync();
+            return Ok(await _doctorRepository.GetAllAsync());
         }
 
-        // GET: api/Doctors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Doctor>> GetDoctor(int id)
+        public async Task<ActionResult<Doctor>> GetById(int id)
         {
-            var doctor = await _context.Doctors.FindAsync(id);
-
+            var doctor = await _doctorRepository.GetDoctorWithDetailsAsync(id);
             if (doctor == null)
-            {
                 return NotFound();
-            }
 
-            return doctor;
+            return Ok(doctor);
         }
 
-        // POST: api/Doctors
-        [HttpPost]
-        public async Task<ActionResult<Doctor>> PostDoctor(Doctor doctor)
+        [HttpGet("speciality/{speciality}")]
+        public async Task<ActionResult<IEnumerable<Doctor>>> GetBySpeciality(string speciality)
         {
-            _context.Doctors.Add(doctor);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetDoctor), new { id = doctor.Id }, doctor);
+            return Ok(await _doctorRepository.GetDoctorsBySpecialityAsync(speciality));
         }
 
-        // PUT: api/Doctors/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutDoctor(int id, Doctor doctor)
+        [HttpGet("available")]
+        public async Task<ActionResult<IEnumerable<Doctor>>> GetAvailable(DateTime date, TimeSpan startTime, TimeSpan endTime)
         {
-            if (id != doctor.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(doctor).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DoctorExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // DELETE: api/Doctors/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteDoctor(int id)
-        {
-            var doctor = await _context.Doctors.FindAsync(id);
-            if (doctor == null)
-            {
-                return NotFound();
-            }
-
-            _context.Doctors.Remove(doctor);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool DoctorExists(int id)
-        {
-            return _context.Doctors.Any(e => e.Id == id);
+            return Ok(await _doctorRepository.GetAvailableDoctorsAsync(date, startTime, endTime));
         }
     }
 }
+
