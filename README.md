@@ -1,6 +1,16 @@
-# Clinic Management System
+# Clinic Management System 🏥
 
 ![CI](https://github.com/Rodinaamr/Project_clinic/actions/workflows/main.yml/badge.svg)
+![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-blue)
+![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)
+![React Native](https://img.shields.io/badge/React%20Native-0.72.6-61DAFB)
+![Expo](https://img.shields.io/badge/Expo-49.0.0-000020)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-7.0-512BD4)
+
+## 🌐 Live Deployment
+**Application is live at:** https://rodinasmr.github.io/Project_clinic/
+
+---
 
 ## 📋 Overview
 The **Clinic Management System** is a cross-platform application developed to streamline clinic operations and enhance coordination between doctors and receptionists.  
@@ -31,29 +41,38 @@ The system enables efficient management of appointments, patient histories, diag
 
 ## 🏗️ System Design
 
-### 📊 Entity-Relationship Diagram (ERD)
-The ERD defines relationships among key clinical entities including patients, doctors, appointments, diagnoses, and medications.  
-The data model supports future expansion such as billing, laboratory reports, and analytics modules.
-
-**Documentation:** `clinic_ERD.drawio.pdf`
-
-### 🎨 Wireframe Design
-The system interface follows structured wireframes to ensure role-based clarity, minimal navigation, and optimized user experience.
-
-**Documentation:** `clinic_wireframe.pdf`
+### 📊 Diagrams & Documentation
+| Diagram | Description 
+|---------|-------------|
+| **UML Class Diagram** | System architecture and class relationships | 
+| **Use Case Diagram** | User interactions and system functions |
+| **Sequence Diagram** | Process flows and system interactions | 
+| **Entity-Relationship Diagram** | Database structure and relationships | 
+| **Wireframe Design** | Interface layout and navigation | 
+| **System Architecture** | Overall system design | 
 
 ---
 
-## 💻 Technology Overview
+## 💻 Technology Stack
 
-| Layer | Description |
-|-------|-------------|
-| **Frontend** | Cross-platform application using **Expo** |
-| **Routing** | Role-based navigation |
-| **Language** | **TypeScript** |
-| **Styling** | Custom native styling |
-| **Data Layer** | Dummy JSON arrays (planned database integration) |
-| **Future Integration** | Egyptian Medication Database |
+### **Frontend**
+- **React Native** with **Expo SDK 49**
+- **TypeScript** for type safety
+- **React Navigation** for routing
+- **React Context API** for state management
+- **NativeWind** for styling (TailwindCSS for React Native)
+
+### **Backend**
+- **ASP.NET Core 7.0** Web API
+- **Entity Framework Core** for database operations
+- **SQL Server** / **SQLite** for data storage
+- **JWT Authentication** for secure access
+
+### **DevOps & Tools**
+- **GitHub Actions** for CI/CD
+- **GitHub Pages** for deployment
+- **Expo Application Services (EAS)** for mobile builds
+- **Jest** & **Testing Library** for testing
 
 ---
 
@@ -123,34 +142,123 @@ Backend/
 
 ---
 
-## 🔮 Planned Enhancements
-- Integration with **Egyptian Medication Database**
-- **Secure authentication** and role-based access control
-- **Cloud-based storage** for patient and appointment data
-- **Analytics dashboard** for patient flow and performance insights
-- **Internal messaging system** between clinic staff
+## 🚀 Getting Started
+
+### **Prerequisites**
+- Node.js 18+ & npm/yarn/bun
+- Expo CLI (`npm install -g expo-cli`)
+- .NET 7.0 SDK
+- Git
+
+### **1. Clone the repository:**
+```bash
+git clone https://github.com/Rodinaamr/Project_clinic.git
+cd Project_clinic
+```
+
+### **2. Frontend Setup:**
+```bash
+# Install dependencies
+npm install
+# or
+bun install
+
+# Start development server
+npx expo start
+```
+
+### **3. Backend Setup:**
+```bash
+cd Backend
+dotnet restore
+dotnet run
+```
+
+### **4. Run on Device:**
+- Install **Expo Go** on your mobile device
+- Scan QR code from terminal
+- Or run on emulator:
+  ```bash
+  npx expo start --android
+  npx expo start --ios
+  ```
 
 ---
 
-## ⚖️ Ethical Data Policy
-This system follows a strict **edit-only data policy**, ensuring that medical records cannot be deleted.  
-This preserves historical accuracy and aligns with ethical standards in healthcare information management.
+## 📱 Deployment
+
+### **Web Deployment (GitHub Pages)**
+The application is automatically deployed to GitHub Pages on each push to `main` branch.
+
+**Live URL:** https://rodinasmr.github.io/Project_clinic/
+
+### **Mobile Deployment**
+```bash
+# Publish to Expo
+npx expo publish
+
+# Build for production
+eas build --platform android
+eas build --platform ios
+```
 
 ---
 
-## 👥 Developed By
-- **Rodayna Abdelrahman**
-- **Malak Salama**
-- **Malak Chaaban**
-- **Nour Abdelal**
-- **Eshraq Nabil**
+## 🧪 Testing
+
+### **Run Tests:**
+```bash
+# Frontend tests
+npm test
+
+# Backend tests
+cd Backend
+dotnet test
+```
+
 
 ---
 
-## 📚 Documentation
-- `clinic_ERD.drawio.pdf` — Database structure and entity relationships
-- `clinic_wireframe.pdf` — Interface wireframes and navigation flow
-- `clinical_workflow.pdf` — System workflow and process logic
+## 📊 Project Management
+
+### **GitHub Project Board**
+- **📋 Backlog:** [View Backlog](https://github.com/Rodinaamr/Project_clinic/projects/1)
+- **📝 Issues:** [Open Issues](https://github.com/Rodinaamr/Project_clinic/issues)
+- **🔀 Pull Requests:** [PR List](https://github.com/Rodinaamr/Project_clinic/pulls)
+
+
+
+## 🔧 Development Workflow
+
+### **Git Branch Strategy:**
+```
+main
+├── develop
+│   ├── feature/authentication
+│   ├── feature/appointments
+│   └── bugfix/login-issue
+└── release/v1.0
+```
+
+### **CI/CD Pipeline:**
+```yaml
+name: CI/CD Pipeline
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - checkout code
+      - install dependencies
+      - run tests
+      - build app
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - deploy to GitHub Pages
+      - publish to Expo
+```
 
 ---
 
@@ -164,23 +272,50 @@ This preserves historical accuracy and aligns with ethical standards in healthca
 
 ---
 
-## 🛠️ Installation & Setup
+## 🔮 Planned Enhancements
+1. **Medication Database Integration**
+   - Egyptian Medication Database integration
+   - Drug interaction checker
+   - Prescription templates
 
-### 1. Clone the repository:
-```bash
-git clone https://github.com/Rodinaamr/Project_clinic.git
-cd Project_clinic
-```
+2. **Advanced Features**
+   - Real-time notifications
+   - Telemedicine capabilities
+   - Analytics dashboard
+   - Multi-language support
 
-### 2. Install dependencies:
-```bash
-npm install
-```
+3. **Security Enhancements**
+   - Two-factor authentication
+   - Audit logging
+   - Data encryption at rest
 
-### 3. Run the application:
-```bash
-npx expo start
-```
+4. **Integration**
+   - Electronic Health Records (EHR) standards
+   - Lab system integration
+   - Pharmacy connectivity
 
 ---
+
+## ⚖️ Ethical Data Policy
+This system follows a strict **edit-only data policy**, ensuring that medical records cannot be deleted.  
+This preserves historical accuracy and aligns with ethical standards in healthcare information management.
+
+
+### **Privacy Compliance:**
+- HIPAA compliant data handling
+- GDPR-ready for international patients
+- Local data storage options
+
+---
+
+## 👥 Team & Development
+
+### **Development Team:**
+-  Rodayna Abdelrahman
+-  Malak Salama
+-  Malak Chaaban
+-  Nour Abdelal
+-  Eshraq Nabil
+
+
 
