@@ -19,14 +19,21 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    // Add these lines if you want to ensure type declarations are included
+    "typeRoots": [
+      "./node_modules/@types",
+      "./app/types"
+    ]
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "app/doctor/medical-prescription.tsx"
+    "app/doctor/medical-prescription.tsx",
+    "app/types/**/*.d.ts",  
+    "app/types/**/*.ts"     
   ],
   "exclude": [
     "node_modules"

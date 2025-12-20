@@ -1,75 +1,49 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using dermatologyclinicApp.Models;
+using dermatologyclinicApp.Repositories.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace dermatologyclinicApp.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
+    [ApiController]
     public class PatientsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IPatientRepository _patientRepository;
 
-        public PatientsController(ApplicationDbContext context)
+        public PatientsController(IPatientRepository patientRepository)
         {
-            _context = context;
+            _patientRepository = patientRepository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Patient>>> GetPatients()
+        public async Task<ActionResult<IEnumerable<Patient>>> Search(string? query = null)
         {
-            return await _context.Patients.ToListAsync();
+            return Ok(await _patientRepository.SearchPatientsAsync(query));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Patient>> GetPatient(int id)
+        public async Task<ActionResult<Patient>> GetById(int id)
         {
-            var patient = await _context.Patients.FindAsync(id);
-            if (patient == null) return NotFound();
-            return patient;
+            var patient = await _patientRepository.GetPatientWithDetailsAsync(id);
+            if (patient == null)
+                return NotFound();
+
+            return Ok(patient);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Patient>> PostPatient(Patient patient)
+        public async Task<ActionResult<Patient>> Register(Patient patient)
         {
-            _context.Patients.Add(patient);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction("GetPatient", new { id = patient.Id }, patient);
+            if (await _patientRepository.GetPatientByEmailAsync(patient.Email) != null)
+                return BadRequest("Patient with this email already exists.");
+
+            await _patientRepository.AddAsync(patient);
+            await _patientRepository.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetById), new { id = patient.Id }, patient);
         }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutPatient(int id, Patient patient)
-        {
-            if (id != patient.Id) return BadRequest();
-            _context.Entry(patient).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PatientExists(id)) return NotFound();
-                else throw;
-            }
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePatient(int id)
-        {
-            var patient = await _context.Patients.FindAsync(id);
-            if (patient == null) return NotFound();
-
-            _context.Patients.Remove(patient);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-
-        private bool PatientExists(int id) => _context.Patients.Any(e => e.Id == id);
     }
 }
+

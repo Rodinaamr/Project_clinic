@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -7,24 +7,18 @@ namespace dermatologyclinicApp.Models
     public class Appointment
     {
         [Key]
-        public int Id { get; set; }  // ADD THIS LINE
-
+        public int Id { get; set; }
         [Required]
         public DateTime AppointmentDate { get; set; }
-
+        public int Duration { get; set; } = 30;
         [Required]
-        public string? Status { get; set; } = "Scheduled"; // Add ? to make nullable
-
+        public string? Status { get; set; } = "Scheduled";
         public string? Notes { get; set; }
-
-        // Foreign Keys
-        public int? PatientId { get; set; } // Make nullable
-        public int? DoctorId { get; set; }  // Make nullable
-
-        // Navigation Properties (make them nullable)
+        public bool IsEmergency { get; set; }
+        public int? PatientId { get; set; }
+        public int? DoctorId { get; set; }
         [ForeignKey("PatientId")]
         public virtual Patient? Patient { get; set; }
-
         [ForeignKey("DoctorId")]
         public virtual Doctor? Doctor { get; set; }
     }
