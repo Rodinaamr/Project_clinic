@@ -91,6 +91,11 @@ app.UseAuthorization();
 app.MapControllers();
 
 // ========== DATABASE INITIALIZATION & SEEDING ==========
+/* 
+   DISABLED FOR CLOUD DEPLOYMENT STABILITY
+   Railway does not have a 'localhost' database. Trying to connect will cause timeouts/crashes.
+   Uncomment this only when a real database (MySQL/PostgreSQL) is connected via environment variables.
+
 try
 {
     using (var scope = app.Services.CreateScope())
@@ -98,7 +103,6 @@ try
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         Console.WriteLine("🔍 Checking database connection...");
-        // This might fail if DB isn't running, but app shouldn't crash entirely if we catch it
         try {
              dbContext.Database.EnsureCreated();
              Console.WriteLine("✅ Database ensured/created!");
@@ -111,5 +115,7 @@ catch (Exception ex)
 {
     Console.WriteLine($"❌ Setup Error: {ex.Message}");
 }
+*/
 
+Console.WriteLine("🚀 Application Starting...");
 app.Run();
