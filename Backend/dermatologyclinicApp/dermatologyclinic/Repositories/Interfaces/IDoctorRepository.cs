@@ -1,4 +1,4 @@
-﻿using dermatologyclinicApp.Models;
+using dermatologyclinicApp.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
