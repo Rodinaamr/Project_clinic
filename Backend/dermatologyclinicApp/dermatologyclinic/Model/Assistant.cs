@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace dermatologyclinicApp.Models
 {
     public class Assistant
     {
         [Key]
-<<<<<<< HEAD
         public int Id { get; set; }
         [Required]
         public string? FirstName { get; set; }
@@ -14,21 +13,7 @@ namespace dermatologyclinicApp.Models
         public string? Email { get; set; }
         public string? Phone { get; set; }
         public string? Role { get; set; }
-=======
-        public int Id { get; set; } // ADD THIS LINE
-
-        [Required]
-        public string? FirstName { get; set; }
-
-        [Required]
-        public string? LastName { get; set; }
-
-        public string? Email { get; set; }
-        public string? Phone { get; set; }
-        public string? Role { get; set; }
-
-        [Required]
-        public string Password { get; set; } = string.Empty;
->>>>>>> origin/main
+        public DateTime? HireDate { get; set; }
     }
 }
+

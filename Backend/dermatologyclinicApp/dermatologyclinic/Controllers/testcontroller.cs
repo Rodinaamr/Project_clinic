@@ -1,9 +1,9 @@
-﻿// Controllers/TestController.cs
+// Controllers/TestController.cs
 using dermatologyclinicApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace dermatologyclinic.Controllers
+namespace dermatologyclinicApp.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
