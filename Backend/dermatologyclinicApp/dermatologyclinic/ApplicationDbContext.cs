@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace dermatologyclinicApp.Models
 {
@@ -21,6 +21,7 @@ namespace dermatologyclinicApp.Models
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Feedback> Feedback { get; set; }
         public DbSet<TreatmentReport> TreatmentReports { get; set; }
+        public DbSet<DoctorAssistant> DoctorAssistants { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -74,7 +75,7 @@ namespace dermatologyclinicApp.Models
 
             // Other configurations can remain as you had them...
 
-            Console.WriteLine("✅ Database model configured successfully");
+            Console.WriteLine("? Database model configured successfully");
         }
     }
 }
