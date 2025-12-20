@@ -1,4 +1,4 @@
-﻿using dermatologyclinicApp.Models;
+using dermatologyclinicApp.Models;
 using dermatologyclinicApp.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
