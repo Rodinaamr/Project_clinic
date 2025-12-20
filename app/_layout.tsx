@@ -5,8 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
-import { StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+// Import from the correct relative path
+import { testBackendConnection } from "./services/api";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -37,6 +40,39 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   useEffect(() => {
+    // Test backend connection when app starts
+    const testConnection = async () => {
+      try {
+        console.log('='.repeat(60));
+        console.log('🚀 STARTING BACKEND CONNECTION TEST');
+        console.log('='.repeat(60));
+        console.log(`📱 Platform: ${Platform.OS}`);
+        
+        const result = await testBackendConnection();
+        
+        if (result.success) {
+          console.log('✅ BACKEND CONNECTION SUCCESSFUL!');
+          console.log('✅ You can now use all API endpoints.');
+        } else {
+          console.log('❌ BACKEND CONNECTION FAILED');
+          console.log(`❌ Error: ${result.error}`);
+          console.log('');
+          console.log('🔧 TROUBLESHOOTING:');
+          console.log('1. Is Visual Studio backend running?');
+          console.log('2. Open http://localhost:7078/swagger in browser');
+          console.log('3. For Android: Use http://10.0.2.2:7078');
+        }
+        
+        console.log('='.repeat(60));
+      } catch (error) {
+        console.error('Unexpected error:', error);
+      }
+    };
+    
+    // Run the test
+    testConnection();
+    
+    // Hide splash screen
     SplashScreen.hideAsync();
   }, []);
 
