@@ -5,13 +5,13 @@ import { Stack, useRouter } from 'expo-router';
 import { AlertCircle, Calendar, Check, Clock, UserPlus } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -87,7 +87,7 @@ export default function WalkInBookingPage() {
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Patient Information</Text>
-          
+
           <TextInput
             style={styles.input}
             placeholder="Patient Name *"
@@ -108,7 +108,7 @@ export default function WalkInBookingPage() {
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Appointment Details</Text>
-          
+
           <View style={styles.dateInfoCard}>
             <Calendar size={18} color={Colors.primary} />
             <Text style={styles.dateInfoText}>
@@ -439,3 +439,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 });
+
+// Feature branch update
+// Assistant Walk update
+
