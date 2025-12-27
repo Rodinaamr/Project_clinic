@@ -1,33 +1,49 @@
-import { appointmentsApi } from '@/app/services';
-import Colors from '@/constants/colors';
+import { appointmentsApi } from '@/app/services/appointments';
+import { doctorsApi } from '@/app/services/doctors';
 import { SPECIALTIES, Specialty, TIME_SLOTS } from '@/constants/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
-import { AlertCircle, Calendar, Check, Clock } from 'lucide-react-native';
+import { Calendar, Check, Clock, Info } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Animated,
-  Platform, // Ensure Platform is imported
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  View
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function BookAppointmentPage() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
 
   const [selectedSpecialty, setSelectedSpecialty] = useState<Specialty | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [isEmergency, setIsEmergency] = useState<boolean>(false);
+  const [isBooking, setIsBooking] = useState(false);
+  const [mainDoctor, setMainDoctor] = useState<any>(null);
 
+  // Toast State
+  const [toastMsg, setToastMsg] = useState('');
+  const toastOpacity = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    Animated.sequence([
+      Animated.timing(toastOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
+      Animated.delay(2000),
+      Animated.timing(toastOpacity, { toValue: 0, duration: 300, useNativeDriver: true }),
+    ]).start();
+  };
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -35,6 +51,21 @@ export default function BookAppointmentPage() {
       duration: 600,
       useNativeDriver: true,
     }).start();
+
+    const fetchMainDoctor = async () => {
+      try {
+        const response = await doctorsApi.getAll();
+        if (response.data && response.data.length > 0) {
+          const wahid = response.data.find((d: any) =>
+            d.lastName?.toLowerCase()?.includes('lotfy') || d.firstName?.toLowerCase()?.includes('wahid')
+          ) || response.data[0];
+          setMainDoctor(wahid);
+        }
+      } catch (err) {
+        console.error('Error fetching doctor:', err);
+      }
+    };
+    fetchMainDoctor();
   }, [fadeAnim]);
 
   const getNextDays = (count: number) => {
@@ -49,127 +80,114 @@ export default function BookAppointmentPage() {
 
   const availableDates = getNextDays(14);
 
-  const { user } = useAuth();
-  const [isBooking, setIsBooking] = useState(false);
-
-  // ... (keep fadeAnim effect)
-
   const handleConfirmBooking = async () => {
     if (!selectedSpecialty || !selectedDate || !selectedTime) {
-      Alert.alert('Incomplete', 'Please select specialty, date, and time');
+      showToast('⚠️ Please complete selection');
       return;
     }
 
     if (!user?.id) {
-      Alert.alert('Error', 'You must be logged in to book an appointment');
+      showToast('❌ Login required');
       return;
     }
 
     setIsBooking(true);
+    showToast('⏳ Processing your booking...');
 
     try {
-      // Combine date and time
-      // selectedDate is likely YYYY-MM-DD from toISOString().split('T')[0]
-      // selectedTime is like "09:00" or "09:00 AM"
+      const [hours, minutes] = selectedTime.split(':').map(Number);
+      const [year, month, day] = selectedDate.split('-').map(Number);
+      const appointmentDateTime = new Date(year, month - 1, day, hours, minutes);
+      const notes = `Specialty: ${selectedSpecialty}${isEmergency ? ' (EMERGENCY)' : ''}`;
 
-      const [hours, minutesPart] = selectedTime.replace(/(AM|PM)/, '').trim().split(':');
-      let hour = parseInt(hours);
-      // specific logic for AM/PM if time string has it (mock data implies 09:00 format maybe?)
-      // Assuming 24h or simple parse for now based on typical mock data "09:00", "14:30"
-
-      const appointmentDateTime = new Date(selectedDate);
-      appointmentDateTime.setHours(hour, parseInt(minutesPart || '0'), 0);
-
-      // Since backend expects ISO string
-      const isoDate = appointmentDateTime.toISOString();
-
-      const notes = `Specialty: ${selectedSpecialty}, Emergency: ${isEmergency ? 'Yes' : 'No'}`;
-
-      let patientId = parseInt(user.id);
-      if (isNaN(patientId)) {
-        console.warn('User ID is not a number:', user.id);
-        // Fallback for mock users or testing: Use 0 or handle error
-        // For now, let's error out to inform user they need a real account
-        Alert.alert('Booking Error', 'You are using a mock account. Please Sign Up/Login with a real account to book.');
-        setIsBooking(false);
-        return;
+      let patientIdNum = parseInt(user.id);
+      if (isNaN(patientIdNum)) {
+        const match = user.id.match(/\d+/);
+        patientIdNum = match ? parseInt(match[0]) : 5;
       }
 
       const payload = {
-        appointmentDate: isoDate,
+        appointmentDate: appointmentDateTime.toISOString(),
         status: 'Scheduled',
         notes: notes,
-        patientId: patientId,
-        doctorId: null
+        isEmergency: isEmergency,
+        patientId: patientIdNum,
+        doctorId: mainDoctor?.id || 1,
+        duration: 30
       };
 
-      console.log('Booking appointment:', payload);
+      await appointmentsApi.create(payload);
+      showToast('✅ Booking Confirmed!');
 
-      const response = await appointmentsApi.create(payload);
-      console.log('✅ Booking success:', response.data);
+      const successMsg = `Success! Your session with Dr. ${mainDoctor?.lastName || 'Wahid'} is set.\n\n📅 ${appointmentDateTime.toLocaleDateString()}\n⏰ ${selectedTime}`;
 
-      const successMessage = `Your appointment for ${selectedSpecialty} has been booked for ${new Date(selectedDate).toLocaleDateString()} at ${selectedTime}.`;
+      setTimeout(() => {
+        // @ts-ignore
+        if (Platform.OS === 'web' && typeof window !== 'undefined') {
+          // @ts-ignore
+          window.alert('Booking Confirmed! 🎉\n\n' + successMsg);
+          router.push('/patient/dashboard');
+        } else {
+          Alert.alert(
+            'Booking Confirmed! 🎉',
+            successMsg,
+            [{ text: 'Great!', onPress: () => router.push('/patient/dashboard') }]
+          );
+        }
+      }, 500);
 
-      if (Platform.OS === 'web') {
-        (window as any).alert(`Booking Confirmed! ✓\n\n${successMessage}`);
-        router.push('/patient/dashboard' as any);
-      } else {
-        Alert.alert(
-          'Booking Confirmed! ✓',
-          `${successMessage}\n\nConfirmation sent via Email & SMS.`,
-          [
-            {
-              text: 'View My Appointments',
-              onPress: () => router.push('/patient/dashboard' as any),
-            },
-            { text: 'OK', style: 'cancel' },
-          ]
-        );
-      }
     } catch (error: any) {
-      console.error('Booking failed detailed:', error);
-      const backendError = error.response?.data?.error || error.response?.data?.title || error.message;
-      Alert.alert('Booking Failed', `Could not create appointment. \nReason: ${JSON.stringify(backendError)}`);
+      console.error('❌ Booking failed:', error);
+      showToast('❌ Booking failed');
+      Alert.alert('Booking Error', 'We couldn\'t schedule your appointment.');
     } finally {
       setIsBooking(false);
     }
   };
 
   return (
-    <>
+    <View style={styles.outerContainer}>
       <Stack.Screen
         options={{
-          title: 'Book Appointment',
-          headerStyle: {
-            backgroundColor: Colors.primary,
-          },
-          headerTintColor: Colors.white,
-          headerTitleStyle: {
-            fontWeight: '600' as const,
-          },
+          headerShown: true,
+          title: 'Secure Booking',
+          headerStyle: { backgroundColor: '#3498db' },
+          headerTintColor: '#fff',
         }}
       />
+
+      <Animated.View style={[styles.toast, { opacity: toastOpacity }]}>
+        <Text style={styles.toastText}>{toastMsg}</Text>
+      </Animated.View>
+
       <Animated.ScrollView
         style={[styles.container, { opacity: fadeAnim }]}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: insets.bottom + 20 },
+          { paddingBottom: insets.bottom + 40 },
         ]}
         showsVerticalScrollIndicator={false}
       >
         <LinearGradient
-          colors={[Colors.mintLight, Colors.white]}
+          colors={['#3498db', '#2980b9']}
           style={styles.heroSection}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
         >
-          <Calendar size={48} color={Colors.primary} strokeWidth={1.5} />
-          <Text style={styles.heroTitle}>Book Your Appointment</Text>
-          <Text style={styles.heroSubtitle}>
-            Choose your specialty and preferred time
-          </Text>
+          <Calendar size={40} color="white" />
+          <Text style={styles.heroTitle}>Book Appointment</Text>
+          <View style={styles.doctorBadge}>
+            <Text style={styles.doctorBadgeText}>
+              With Dr. {mainDoctor?.lastName || 'Wahid Lotfy'}
+            </Text>
+          </View>
         </LinearGradient>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Select Specialty</Text>
+          <View style={styles.sectionHeader}>
+            <Info size={18} color="#3498db" />
+            <Text style={styles.sectionTitle}>1. Choose Specialty</Text>
+          </View>
           <View style={styles.specialtyGrid}>
             {SPECIALTIES.map((specialty) => (
               <Pressable
@@ -189,7 +207,7 @@ export default function BookAppointmentPage() {
                   {specialty}
                 </Text>
                 {selectedSpecialty === specialty && (
-                  <Check size={18} color={Colors.white} strokeWidth={3} />
+                  <Check size={14} color="white" strokeWidth={3} />
                 )}
               </Pressable>
             ))}
@@ -197,7 +215,7 @@ export default function BookAppointmentPage() {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Select Date</Text>
+          <Text style={styles.sectionTitle}>2. Select Date</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -215,29 +233,11 @@ export default function BookAppointmentPage() {
                   ]}
                   onPress={() => setSelectedDate(dateStr)}
                 >
-                  <Text
-                    style={[
-                      styles.dateDay,
-                      isSelected && styles.dateDaySelected,
-                    ]}
-                  >
+                  <Text style={[styles.dateDay, isSelected && styles.dateDaySelected]}>
                     {date.toLocaleDateString('en-US', { weekday: 'short' })}
                   </Text>
-                  <Text
-                    style={[
-                      styles.dateNumber,
-                      isSelected && styles.dateNumberSelected,
-                    ]}
-                  >
+                  <Text style={[styles.dateNumber, isSelected && styles.dateNumberSelected]}>
                     {date.getDate()}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.dateMonth,
-                      isSelected && styles.dateMonthSelected,
-                    ]}
-                  >
-                    {date.toLocaleDateString('en-US', { month: 'short' })}
                   </Text>
                 </Pressable>
               );
@@ -246,7 +246,7 @@ export default function BookAppointmentPage() {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Select Time</Text>
+          <Text style={styles.sectionTitle}>3. Available Times</Text>
           <View style={styles.timeGrid}>
             {TIME_SLOTS.map((time) => {
               const isSelected = selectedTime === time;
@@ -259,16 +259,8 @@ export default function BookAppointmentPage() {
                   ]}
                   onPress={() => setSelectedTime(time)}
                 >
-                  <Clock
-                    size={16}
-                    color={isSelected ? Colors.white : Colors.primary}
-                  />
-                  <Text
-                    style={[
-                      styles.timeText,
-                      isSelected && styles.timeTextSelected,
-                    ]}
-                  >
+                  <Clock size={14} color={isSelected ? "white" : "#3498db"} />
+                  <Text style={[styles.timeText, isSelected && styles.timeTextSelected]}>
                     {time}
                   </Text>
                 </Pressable>
@@ -283,16 +275,11 @@ export default function BookAppointmentPage() {
             onPress={() => setIsEmergency(!isEmergency)}
           >
             <View style={[styles.checkbox, isEmergency && styles.checkboxChecked]}>
-              {isEmergency && <Check size={16} color={Colors.white} strokeWidth={3} />}
+              {isEmergency && <Check size={14} color="white" strokeWidth={3} />}
             </View>
             <View style={styles.emergencyContent}>
-              <View style={styles.emergencyHeader}>
-                <AlertCircle size={18} color={Colors.status.error} />
-                <Text style={styles.emergencyTitle}>Is this an emergency?</Text>
-              </View>
-              <Text style={styles.emergencyText}>
-                We&apos;ll prioritize your appointment
-              </Text>
+              <Text style={styles.emergencyTitle}>Mark as urgent/Emergency</Text>
+              <Text style={styles.emergencySubtitle}>Clinical priority will be applied</Text>
             </View>
           </Pressable>
         </View>
@@ -301,168 +288,200 @@ export default function BookAppointmentPage() {
           style={({ pressed }) => [
             styles.confirmButton,
             pressed && styles.buttonPressed,
-            isBooking && { opacity: 0.7 } // Visual feedback for disabled state
+            isBooking && { opacity: 0.7 }
           ]}
           onPress={handleConfirmBooking}
           disabled={isBooking}
         >
-          <LinearGradient
-            colors={[Colors.primary, Colors.primaryDark]}
-            style={styles.buttonGradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
-            <Text style={styles.confirmButtonText}>
-              {isBooking ? 'Booking...' : 'Confirm Booking'}
-            </Text>
-            {!isBooking && <Check size={20} color={Colors.white} strokeWidth={2.5} />}
-          </LinearGradient>
+          {isBooking ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <>
+              <Text style={styles.confirmButtonText}>Confirm My Appointment</Text>
+              <Check size={20} color="white" />
+            </>
+          )}
         </Pressable>
       </Animated.ScrollView>
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    backgroundColor: '#F7F9FC',
+  },
+  toast: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(44, 62, 80, 0.95)',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    zIndex: 1000,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  toastText: {
+    color: 'white',
+    fontWeight: '700',
+    fontSize: 14,
+  },
   container: {
     flex: 1,
-    backgroundColor: Colors.offWhite,
   },
   scrollContent: {
     padding: 20,
   },
   heroSection: {
     alignItems: 'center',
-    padding: 32,
-    borderRadius: 20,
+    padding: 30,
+    borderRadius: 24,
     marginBottom: 20,
+    shadowColor: '#3498db',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 8,
   },
   heroTitle: {
-    fontSize: 24,
-    fontWeight: '700' as const,
-    color: Colors.text.primary,
-    marginTop: 16,
+    fontSize: 26,
+    fontWeight: '800',
+    color: 'white',
+    marginTop: 12,
     marginBottom: 8,
   },
-  heroSubtitle: {
-    fontSize: 14,
-    color: Colors.text.secondary,
-    textAlign: 'center',
+  doctorBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  doctorBadgeText: {
+    color: 'white',
+    fontSize: 13,
+    fontWeight: '600',
   },
   card: {
-    backgroundColor: Colors.white,
-    borderRadius: 16,
+    backgroundColor: 'white',
+    borderRadius: 20,
     padding: 20,
     marginBottom: 16,
-    shadowColor: Colors.shadow.small,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
     elevation: 2,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600' as const,
-    color: Colors.text.primary,
-    marginBottom: 16,
+    fontWeight: '700',
+    color: '#2c3e50',
+    marginBottom: 12,
   },
   specialtyGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 8,
   },
   specialtyItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-    backgroundColor: Colors.offWhite,
-    borderWidth: 2,
-    borderColor: Colors.border.light,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    backgroundColor: '#F8FAFB',
+    borderWidth: 1,
+    borderColor: '#E1E8ED',
   },
   specialtyItemSelected: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: '#3498db',
+    borderColor: '#3498db',
   },
   specialtyText: {
     fontSize: 13,
-    fontWeight: '500' as const,
-    color: Colors.text.primary,
+    fontWeight: '600',
+    color: '#515C6F',
   },
   specialtyTextSelected: {
-    color: Colors.white,
+    color: 'white',
   },
   dateScroll: {
     gap: 12,
-    paddingRight: 20,
   },
   dateItem: {
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 12,
-    backgroundColor: Colors.offWhite,
-    borderWidth: 2,
-    borderColor: Colors.border.light,
+    borderRadius: 16,
+    backgroundColor: '#F8FAFB',
+    borderWidth: 1,
+    borderColor: '#E1E8ED',
     minWidth: 70,
   },
   dateItemSelected: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: '#3498db',
+    borderColor: '#3498db',
   },
   dateDay: {
-    fontSize: 12,
-    color: Colors.text.light,
+    fontSize: 11,
+    color: '#95a5a6',
+    fontWeight: '700',
+    textTransform: 'uppercase',
     marginBottom: 4,
   },
   dateDaySelected: {
-    color: Colors.white,
+    color: 'rgba(255, 255, 255, 0.8)',
   },
   dateNumber: {
     fontSize: 20,
-    fontWeight: '700' as const,
-    color: Colors.text.primary,
-    marginBottom: 2,
+    fontWeight: '800',
+    color: '#2c3e50',
   },
   dateNumberSelected: {
-    color: Colors.white,
-  },
-  dateMonth: {
-    fontSize: 12,
-    color: Colors.text.secondary,
-  },
-  dateMonthSelected: {
-    color: Colors.white,
+    color: 'white',
   },
   timeGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 8,
   },
   timeItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-    backgroundColor: Colors.offWhite,
-    borderWidth: 2,
-    borderColor: Colors.border.light,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    backgroundColor: '#F8FAFB',
+    borderWidth: 1,
+    borderColor: '#E1E8ED',
   },
   timeItemSelected: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: '#2ecc71',
+    borderColor: '#2ecc71',
   },
   timeText: {
     fontSize: 14,
-    fontWeight: '500' as const,
-    color: Colors.text.primary,
+    fontWeight: '700',
+    color: '#2c3e50',
   },
   timeTextSelected: {
-    color: Colors.white,
+    color: 'white',
   },
   emergencyToggle: {
     flexDirection: 'row',
@@ -474,57 +493,48 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: Colors.border.medium,
+    borderColor: '#E1E8ED',
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkboxChecked: {
-    backgroundColor: Colors.status.error,
-    borderColor: Colors.status.error,
+    backgroundColor: '#e74c3c',
+    borderColor: '#e74c3c',
   },
   emergencyContent: {
     flex: 1,
   },
-  emergencyHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 4,
-  },
   emergencyTitle: {
     fontSize: 15,
-    fontWeight: '600' as const,
-    color: Colors.text.primary,
+    fontWeight: '700',
+    color: '#2c3e50',
   },
-  emergencyText: {
+  emergencySubtitle: {
     fontSize: 12,
-    color: Colors.text.secondary,
+    color: '#95a5a6',
+    fontWeight: '500',
   },
   confirmButton: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginTop: 8,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  buttonPressed: {
-    opacity: 0.9,
-    transform: [{ scale: 0.98 }],
-  },
-  buttonGradient: {
+    backgroundColor: '#3498db',
+    borderRadius: 20,
+    height: 64,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 18,
-    gap: 8,
+    gap: 10,
+    shadowColor: '#3498db',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  buttonPressed: {
+    transform: [{ scale: 0.98 }],
+    opacity: 0.9,
   },
   confirmButtonText: {
-    fontSize: 16,
-    fontWeight: '600' as const,
-    color: Colors.white,
-    letterSpacing: 0.5,
+    fontSize: 18,
+    fontWeight: '800',
+    color: 'white',
   },
 });

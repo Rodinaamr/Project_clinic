@@ -23,6 +23,13 @@ namespace dermatologyclinicApp.Controllers
             return Ok(await _repository.GetAllAsync());
         }
 
+        [HttpGet("patient/{patientId}")]
+        public async Task<ActionResult<IEnumerable<Payment>>> GetByPatientId(int patientId)
+        {
+            var payments = await _repository.GetAllAsync();
+            return Ok(System.Linq.Enumerable.Where(payments, p => p.PatientId == patientId));
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Payment>> GetById(int id)
         {

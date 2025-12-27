@@ -1,13 +1,18 @@
+import { appointmentsApi } from '@/app/services';
 import Colors from '@/constants/colors';
-import { MOCK_APPOINTMENTS } from '@/constants/mockData';
+import { useBackendData } from '@/hooks/useBackendData';
 import { Stack } from 'expo-router';
 import { AlertCircle, Clock, User } from 'lucide-react-native';
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function DoctorAppointmentsPage() {
   const insets = useSafeAreaInsets();
+  const { data: appointments, loading, error } = useBackendData(
+    () => appointmentsApi.getAll(),
+    []
+  );
 
   return (
     <>
@@ -25,12 +30,23 @@ export default function DoctorAppointmentsPage() {
           { paddingBottom: insets.bottom + 20 },
         ]}
       >
-        {MOCK_APPOINTMENTS.map((apt) => (
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.secondary} />
+            <Text style={styles.loadingText}>Loading appointments...</Text>
+          </View>
+        ) : (appointments || []).length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>No appointments found</Text>
+          </View>
+        ) : (appointments || []).map((apt: any) => (
           <View key={apt.id} style={styles.appointmentCard}>
             <View style={styles.cardHeader}>
               <View style={styles.patientInfo}>
                 <User size={20} color={Colors.secondary} />
-                <Text style={styles.patientName}>{apt.patientName}</Text>
+                <Text style={styles.patientName}>
+                  {apt.patient ? `${apt.patient.firstName} ${apt.patient.lastName}` : `Patient #${apt.patientId}`}
+                </Text>
               </View>
               {apt.isEmergency && (
                 <View style={styles.emergencyBadge}>
@@ -44,10 +60,10 @@ export default function DoctorAppointmentsPage() {
               <View style={styles.infoRow}>
                 <Clock size={16} color={Colors.text.secondary} />
                 <Text style={styles.infoText}>
-                  {new Date(apt.date).toLocaleDateString()} at {apt.time}
+                  {new Date(apt.appointmentDate).toLocaleDateString()} at {new Date(apt.appointmentDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </Text>
               </View>
-              <Text style={styles.specialty}>{apt.specialty}</Text>
+              <Text style={styles.specialty}>{apt.notes?.split('Specialty: ')[1]?.split(',')[0] || 'General Consultation'}</Text>
             </View>
 
             <View style={styles.cardFooter}>
@@ -62,16 +78,16 @@ export default function DoctorAppointmentsPage() {
                 <Text
                   style={[
                     styles.statusText,
-                    apt.status === 'reserved' && styles.statusTextReserved,
-                    apt.status === 'completed' && styles.statusTextCompleted,
-                    apt.status === 'canceled' && styles.statusTextCanceled,
+                    apt.status === 'Scheduled' && styles.statusTextReserved,
+                    apt.status === 'Completed' && styles.statusTextCompleted,
+                    apt.status === 'Cancelled' && styles.statusTextCanceled,
                   ]}
                 >
-                  {apt.status.charAt(0).toUpperCase() + apt.status.slice(1)}
+                  {apt.status}
                 </Text>
               </View>
 
-              {apt.status === 'reserved' && (
+              {apt.status === 'Scheduled' && (
                 <Pressable style={styles.viewButton}>
                   <Text style={styles.viewButtonText}>View Details</Text>
                 </Pressable>
@@ -194,4 +210,23 @@ const styles = StyleSheet.create({
     fontWeight: '600' as const,
     color: Colors.white,
   },
+  loadingContainer: {
+    paddingVertical: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: Colors.text.secondary,
+  },
+  emptyState: {
+    paddingVertical: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: Colors.text.secondary,
+  }
 });

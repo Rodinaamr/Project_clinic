@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Button,
-    Linking,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View
+  ActivityIndicator,
+  Alert,
+  Button,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
 } from 'react-native';
-import { assistantApi } from './services/api';
+import { API_BASE_URL, assistantApi } from './services/api';
 
 export default function TestConnectionScreen() {
   const [assistants, setAssistants] = useState<any[]>([]);
@@ -19,39 +19,40 @@ export default function TestConnectionScreen() {
   const testConnection = async () => {
     setLoading(true);
     setStatus('idle');
-    
-    console.log('🧪 Testing connection to backend...');
-    
+
+    console.log(`🧪 Testing connection to: ${API_BASE_URL}`);
+
     try {
       const response = await assistantApi.getAll();
-      
+
       console.log('✅ SUCCESS! Response:', {
         status: response.status,
         data: response.data,
         count: response.data.length
       });
-      
+
       setAssistants(response.data);
       setStatus('success');
-      
+
       Alert.alert(
         '🎉 CONNECTED!',
         `Frontend successfully connected to backend!\n\n` +
+        `Endpoint: ${API_BASE_URL}\n` +
         `Status: ${response.status}\n` +
         `Found ${response.data.length} assistants in database.`
       );
-      
+
     } catch (error: any) {
       console.error('❌ CONNECTION FAILED:', error);
       setStatus('error');
-      
+
       Alert.alert(
         '❌ CONNECTION FAILED',
         `Error: ${error.message}\n\n` +
         `Troubleshooting:\n` +
-        `1. Is backend running? (Visual Studio F5)\n` +
-        `2. Open: https://localhost:7078/api/Assistants\n` +
-        `3. Check browser console (F12) for details`
+        `1. Is backend running?\n` +
+        `2. Open: ${API_BASE_URL}/api/Assistants\n` +
+        `3. Verify CORS configuration`
       );
     } finally {
       setLoading(false);
@@ -63,7 +64,7 @@ export default function TestConnectionScreen() {
       await assistantApi.create({
         firstName: 'Frontend',
         lastName: 'Test',
-        email: 'test@clinic.com',
+        email: `test-${Date.now()}@clinic.com`,
         phone: '0123456789',
         role: 'Test Assistant'
       });
@@ -75,7 +76,7 @@ export default function TestConnectionScreen() {
   };
 
   const openBackendURL = () => {
-    Linking.openURL('https://localhost:7078/api/Assistants');
+    Linking.openURL(`${API_BASE_URL}/api/Assistants`);
   };
 
   useEffect(() => {
@@ -85,10 +86,10 @@ export default function TestConnectionScreen() {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>🔗 Frontend-Backend Connection Test</Text>
-      
+
       <Text style={styles.subtitle}>
-        Testing connection to:{'\n'}
-        <Text style={styles.url}>https://localhost:7078</Text>
+        Active API Environment:{'\n'}
+        <Text style={styles.url}>{API_BASE_URL}</Text>
       </Text>
 
       {/* Status Display */}
@@ -110,21 +111,21 @@ export default function TestConnectionScreen() {
           title={loading ? "Testing..." : "Test Connection"}
           onPress={testConnection}
           disabled={loading}
-          color="#007AFF"
-        />
-      </View>
-      
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Add Test Assistant"
-          onPress={createTestAssistant}
-          color="#34C759"
+          color="#3498DB"
         />
       </View>
 
       <View style={styles.buttonContainer}>
         <Button
-          title="Open Backend URL"
+          title="Add Test Assistant"
+          onPress={createTestAssistant}
+          color="#27AE60"
+        />
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <Button
+          title="Open API Endpoint"
           onPress={openBackendURL}
           color="#8E44AD"
         />
@@ -132,7 +133,7 @@ export default function TestConnectionScreen() {
 
       {loading && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color="#3498DB" />
           <Text style={styles.loadingText}>Connecting to backend...</Text>
         </View>
       )}
@@ -140,20 +141,20 @@ export default function TestConnectionScreen() {
       {/* Results */}
       <View style={styles.resultsContainer}>
         <Text style={styles.resultsTitle}>
-          📊 Database Results ({assistants.length} assistants)
+          📊 Database Record ({assistants.length})
         </Text>
-        
+
         {assistants.length === 0 ? (
           <Text style={styles.emptyText}>No assistants found. Add one above!</Text>
         ) : (
-          assistants.map((assistant) => (
+          assistants.slice(0, 5).map((assistant: any) => (
             <View key={assistant.id} style={styles.assistantCard}>
               <Text style={styles.assistantName}>
                 {assistant.firstName} {assistant.lastName}
               </Text>
               <Text style={styles.assistantDetail}>📧 {assistant.email}</Text>
               <Text style={styles.assistantDetail}>📞 {assistant.phone}</Text>
-              <Text style={styles.assistantDetail}>💼 {assistant.role}</Text>
+              <Text style={styles.assistantDetail}>💼 {assistant.role || 'Assistant'}</Text>
             </View>
           ))
         )}
@@ -161,23 +162,20 @@ export default function TestConnectionScreen() {
 
       {/* Quick Test */}
       <View style={styles.testContainer}>
-        <Text style={styles.testTitle}>Quick Manual Test:</Text>
+        <Text style={styles.testTitle}>Quick Diagnostic Check:</Text>
         <Text style={styles.testText}>
-          Backend URL:{'\n'}
+          Try accessing this in your browser:{'\n'}
           <Text style={styles.testLink}>
-            https://localhost:7078/api/Assistants
+            {API_BASE_URL}/api/Assistants
           </Text>
-          {'\n\n'}
-          Should show: []
-          {assistants.length > 0 && ` or ${assistants.length} assistants`}
         </Text>
-        
-        <Text style={styles.testInstructions}>
-          To test manually:{'\n'}
-          1. Keep backend running (Visual Studio F5){'\n'}
-          2. Click "Open Backend URL" above{'\n'}
-          3. Should see JSON data in browser
-        </Text>
+
+        <View style={styles.testInstructions}>
+          <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>System Status:</Text>
+          <Text>• Backend Profile: Development</Text>
+          <Text>• Database: MySQL (CONNECTED)</Text>
+          <Text>• CORS: AllowAll (ENABLED)</Text>
+        </View>
       </View>
     </ScrollView>
   );

@@ -17,10 +17,9 @@ export default function ReportsPage() {
     const fetchReports = async () => {
       if (!user?.id) return;
       try {
-        const response = await medicalReportsApi.getAll();
-        if (response.data) {
-          // Filter reports for this patient
-          const userReports = response.data.filter((r: any) => String(r.patientId) === String(user.id));
+        const allResponse = await medicalReportsApi.getAll();
+        if (allResponse.data) {
+          const userReports = allResponse.data.filter((r: any) => String(r.patientId) === String(user.id));
           setReports(userReports);
         }
       } catch (err) {

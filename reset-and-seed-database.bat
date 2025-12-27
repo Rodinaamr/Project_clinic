@@ -9,13 +9,11 @@ taskkill /F /IM dermatologyclinic.exe 2>nul
 taskkill /F /IM dotnet.exe 2>nul
 timeout /t 2 /nobreak >nul
 
-echo [2/4] Deleting old database...
+echo [2/4] Resetting database...
 cd Backend\dermatologyclinicApp\dermatologyclinic
-del /F /Q *.db 2>nul
-echo.
-
-echo [3/4] Creating fresh database...
+dotnet ef database drop --force
 dotnet ef database update
+echo.
 echo.
 
 echo [4/4] Starting backend with test data...

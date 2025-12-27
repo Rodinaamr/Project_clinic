@@ -25,6 +25,29 @@ namespace dermatologyclinicApp.Controllers
             return Ok(appointments);
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Appointment>> GetById(int id)
+        {
+            var appointment = await _appointmentService.GetByIdAsync(id);
+            if (appointment == null)
+                return NotFound();
+            return Ok(appointment);
+        }
+
+        [HttpGet("patient/{patientId}")]
+        public async Task<ActionResult<IEnumerable<Appointment>>> GetByPatientId(int patientId)
+        {
+            var appointments = await _appointmentService.GetByPatientIdAsync(patientId);
+            return Ok(appointments);
+        }
+
+        [HttpGet("doctor/{doctorId}")]
+        public async Task<ActionResult<IEnumerable<Appointment>>> GetByDoctorId(int doctorId)
+        {
+            var appointments = await _appointmentService.GetByDoctorIdAsync(doctorId);
+            return Ok(appointments);
+        }
+
         [HttpGet("today")]
         public async Task<ActionResult<IEnumerable<Appointment>>> GetTodayAppointments()
         {
@@ -38,7 +61,7 @@ namespace dermatologyclinicApp.Controllers
             try
             {
                 var createdAppointment = await _appointmentService.CreateAppointmentAsync(appointment);
-                return CreatedAtAction(nameof(GetUpcomingAppointments), new { id = createdAppointment.Id }, createdAppointment);
+                return CreatedAtAction(nameof(GetById), new { id = createdAppointment.Id }, createdAppointment);
             }
             catch (InvalidOperationException ex)
             {

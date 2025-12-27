@@ -1,8 +1,19 @@
-import api from '@/app/services/api';
+import {
+    appointmentApi,
+    assistantApi,
+    doctorApi,
+    feedbackApi,
+    medicalReportApi,
+    medicationApi,
+    patientApi,
+    paymentApi,
+    prescriptionApi,
+    treatmentReportApi
+} from '@/app/services/api';
 import { useCallback, useEffect, useState } from 'react';
 
 // Generic hook for fetching data with loading and error states
-function useBackendData<T>(
+export function useBackendData<T>(
     fetchFunction: () => Promise<{ data: T }>,
     dependencies: any[] = []
 ) {
@@ -33,16 +44,16 @@ function useBackendData<T>(
 
 // Appointments
 export function useAppointments(days: number = 7) {
-    return useBackendData(() => api.appointment.getUpcoming(days), [days]);
+    return useBackendData(() => appointmentApi.getUpcoming(days), [days]);
 }
 
 export function useTodayAppointments() {
-    return useBackendData(() => api.appointment.getToday(), []);
+    return useBackendData(() => appointmentApi.getToday(), []);
 }
 
 export async function createAppointment(appointmentData: any) {
     try {
-        const response = await api.appointment.create(appointmentData);
+        const response = await appointmentApi.create(appointmentData);
         return { success: true, data: response.data };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -51,7 +62,7 @@ export async function createAppointment(appointmentData: any) {
 
 export async function updateAppointment(id: number, appointmentData: any) {
     try {
-        const response = await api.appointment.update(id, appointmentData);
+        const response = await appointmentApi.update(id, appointmentData);
         return { success: true, data: response.data };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -60,7 +71,7 @@ export async function updateAppointment(id: number, appointmentData: any) {
 
 export async function cancelAppointment(id: number) {
     try {
-        await api.appointment.cancel(id);
+        await appointmentApi.cancel(id);
         return { success: true };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -69,36 +80,36 @@ export async function cancelAppointment(id: number) {
 
 // Doctors
 export function useDoctors() {
-    return useBackendData(() => api.doctor.getAll(), []);
+    return useBackendData(() => doctorApi.getAll(), []);
 }
 
 export function useDoctor(id: number) {
-    return useBackendData(() => api.doctor.getById(id), [id]);
+    return useBackendData(() => doctorApi.getById(id), [id]);
 }
 
 export function useDoctorsBySpeciality(speciality: string) {
-    return useBackendData(() => api.doctor.getBySpeciality(speciality), [speciality]);
+    return useBackendData(() => doctorApi.getBySpeciality(speciality), [speciality]);
 }
 
 export function useAvailableDoctors(date: string, startTime: string, endTime: string) {
     return useBackendData(
-        () => api.doctor.getAvailable(date, startTime, endTime),
+        () => doctorApi.getAvailable(date, startTime, endTime),
         [date, startTime, endTime]
     );
 }
 
 // Patients
 export function usePatients(searchQuery?: string) {
-    return useBackendData(() => api.patient.search(searchQuery), [searchQuery]);
+    return useBackendData(() => patientApi.search(searchQuery), [searchQuery]);
 }
 
 export function usePatient(id: number) {
-    return useBackendData(() => api.patient.getById(id), [id]);
+    return useBackendData(() => patientApi.getById(id), [id]);
 }
 
 export async function registerPatient(patientData: any) {
     try {
-        const response = await api.patient.register(patientData);
+        const response = await patientApi.signup(patientData);
         return { success: true, data: response.data };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -107,16 +118,16 @@ export async function registerPatient(patientData: any) {
 
 // Assistants
 export function useAssistants() {
-    return useBackendData(() => api.assistant.getAll(), []);
+    return useBackendData(() => assistantApi.getAll(), []);
 }
 
 export function useAssistant(id: number) {
-    return useBackendData(() => api.assistant.getById(id), [id]);
+    return useBackendData(() => assistantApi.getById(id), [id]);
 }
 
 export async function createAssistant(assistantData: any) {
     try {
-        const response = await api.assistant.create(assistantData);
+        const response = await assistantApi.create(assistantData);
         return { success: true, data: response.data };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -125,12 +136,12 @@ export async function createAssistant(assistantData: any) {
 
 // Feedback
 export function useFeedback() {
-    return useBackendData(() => api.feedback.getAll(), []);
+    return useBackendData(() => feedbackApi.getAll(), []);
 }
 
 export async function createFeedback(feedbackData: any) {
     try {
-        const response = await api.feedback.create(feedbackData);
+        const response = await feedbackApi.create(feedbackData);
         return { success: true, data: response.data };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -139,16 +150,16 @@ export async function createFeedback(feedbackData: any) {
 
 // Medical Reports
 export function useMedicalReports() {
-    return useBackendData(() => api.medicalReport.getAll(), []);
+    return useBackendData(() => medicalReportApi.getAll(), []);
 }
 
 export function useMedicalReport(id: number) {
-    return useBackendData(() => api.medicalReport.getById(id), [id]);
+    return useBackendData(() => medicalReportApi.getById(id), [id]);
 }
 
 export async function createMedicalReport(reportData: any) {
     try {
-        const response = await api.medicalReport.create(reportData);
+        const response = await medicalReportApi.create(reportData);
         return { success: true, data: response.data };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -157,12 +168,12 @@ export async function createMedicalReport(reportData: any) {
 
 // Medications
 export function useMedications() {
-    return useBackendData(() => api.medication.getAll(), []);
+    return useBackendData(() => medicationApi.getAll(), []);
 }
 
 export async function createMedication(medicationData: any) {
     try {
-        const response = await api.medication.create(medicationData);
+        const response = await medicationApi.create(medicationData);
         return { success: true, data: response.data };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -171,12 +182,12 @@ export async function createMedication(medicationData: any) {
 
 // Payments
 export function usePayments() {
-    return useBackendData(() => api.payment.getAll(), []);
+    return useBackendData(() => paymentApi.getAll(), []);
 }
 
 export async function createPayment(paymentData: any) {
     try {
-        const response = await api.payment.create(paymentData);
+        const response = await paymentApi.create(paymentData);
         return { success: true, data: response.data };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -185,12 +196,12 @@ export async function createPayment(paymentData: any) {
 
 // Prescriptions
 export function usePrescriptions() {
-    return useBackendData(() => api.prescription.getAll(), []);
+    return useBackendData(() => prescriptionApi.getAll(), []);
 }
 
 export async function createPrescription(prescriptionData: any) {
     try {
-        const response = await api.prescription.create(prescriptionData);
+        const response = await prescriptionApi.create(prescriptionData);
         return { success: true, data: response.data };
     } catch (error: any) {
         return { success: false, error: error.message };
@@ -199,12 +210,12 @@ export async function createPrescription(prescriptionData: any) {
 
 // Treatment Reports
 export function useTreatmentReports() {
-    return useBackendData(() => api.treatmentReport.getAll(), []);
+    return useBackendData(() => treatmentReportApi.getAll(), []);
 }
 
 export async function createTreatmentReport(reportData: any) {
     try {
-        const response = await api.treatmentReport.create(reportData);
+        const response = await treatmentReportApi.create(reportData);
         return { success: true, data: response.data };
     } catch (error: any) {
         return { success: false, error: error.message };

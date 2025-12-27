@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("dermatologyclinic")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cbdcb8bde47fa4de56de63aafd6cbacdd94272af")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8aa1c71026e02d6214298e54830a220878b99776")]
 [assembly: System.Reflection.AssemblyProductAttribute("dermatologyclinic")]
 [assembly: System.Reflection.AssemblyTitleAttribute("dermatologyclinic")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

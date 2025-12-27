@@ -44,57 +44,127 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// ========== MOCK OCR/ACR/NLP SERVICES ==========
-const extractPrescriptionText = async (imageUri: string): Promise<string> => {
-  console.log('OCR: Extracting text from prescription image', imageUri);
-  
-  const prescriptions = [
-    `PRESCRIPTION\nPatient: Sarah Johnson\nDate: ${new Date().toISOString().split('T')[0]}\nDoctor: Dr. Wahid Lotfy\nClinic: Skin & Laser Center\n\nMedications:\n1. Clindamycin ${Math.random() > 0.5 ? '1%' : '2%'} Gel\n   Apply thin layer twice daily\n\n2. Doxycycline ${Math.random() > 0.5 ? '100mg' : '50mg'}\n   Take ${Math.random() > 0.5 ? '1' : '2'} capsule daily with food\n\n3. ${Math.random() > 0.5 ? 'Adapalene' : 'Tretinoin'} ${Math.random() > 0.5 ? '0.1%' : '0.05%'} Gel\n   Apply at bedtime\n\nFollow up in ${Math.random() > 0.5 ? '4' : '6'} weeks\nSignature: Dr. Wahid Lotfy`,
+// ========== IMPORT REAL MEDICAL AI SERVICES ==========
+import { medicalReportApi, patientApi } from '../services/api';
+import { validateMedicalDocument } from '../services/medicalACR';
+import { analyzePrescription } from '../services/medicalNLP';
+import { extractPrescriptionText, transcribePrescriptionAudio } from '../services/medicalOCR';
 
-    `PRESCRIPTION FORM\nPatient: Michael Chen\nDate: ${new Date().toISOString().split('T')[0]}\nDiagnosis: ${Math.random() > 0.5 ? 'Acne Vulgaris' : 'Psoriasis'}\n\nRx:\n- ${Math.random() > 0.5 ? 'Metronidazole' : 'Erythromycin'} ${Math.random() > 0.5 ? '0.75%' : '2%'} Cream\n  Apply to affected areas daily\n\n- ${Math.random() > 0.5 ? 'Isotretinoin' : 'Spironolactone'} ${Math.random() > 0.5 ? '20mg' : '50mg'}\n  Take with fatty meal\n\n- Sunscreen SPF ${Math.random() > 0.5 ? '30' : '50'}+\n  Apply every morning\n\nDr. Wahid Lotfy\nMED-LICENSE-12345`,
-
-    `MEDICAL PRESCRIPTION\nPatient: Emma Wilson\nDate: ${new Date().toISOString().split('T')[0]}\n\nPrescribed:\n• ${Math.random() > 0.5 ? 'Hydrocortisone' : 'Betamethasone'} ${Math.random() > 0.5 ? '1%' : '2.5%'} Cream\n  Apply sparingly to affected area\n\n• ${Math.random() > 0.5 ? 'Cetirizine' : 'Loratadine'} ${Math.random() > 0.5 ? '10mg' : '5mg'}\n  Take once daily for itching\n\n• ${Math.random() > 0.5 ? 'Fusidic Acid' : 'Mupirocin'} Ointment\n  For secondary infection\n\nInstructions: ${Math.random() > 0.5 ? 'Avoid sun exposure' : 'Use moisturizer regularly'}\nFollow-up: ${Math.random() > 0.5 ? '2 weeks' : '1 month'}`
-  ];
-  
-  return prescriptions[Math.floor(Math.random() * prescriptions.length)];
-};
-
+// ========== HELPER FUNCTIONS ==========
 const parsePrescriptionData = (text: string) => {
   const medications: any[] = [];
   let doctorName = '';
   let date = '';
   let clinic = '';
-  
+
+  console.log('📋 Parsing prescription text:', text);
+
   const lines = text.split('\n');
-  
+
+  // Extract doctor, date, clinic
   lines.forEach(line => {
-    if (line.includes('Doctor:')) {
-      doctorName = line.replace('Doctor:', '').trim();
-    } else if (line.includes('Dr.')) {
-      doctorName = line.trim();
+    const lowerLine = line.toLowerCase();
+    if (lowerLine.includes('doctor:') || lowerLine.includes('dr.') || lowerLine.includes('physician:')) {
+      doctorName = line.replace(/doctor:|physician:/i, '').trim();
     }
-    if (line.includes('Date:')) {
-      date = line.replace('Date:', '').trim();
+    if (lowerLine.includes('date:') || line.match(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/)) {
+      date = line.replace(/date:/i, '').trim();
     }
-    if (line.includes('Clinic:')) {
-      clinic = line.replace('Clinic:', '').trim();
+    if (lowerLine.includes('clinic:') || lowerLine.includes('center:') || lowerLine.includes('hospital:')) {
+      clinic = line.replace(/clinic:|center:|hospital:/i, '').trim();
     }
-    
-    if (line.match(/\d+%|\d+mg|Cream|Gel|Ointment|Tablet|Capsule/)) {
-      const parts = line.split(/\s+/);
-      if (parts.length > 1) {
-        const name = parts[0];
-        const dosage = line.match(/\d+%|\d+mg/)?.[0] || '';
+  });
+
+  // Enhanced medication extraction
+  const medicationPatterns = [
+    // Pattern 1: Name + Dosage (e.g., "Metformin 500mg") - made more flexible
+    /([A-Z][a-z]+(?:in|ol|ide|ate|ine|one)?)\s*(\d+(?:\.\d+)?\s*(?:mg|g|ml|mcg|%|iu))/gi,
+
+    // Pattern 2: Name on its own line (more permissive)
+    /^([A-Z][a-z]{3,})\s*$/gm,
+
+    // Pattern 3: Dosage first then name (rare but happens)
+    /(\d+(?:\.\d+)?\s*(?:mg|g|ml|mcg|%|iu))\s+([A-Z][a-z]+)/gi
+  ];
+
+  const fullText = text;
+  console.log('🔍 Full text for analysis:', fullText);
+
+  // Try to find medications using patterns
+  medicationPatterns.forEach((pattern, index) => {
+    let match;
+    // Reset lastIndex for global regex
+    pattern.lastIndex = 0;
+
+    while ((match = pattern.exec(fullText)) !== null) {
+      console.log(`✨ Pattern ${index + 1} match:`, match[0]);
+
+      // Handle different match groups based on pattern
+      let medName = match[1];
+      let dosage = match[2] || '';
+
+      if (index === 2) { // Dosage first pattern
+        dosage = match[1];
+        medName = match[2];
+      }
+
+      // Find the context (surrounding lines) for this medication
+      const medIndex = fullText.indexOf(match[0]);
+      const beforeText = fullText.substring(Math.max(0, medIndex - 100), medIndex);
+      const afterText = fullText.substring(medIndex, Math.min(fullText.length, medIndex + 200));
+      const context = beforeText + afterText;
+
+      // Extract instructions
+      const instructions = extractInstructions(context);
+
+      // Determine type
+      let type = 'Oral';
+      if (context.match(/cream|gel|ointment|lotion|topical|apply/i)) {
+        type = 'Topical';
+      } else if (context.match(/injection|inject|IV|IM/i)) {
+        type = 'Injection';
+      }
+
+      // Avoid duplicates
+      if (!medications.some(m => m.name.toLowerCase() === medName.toLowerCase())) {
         medications.push({
-          name,
-          dosage,
-          instructions: line.trim(),
-          type: line.includes('Cream') || line.includes('Gel') || line.includes('Ointment') ? 'Topical' : 'Oral'
+          name: medName,
+          dosage: dosage || extractDosage(context),
+          instructions: instructions || match[0],
+          type
         });
       }
     }
   });
-  
+
+  // Fallback: Look for common medication keywords if nothing found yet or to supplement
+  const commonMeds = ['metformin', 'clindamycin', 'doxycycline', 'tretinoin', 'adapalene', 'isotretinoin', 'benzoyl', 'salicylic', 'amoxicillin', 'ibuprofen', 'paracetamol', 'lisinopril', 'atorvastatin'];
+
+  lines.forEach(line => {
+    const lowerLine = line.toLowerCase();
+    commonMeds.forEach(med => {
+      // Check if med name is in the line and not already finding it
+      if (lowerLine.includes(med)) {
+        console.log(`✨ Keyword match found for: ${med}`);
+
+        // If we haven't added this med yet
+        if (!medications.some(m => m.name.toLowerCase().includes(med))) {
+          const dosage = line.match(/(\d+(?:\.\d+)?\s*(?:mg|g|ml|mcg|%|iu))/i)?.[0] || extractDosage(fullText);
+          const type = line.match(/cream|gel|ointment|apply/i) ? 'Topical' : 'Oral';
+
+          medications.push({
+            name: med.charAt(0).toUpperCase() + med.slice(1),
+            dosage: dosage,
+            instructions: line.trim() || 'As directed',
+            type: type
+          });
+        }
+      }
+    });
+  });
+
+  console.log(`✅ Found ${medications.length} medications:`, medications);
+
   return {
     doctorName: doctorName || 'Dr. Wahid Lotfy',
     clinic: clinic || 'Skin & Laser Center',
@@ -104,187 +174,32 @@ const parsePrescriptionData = (text: string) => {
   };
 };
 
-const analyzePrescription = (text: string, patientAllergies: string[] = [], patientGender: string = '') => {
-  const warnings: string[] = [];
-  const medications: any[] = [];
-  const recommendations: string[] = [];
-  
-  const medRegex = /(\b\w+\b)\s+(\d+%|\d+mg|\d+\s*mg)/gi;
-  const matches = [...text.matchAll(medRegex)];
-  
-  matches.forEach(match => {
-    medications.push({
-      name: match[1],
-      dosage: match[2],
-      foundAt: match.index
-    });
-  });
-  
-  medications.forEach(med => {
-    const medName = med.name.toLowerCase();
-    
-    patientAllergies.forEach(allergy => {
-      const allergyLower = allergy.toLowerCase();
-      if (allergyLower.includes('penicillin') && medName.includes('penicillin')) {
-        warnings.push(`⚠️ ${med.name} contraindicated - Patient has Penicillin allergy`);
-      }
-      if (allergyLower.includes('sulfa') && medName.includes('sulfa')) {
-        warnings.push(`⚠️ ${med.name} contraindicated - Patient has Sulfa allergy`);
-      }
-      if ((allergyLower.includes('tetracycline') || allergyLower.includes('doxycycline')) && 
-          (medName.includes('doxycycline') || medName.includes('tetracycline'))) {
-        warnings.push(`⚠️ ${med.name} contraindicated - Patient has Tetracycline allergy`);
-      }
-    });
-    
-    if (medName.includes('isotretinoin') || medName.includes('accutane')) {
-      warnings.push('⚠️ Isotretinoin requires monthly pregnancy tests');
-      warnings.push('⚠️ Avoid pregnancy for 1 month after treatment');
-      warnings.push('⚠️ Monitor liver function monthly');
-      recommendations.push('Baseline lipid profile required');
-    }
-    
-    if (medName.includes('doxycycline') || medName.includes('tetracycline') || medName.includes('minocycline')) {
-      warnings.push('☀️ Severe photosensitivity risk - Use SPF 50+ sunscreen');
-      warnings.push('💊 Take with food to prevent nausea');
-      if (text.toLowerCase().includes('30') || text.toLowerCase().includes('long')) {
-        warnings.push('⚠️ Long-term use requires liver function monitoring');
-      }
-    }
-    
-    if (medName.includes('tretinoin') || medName.includes('retinoid') || medName.includes('adapalene')) {
-      warnings.push('☀️ Increases sun sensitivity - Daily sunscreen mandatory');
-      warnings.push('⚠️ Initial redness and peeling expected');
-      recommendations.push('Start with every other day application');
-    }
-    
-    if (medName.includes('spironolactone')) {
-      warnings.push('⚠️ Monitor potassium levels regularly');
-      warnings.push('⚠️ Contraindicated in pregnancy');
-      if (patientGender.toLowerCase().includes('male')) {
-        warnings.push('⚠️ May cause gynecomastia in males');
-      }
-    }
-    
-    if (medName.includes('clindamycin') || medName.includes('erythromycin')) {
-      warnings.push('💊 Complete full course even if symptoms improve');
-      if (text.toLowerCase().includes('gel') || text.toLowerCase().includes('cream')) {
-        recommendations.push('Apply to clean, dry skin');
-      }
-    }
-  });
-  
-  const durationMatch = text.match(/(\d+)\s*(week|day|month)/i);
-  if (durationMatch) {
-    const num = parseInt(durationMatch[1]);
-    const unit = durationMatch[2].toLowerCase();
-    
-    if (unit === 'week' && num > 8) {
-      warnings.push(`📅 Extended ${num}-week treatment - Monitor for side effects`);
-    }
-    if (unit === 'month' && num > 2) {
-      warnings.push(`📅 ${num}-month regimen - Regular follow-up needed`);
-    }
-  }
-  
-  const hasSunWarning = text.toLowerCase().includes('sun') || 
-                       text.toLowerCase().includes('uv') || 
-                       medications.some(m => 
-                         ['doxycycline', 'tetracycline', 'tretinoin', 'isotretinoin'].includes(m.name.toLowerCase())
-                       );
-  
-  if (hasSunWarning) {
-    warnings.push('☀️ Sun protection advised with current medications');
-  }
-  
-  if (patientGender.toLowerCase().includes('female') || 
-      patientGender.toLowerCase().includes('woman')) {
-    const teratogenicMeds = medications.filter(m => 
-      ['isotretinoin', 'spironolactone', 'methotrexate'].includes(m.name.toLowerCase())
-    );
-    teratogenicMeds.forEach(med => {
-      warnings.push(`⚠️ ${med.name} is teratogenic - Pregnancy test required before starting`);
-    });
-  }
-  
-  const randomWarnings = [
-    '💧 Maintain adequate hydration',
-    '🍽️ Take with meals if GI upset occurs',
-    '📊 Monitor for symptom improvement after 2 weeks',
-    '🔄 Rotate application sites for topical medications',
-    '🧴 Use fragrance-free moisturizer'
-  ];
-  
-  if (Math.random() > 0.5 && recommendations.length < 3) {
-    recommendations.push(randomWarnings[Math.floor(Math.random() * randomWarnings.length)]);
-  }
-  
-  return {
-    warnings: [...new Set(warnings)],
-    medications,
-    recommendations: [...new Set(recommendations)],
-    severity: warnings.length > 3 ? 'HIGH' : warnings.length > 1 ? 'MEDIUM' : 'LOW',
-    confidence: 0.75 + (Math.random() * 0.2),
-    summary: `Found ${medications.length} medication(s)`,
-    requiresMonitoring: warnings.length > 0,
-    extractedFrom: `${text.split('\n').length} lines of text`
-  };
+// Helper function to extract dosage instructions
+const extractDosage = (text: string): string => {
+  const dosageMatch = text.match(/(\d+(?:\.\d+)?\s*(?:mg|g|ml|mcg|%|iu|tab|cap))/i);
+  return dosageMatch ? dosageMatch[0] : '';
 };
 
-const validateMedicalDocument = async (imageUri: string): Promise<any> => {
-  console.log('ACR: Validating medical document', imageUri);
-  
-  const documentTypes = [
-    { type: 'prescription', confidence: 0.9 },
-    { type: 'doctor_note', confidence: 0.8 },
-    { type: 'lab_result', confidence: 0.85 },
-    { type: 'referral', confidence: 0.75 }
-  ];
-  
-  const randomType = documentTypes[Math.floor(Math.random() * documentTypes.length)];
-  
-  const hasSignature = Math.random() > 0.3;
-  const hasDate = Math.random() > 0.2;
-  const hasDoctorInfo = Math.random() > 0.1;
-  const hasPatientInfo = Math.random() > 0.25;
-  
-  const clarityScore = Math.floor(Math.random() * 4) + 6;
-  const confidence = randomType.confidence + (Math.random() * 0.1 - 0.05);
+// Helper function to extract administration instructions
+const extractInstructions = (text: string): string => {
+  const instructions: string[] = [];
 
-  const recommendations: string[] = [];
-  if (hasSignature) recommendations.push('✓ Doctor signature present');
-  else recommendations.push('✗ Missing doctor signature');
-  
-  if (hasDate) recommendations.push('✓ Date included');
-  else recommendations.push('✗ Missing date');
-  
-  if (hasDoctorInfo) recommendations.push('✓ Doctor information complete');
-  else recommendations.push('✗ Incomplete doctor information');
-  
-  if (hasPatientInfo) recommendations.push('✓ Patient information found');
-  else recommendations.push('✗ Missing patient details');
-  
-  if (clarityScore >= 8) recommendations.push('✓ Excellent document clarity');
-  else if (clarityScore >= 6) recommendations.push('⚠️ Acceptable clarity');
-  else recommendations.push('⚠️ Poor clarity - consider rescanning');
-  
-  return {
-    isValid: hasSignature && hasDate && hasDoctorInfo && hasPatientInfo,
-    documentType: randomType.type,
-    hasSignature,
-    hasDate,
-    hasDoctorInfo,
-    hasPatientInfo,
-    clarityScore,
-    confidence: Math.min(0.99, confidence),
-    recommendations,
-    validationScore: Math.floor(
-      (hasSignature ? 25 : 0) + 
-      (hasDate ? 25 : 0) + 
-      (hasDoctorInfo ? 25 : 0) + 
-      (hasPatientInfo ? 25 : 0)
-    )
-  };
+  // Frequency patterns
+  if (text.match(/\b(once|1x?)\s*(daily|day|per day|\/day)/i)) instructions.push('Once daily');
+  else if (text.match(/\b(twice|2x?|bid)\s*(daily|day|per day|\/day)?/i)) instructions.push('Twice daily');
+  else if (text.match(/\b(three times|3x?|tid)\s*(daily|day|per day|\/day)?/i)) instructions.push('Three times daily');
+  else if (text.match(/\b(four times|4x?|qid)\s*(daily|day|per day|\/day)?/i)) instructions.push('Four times daily');
+
+  // Route
+  if (text.match(/\bPO\b|by mouth|oral/i)) instructions.push('by mouth');
+  if (text.match(/topical|apply/i)) instructions.push('apply topically');
+
+  // Timing
+  if (text.match(/with food|with meals/i)) instructions.push('with food');
+  if (text.match(/before bed|at bedtime|hs/i)) instructions.push('at bedtime');
+  if (text.match(/morning/i)) instructions.push('in the morning');
+
+  return instructions.join(', ');
 };
 
 // ========== TYPES ==========
@@ -429,30 +344,30 @@ const INITIAL_STATE: AppState = {
   },
   medicalRecords: {
     '1': [
-      { 
-        id: 'm1', 
-        date: '2024-01-20', 
-        symptoms: ['Itching', 'Redness'], 
+      {
+        id: 'm1',
+        date: '2024-01-20',
+        symptoms: ['Itching', 'Redness'],
         symptomsOther: '',
-        findings: ['Erythema', 'Scales'], 
+        findings: ['Erythema', 'Scales'],
         findingsOther: '',
-        diagnosis: ['Psoriasis'], 
+        diagnosis: ['Psoriasis'],
         diagnosisOther: '',
-        prescription: ['Topical cream', 'Follow-up 2w'], 
+        prescription: ['Topical cream', 'Follow-up 2w'],
         prescriptionOther: '',
       },
     ],
     '2': [
-      { 
-        id: 'm2', 
-        date: '2024-01-18', 
-        symptoms: ['Hair loss'], 
+      {
+        id: 'm2',
+        date: '2024-01-18',
+        symptoms: ['Hair loss'],
         symptomsOther: '',
-        findings: ['Circular patches'], 
+        findings: ['Circular patches'],
         findingsOther: '',
-        diagnosis: ['Alopecia'], 
+        diagnosis: ['Alopecia'],
         diagnosisOther: '',
-        prescription: ['Steroid injections'], 
+        prescription: ['Steroid injections'],
         prescriptionOther: '',
       },
     ],
@@ -494,43 +409,8 @@ const MEDICAL_RECORD_OPTIONS = {
 
 // ========== ASR CONSTANTS ==========
 const ASR_LANGUAGES = [
-  
   { code: 'en-GB', name: 'English (UK)', icon: '🇬🇧' },
   { code: 'ar-SA', name: 'Arabic', icon: '🇸🇦' },
-  
-];
-
-const MEDICAL_PHRASES = [
-  "Prescribe Clindamycin 1% gel",
-  "Apply twice daily",
-  "Take Doxycycline 100mg",
-  "Once daily with food",
-  "Use sunscreen SPF 50",
-  "Avoid sun exposure",
-  "Follow up in 4 weeks",
-  "Apply thin layer",
-  "Take with meals",
-  "Use moisturizer",
-  "Avoid alcohol",
-  "Drink plenty of water",
-  "Monitor for side effects",
-  "Discontinue if rash occurs",
-  "Apply to affected area",
-  "Do not use on broken skin",
-  "Store at room temperature",
-  "Refrigerate if needed",
-  "Shake well before use",
-  "Take before bedtime",
-  "Apply morning and night",
-  "Use as directed",
-  "Continue for 7 days",
-  "Stop if irritation occurs",
-  "Wash hands after application",
-  "Keep away from eyes",
-  "Use protective clothing",
-  "Avoid waxing procedures",
-  "Use lip balm regularly",
-  "Monthly blood tests required"
 ];
 
 // ========== MAIN COMPONENT ==========
@@ -540,9 +420,106 @@ export default function MedicalRecordsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'history' | 'medicalHistory' | 'record'>('list');
-  
-  const [appState, setAppState] = useState<AppState>(INITIAL_STATE);
-  
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
+  const [appState, setAppState] = useState<AppState>({
+    patients: [],
+    medicalHistories: {},
+    visitRecords: {},
+    medicalRecords: {},
+    patientProgress: {}
+  });
+
+  // ========== FETCH REAL DATA FROM BACKEND ==========
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        setIsLoadingData(true);
+        console.log('🔄 Syncing full clinical data from backend...');
+
+        const [patientsRes] = await Promise.all([
+          patientApi.getAll()
+        ]);
+
+        if (patientsRes.data) {
+          const fetchedPatients = patientsRes.data.map((p: any) => ({
+            id: p.id.toString(),
+            name: `${p.firstName} ${p.lastName}`,
+            age: p.age || 28,
+            gender: p.gender || 'Unknown',
+            bloodType: p.bloodType || 'B+',
+            isNewPatient: false
+          }));
+
+          setAppState(prev => ({
+            ...prev,
+            patients: fetchedPatients
+          }));
+
+          // Fetch reports for patients in parallel
+          const patientReports: Record<string, MedicalRecord[]> = {};
+          const patientHistories: Record<string, MedicalHistory> = {};
+
+          await Promise.all(fetchedPatients.slice(0, 10).map(async (patient: any) => {
+            try {
+              const res = await medicalReportApi.getByPatientId(patient.id);
+              if (res.data && res.data.length > 0) {
+                patientReports[patient.id] = res.data.map((r: any) => ({
+                  id: r.id.toString(),
+                  date: r.reportDate?.split('T')[0] || new Date().toISOString().split('T')[0],
+                  diagnosis: [r.diagnosis],
+                  diagnosisOther: '',
+                  symptoms: [],
+                  findings: [r.notes || ''],
+                  prescription: [r.treatmentPlan || ''],
+                }));
+
+                // Populate history proxy
+                patientHistories[patient.id] = {
+                  medicalHistory: [res.data[0].diagnosis],
+                  medicalHistoryOther: '',
+                  familyHistory: [],
+                  familyHistoryOther: '',
+                  allergies: [],
+                  allergiesOther: '',
+                  pastSurgeries: [],
+                  pastSurgeriesOther: '',
+                  drugHistory: [res.data[0].treatmentPlan],
+                  lifestyle: [],
+                  lifestyleOther: '',
+                  lastUpdated: res.data[0].reportDate
+                };
+              }
+            } catch (e) {
+              // Silently fail if no records
+            }
+          }));
+
+          // Correctly flag "New" patients based on whether they have ANY history data
+          const updatedPatients = fetchedPatients.map((p: any) => ({
+            ...p,
+            isNewPatient: patientHistories[p.id] === undefined
+          }));
+
+          setAppState(prev => ({
+            ...prev,
+            patients: updatedPatients,
+            medicalRecords: patientReports,
+            medicalHistories: patientHistories
+          }));
+        }
+
+        setIsLoadingData(false);
+      } catch (error) {
+        console.error('❌ Data Sync Error:', error);
+        setIsLoadingData(false);
+        setAppState(INITIAL_STATE);
+      }
+    };
+
+    fetchAllData();
+  }, []);
+
   const [medicalHistoryForm, setMedicalHistoryForm] = useState<MedicalHistory>({
     medicalHistory: [],
     medicalHistoryOther: '',
@@ -558,7 +535,7 @@ export default function MedicalRecordsPage() {
     lifestyleOther: '',
     lastUpdated: new Date().toISOString().split('T')[0],
   });
-  
+
   const [recordForm, setRecordForm] = useState({
     symptoms: [] as string[],
     symptomsOther: '',
@@ -574,6 +551,7 @@ export default function MedicalRecordsPage() {
   const [prescriptionImage, setPrescriptionImage] = useState<string>('');
   const [isProcessingPrescription, setIsProcessingPrescription] = useState(false);
   const [prescriptionAnalysis, setPrescriptionAnalysis] = useState<any>(null);
+  const [prescriptionError, setPrescriptionError] = useState<string>('');
 
   // ========== ASR STATE ==========
   const [isRecording, setIsRecording] = useState(false);
@@ -588,7 +566,7 @@ export default function MedicalRecordsPage() {
   const [selectedLanguage, setSelectedLanguage] = useState('en-US');
   const [recordingQuality, setRecordingQuality] = useState<'good' | 'fair' | 'poor'>('good');
   const [speechConfidence, setSpeechConfidence] = useState(0.85);
-  
+
   const recordingTimer = useRef<NodeJS.Timeout | null>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
   const waveAnimation = useRef(new Animated.Value(0)).current;
@@ -643,7 +621,7 @@ export default function MedicalRecordsPage() {
           'Please enable microphone access to use speech recognition.',
           [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Open Settings', onPress: () => {} }
+            { text: 'Open Settings', onPress: () => { } }
           ]
         );
         return false;
@@ -675,13 +653,13 @@ export default function MedicalRecordsPage() {
       setRecording(recording);
       setIsRecording(true);
       setIsListening(true);
-      
-      
+
+
       startWaveAnimation();
       startPulseAnimation();
-      
-      simulateSpeechRecognition();
-      
+
+      setTranscribedText('Listening...');
+
     } catch (error) {
       console.error('Failed to start recording:', error);
       Alert.alert('Error', 'Failed to start recording. Please try again.');
@@ -697,159 +675,119 @@ export default function MedicalRecordsPage() {
 
       setIsRecording(false);
       setIsListening(false);
-      
+
       waveAnimation.stopAnimation();
       pulseAnimation.stopAnimation();
-      
+
       if (recording) {
         await recording.stopAndUnloadAsync();
         setRecording(null);
       }
 
       await processRecordedAudio();
-      
+
     } catch (error) {
       console.error('Failed to stop recording:', error);
     }
   };
 
-  const simulateSpeechRecognition = () => {
-    const prescriptionPhrases = [
-      "I'm prescribing",
-      "The patient should",
-      "Please take",
-      "Apply to",
-      "Use as directed",
-      "Take one tablet",
-      "Apply twice daily",
-      "Use morning and night",
-      "Continue for",
-      "Stop if"
-    ];
 
-    let simulatedText = '';
-    let wordIndex = 0;
-
-    const addWords = () => {
-      if (!isListening) return;
-
-      const randomTerm = MEDICAL_PHRASES[Math.floor(Math.random() * MEDICAL_PHRASES.length)];
-      const randomPhrase = prescriptionPhrases[Math.floor(Math.random() * prescriptionPhrases.length)];
-      
-      if (wordIndex % 5 === 0) {
-        simulatedText += randomPhrase + ' ';
-      }
-      
-      simulatedText += randomTerm + '. ';
-      setTranscribedText(simulatedText.trim());
-      
-      wordIndex++;
-      
-      if (isListening) {
-        setTimeout(addWords, 1500 + Math.random() * 1000);
-      }
-    };
-
-    setTimeout(addWords, 1000);
-  };
 
   const processRecordedAudio = async () => {
+    if (!recording) return;
+
     setIsProcessingSpeech(true);
-    
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    const mockResults = [
-      "Prescribe Clindamycin 1% gel. Apply thin layer to affected areas twice daily. Take Doxycycline 100mg once daily with food. Use sunscreen SPF 50 daily. Follow up in 4 weeks.",
-      "Patient should use Adapalene 0.1% gel at bedtime. Apply sparingly. Take Cetirizine 10mg once daily for itching. Use moisturizer regularly. Avoid sun exposure.",
-      "Rx: Metronidazole 0.75% cream. Apply to affected areas once daily. Take Spironolactone 50mg daily. Monitor potassium levels. Use gentle cleanser.",
-      "Prescribed Isotretinoin 20mg daily with fatty meal. Monthly pregnancy tests required. Use lip balm regularly. Avoid waxing procedures. Follow up monthly.",
-      "Use Hydrocortisone 1% cream for itching. Apply as needed. Take Loratadine 10mg once daily. Use fragrance-free products. Drink plenty of water."
-    ];
-    
-    const randomResult = mockResults[Math.floor(Math.random() * mockResults.length)];
-    
-    let finalResult = randomResult;
-    if (selectedPatient) {
-      const patientName = selectedPatient.name.split(' ')[0];
-      finalResult = `For ${patientName}: ${randomResult}`;
+
+    try {
+      const uri = recording.getURI();
+      if (!uri) throw new Error('No audio recording found');
+
+      // Call the real transcription service
+      const transcription = await transcribePrescriptionAudio(uri);
+
+      let finalResult = transcription;
+      if (selectedPatient) {
+        const patientName = selectedPatient.name.split(' ')[0];
+        finalResult = `For ${patientName}: ${transcription}`;
+      }
+
+      setTranscribedText(finalResult);
+      setAsrNotes(finalResult);
+      setIsProcessingSpeech(false);
+
+      setRecordingQuality('good');
+      setSpeechConfidence(0.95);
+
+      Alert.alert(
+        '✅ Speech Transcribed',
+        'Your prescription has been transcribed successfully.',
+        [{ text: 'OK' }]
+      );
+    } catch (error: any) {
+      console.error('Transcription error:', error);
+      setIsProcessingSpeech(false);
+      Alert.alert('Transcription Error', error.message || 'Failed to process audio');
     }
-    
-    setTranscribedText(finalResult);
-    setAsrNotes(finalResult);
-    setIsProcessingSpeech(false);
-    
-    const quality = Math.random() > 0.7 ? 'good' : Math.random() > 0.4 ? 'fair' : 'poor';
-    setRecordingQuality(quality);
-    setSpeechConfidence(0.7 + Math.random() * 0.3);
-    
-    Alert.alert(
-      '✅ Speech Transcribed',
-      'Your prescription has been transcribed successfully. Review and edit if needed.',
-      [{ text: 'OK' }]
-    );
   };
 
   const applyASRToPrescription = () => {
     if (transcribedText.trim()) {
-      const lines = transcribedText.split('.');
+      const lines = transcribedText.split(/[\.\n]/);
       const medicationsFound: any[] = [];
-      
+
       lines.forEach(line => {
-        const medMatch = line.match(/(prescribe|use|take|rx:?)\s+(\w+)\s+(\d+%|\d+mg)/i);
+        // More robust drug detection regex
+        const medMatch = line.match(/(prescribe|use|take|rx:?|•)?\s*([a-zA-Z]+)\s+(\d+%|\d+\s*mg)/i);
         if (medMatch) {
           const name = medMatch[2];
           const dosage = medMatch[3];
           const instructions = line.trim();
-          
+
           medicationsFound.push({
             name,
             dosage,
             instructions,
-            type: line.toLowerCase().includes('cream') || 
-                  line.toLowerCase().includes('gel') || 
-                  line.toLowerCase().includes('ointment') ? 'Topical' : 'Oral'
+            type: line.toLowerCase().includes('cream') ||
+              line.toLowerCase().includes('gel') ||
+              line.toLowerCase().includes('ointment') ? 'Topical' : 'Oral'
           });
         }
       });
-      
+
       if (medicationsFound.length > 0) {
         medicationsFound.forEach((med, index) => {
           const mockDrug: Drug = {
             id: `asr-${Date.now()}-${index}`,
             activeingredient: med.name,
             tradename: med.name,
-            company: med.name.includes('Clindamycin') ? 'Pfizer' : 
-                    med.name.includes('Doxycycline') ? 'GSK' : 
-                    med.name.includes('Adapalene') ? 'Galderma' :
-                    med.name.includes('Tretinoin') ? 'Johnson & Johnson' :
-                    med.name.includes('Isotretinoin') ? 'Roche' : 'Generic Pharma',
+            company: 'Generic Pharma',
             form: med.type === 'Topical' ? 'Cream/Gel' : 'Tablet/Capsule',
-            new_price: `${Math.floor(Math.random() * 40) + 15} EGP`,
+            new_price: 'As prescribed',
             pharmacology: 'As prescribed',
             route: med.type,
             group: 'Prescription Medication'
           };
-          
+
           const prescriptionDrug: PrescriptionDrug = {
             drug: mockDrug,
             dosage: med.dosage,
             frequency: med.instructions.toLowerCase().includes('twice') ? 'Twice daily' :
-                      med.instructions.toLowerCase().includes('three times') ? 'Three times daily' :
-                      med.instructions.toLowerCase().includes('daily') ? 'Once daily' :
-                      'As directed',
+              med.instructions.toLowerCase().includes('three times') ? 'Three times daily' :
+                med.instructions.toLowerCase().includes('daily') ? 'Once daily' :
+                  'As directed',
             duration: '4 weeks',
             notes: med.instructions
           };
-          
+
           setPrescriptionDrugs(prev => [...prev, prescriptionDrug]);
         });
-        
+
         Alert.alert(
           '✅ Medications Added',
           `Added ${medicationsFound.length} medication(s) from speech transcription.`
         );
       }
-      
+
       setShowASRModal(false);
       setTranscribedText('');
       setAsrNotes('');
@@ -897,8 +835,10 @@ export default function MedicalRecordsPage() {
   // ========== HANDLERS ==========
   const handleSelectPatient = (patient: Patient) => {
     setSelectedPatient(patient);
-    
-    if (patient.isNewPatient) {
+
+    const hasHistory = appState.medicalHistories[patient.id] !== undefined;
+
+    if (!hasHistory) {
       setMedicalHistoryForm({
         medicalHistory: [],
         medicalHistoryOther: '',
@@ -922,7 +862,7 @@ export default function MedicalRecordsPage() {
 
   const handleSaveMedicalHistory = () => {
     if (!selectedPatient) return;
-    
+
     if (
       (medicalHistoryForm.medicalHistory.includes('Other') && !medicalHistoryForm.medicalHistoryOther?.trim()) ||
       (medicalHistoryForm.familyHistory.includes('Other') && !medicalHistoryForm.familyHistoryOther?.trim()) ||
@@ -934,11 +874,11 @@ export default function MedicalRecordsPage() {
       Alert.alert('Missing Information', 'Please specify the "Other" details.');
       return;
     }
-    
-    const updatedPatients = appState.patients.map(p => 
+
+    const updatedPatients = appState.patients.map(p =>
       p.id === selectedPatient.id ? { ...p, isNewPatient: false } : p
     );
-    
+
     const updatedMedicalHistories = {
       ...appState.medicalHistories,
       [selectedPatient.id]: {
@@ -957,13 +897,13 @@ export default function MedicalRecordsPage() {
         lastUpdated: new Date().toISOString().split('T')[0],
       }
     };
-    
+
     setAppState(prev => ({
       ...prev,
       patients: updatedPatients,
       medicalHistories: updatedMedicalHistories
     }));
-    
+
     setMedicalHistoryForm({
       medicalHistory: [],
       medicalHistoryOther: '',
@@ -979,9 +919,9 @@ export default function MedicalRecordsPage() {
       lifestyleOther: '',
       lastUpdated: new Date().toISOString().split('T')[0],
     });
-    
+
     setViewMode('record');
-    
+
     Alert.alert(
       '✅ Medical History Saved',
       'Medical history has been saved successfully. Now add the first medical record.',
@@ -1018,14 +958,14 @@ export default function MedicalRecordsPage() {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false,
-        quality: 1,
+        allowsEditing: true, // Allow editing to crop (also helps reduce size)
+        quality: 0.5, // Reduce quality to 0.5 to keep file size under 1MB for free API limits
       });
-      
+
       if (!result.canceled && result.assets[0]) {
         const imageUri = result.assets[0].uri;
         setPrescriptionImage(imageUri);
-        
+
         await processPrescriptionWithAI(imageUri);
       }
     } catch (error) {
@@ -1036,19 +976,20 @@ export default function MedicalRecordsPage() {
   const processPrescriptionWithAI = async (imageUri: string) => {
     setIsProcessingPrescription(true);
     setPrescriptionAnalysis(null);
-    
+    setPrescriptionError('');
+
     try {
-      const patientAllergies = selectedPatient 
+      const patientAllergies = selectedPatient
         ? appState.medicalHistories[selectedPatient.id]?.allergies || []
         : [];
-      
+
       const patientGender = selectedPatient?.gender || '';
-      
+
       const extractedText = await extractPrescriptionText(imageUri);
       const parsedData = parsePrescriptionData(extractedText);
-      const nlpAnalysis = analyzePrescription(extractedText, patientAllergies, patientGender);
+      const nlpAnalysis = analyzePrescription(extractedText, patientAllergies);
       const acrValidation = await validateMedicalDocument(imageUri);
-      
+
       const analysis = {
         extractedText,
         parsedData,
@@ -1061,21 +1002,29 @@ export default function MedicalRecordsPage() {
         },
         timestamp: new Date().toISOString()
       };
-      
+
       setPrescriptionAnalysis(analysis);
-      
+
+      if (acrValidation.documentType === 'unknown' || !acrValidation.isValid) {
+        Alert.alert(
+          '⚠️ Validation Warning',
+          'This document does not look like a standard prescription or is missing key fields (Doctor/Patient/Signature/Date). Processing may be inaccurate.',
+          [{ text: 'Continue Anyway' }, { text: 'Cancel', onPress: () => setPrescriptionAnalysis(null), style: 'cancel' }]
+        );
+      }
+
       if (parsedData.medications.length > 0) {
         const newDrugs: PrescriptionDrug[] = [];
-        
+
         parsedData.medications.forEach((med: any, index: number) => {
           const mockDrug: Drug = {
             id: `ai-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 6)}`,
             activeingredient: med.name,
             tradename: med.name,
-            company: med.name.includes('Clindamycin') ? 'Pfizer' : 
-                    med.name.includes('Doxycycline') ? 'GSK' : 
-                    med.name.includes('Adapalene') ? 'Galderma' :
-                    med.name.includes('Tretinoin') ? 'Johnson & Johnson' :
+            company: med.name.includes('Clindamycin') ? 'Pfizer' :
+              med.name.includes('Doxycycline') ? 'GSK' :
+                med.name.includes('Adapalene') ? 'Galderma' :
+                  med.name.includes('Tretinoin') ? 'Johnson & Johnson' :
                     med.name.includes('Isotretinoin') ? 'Roche' : 'Generic Pharma',
             form: med.type === 'Topical' ? 'Cream/Gel' : 'Tablet/Capsule',
             new_price: `${Math.floor(Math.random() * 40) + 15} EGP`,
@@ -1083,31 +1032,31 @@ export default function MedicalRecordsPage() {
             route: med.type,
             group: 'Prescription Medication'
           };
-          
+
           const prescriptionDrug: PrescriptionDrug = {
             drug: mockDrug,
             dosage: med.dosage,
             frequency: med.instructions?.toLowerCase().includes('twice') ? 'Twice daily' :
-                      med.instructions?.toLowerCase().includes('three times') ? 'Three times daily' :
-                      med.instructions?.toLowerCase().includes('daily') ? 'Once daily' :
-                      'As directed',
-            duration: extractedText.match(/(\d+)\s*(week|day|month)/i) 
-              ? `${RegExp.$1} ${RegExp.$2}s` 
+              med.instructions?.toLowerCase().includes('three times') ? 'Three times daily' :
+                med.instructions?.toLowerCase().includes('daily') ? 'Once daily' :
+                  'As directed',
+            duration: extractedText.match(/(\d+)\s*(week|day|month)/i)
+              ? `${RegExp.$1} ${RegExp.$2}s`
               : '4 weeks',
             notes: med.instructions || 'As prescribed'
           };
-          
+
           newDrugs.push(prescriptionDrug);
         });
-        
+
         setPrescriptionDrugs(prev => [...prev, ...newDrugs]);
       }
-      
+
       if (nlpAnalysis.warnings.length > 0) {
         Alert.alert(
           nlpAnalysis.severity === 'HIGH' ? '🚨 Critical Warnings Found' : '⚠️ Prescription Analysis',
           `AI found ${parsedData.medications.length} medications with ${nlpAnalysis.warnings.length} warnings.`,
-          [{ text: 'Review Analysis', onPress: () => {} }, { text: 'OK' }]
+          [{ text: 'Review Analysis', onPress: () => { } }, { text: 'OK' }]
         );
       } else {
         Alert.alert(
@@ -1115,10 +1064,12 @@ export default function MedicalRecordsPage() {
           `Successfully extracted ${parsedData.medications.length} medications.`
         );
       }
-      
-    } catch (error) {
+
+    } catch (error: any) {
       console.error('AI Processing Error:', error);
-      Alert.alert('Analysis Error', 'Could not process prescription. Please try again.');
+      const errorMsg = error.message || 'Could not process prescription. Please try again.';
+      setPrescriptionError(errorMsg);
+      Alert.alert('Analysis Error', errorMsg);
     } finally {
       setIsProcessingPrescription(false);
     }
@@ -1126,7 +1077,7 @@ export default function MedicalRecordsPage() {
 
   const handleSaveRecord = () => {
     if (!selectedPatient) return;
-    
+
     if (
       (recordForm.symptoms.includes('Other') && !recordForm.symptomsOther.trim()) ||
       (recordForm.findings.includes('Other') && !recordForm.findingsOther.trim()) ||
@@ -1136,46 +1087,46 @@ export default function MedicalRecordsPage() {
       Alert.alert('Missing Information', 'Please specify the "Other" details.');
       return;
     }
-    
+
     let prescriptionText = recordForm.prescription.filter(item => item !== 'Other').join(', ');
-    
+
     if (recordForm.prescriptionOther) {
-      prescriptionText = prescriptionText 
+      prescriptionText = prescriptionText
         ? `${prescriptionText}, Other: ${recordForm.prescriptionOther}`
         : `Other: ${recordForm.prescriptionOther}`;
     }
-    
+
     if (prescriptionDrugs.length > 0) {
-      const drugsText = prescriptionDrugs.map((item, index) => 
+      const drugsText = prescriptionDrugs.map((item, index) =>
         `${index + 1}. ${item.drug.tradename} (${item.dosage}) - ${item.frequency} for ${item.duration}`
       ).join('\n');
-      
-      prescriptionText = prescriptionText 
+
+      prescriptionText = prescriptionText
         ? `${prescriptionText}\n\nPrescribed Medications:\n${drugsText}`
         : `Prescribed Medications:\n${drugsText}`;
     }
-    
+
     let symptomsText = recordForm.symptoms.filter(item => item !== 'Other').join(', ');
     if (recordForm.symptomsOther) {
-      symptomsText = symptomsText 
+      symptomsText = symptomsText
         ? `${symptomsText}, Other: ${recordForm.symptomsOther}`
         : `Other: ${recordForm.symptomsOther}`;
     }
-    
+
     let findingsText = recordForm.findings.filter(item => item !== 'Other').join(', ');
     if (recordForm.findingsOther) {
-      findingsText = findingsText 
+      findingsText = findingsText
         ? `${findingsText}, Other: ${recordForm.findingsOther}`
         : `Other: ${recordForm.findingsOther}`;
     }
-    
+
     let diagnosisText = recordForm.diagnosis.filter(item => item !== 'Other').join(', ');
     if (recordForm.diagnosisOther) {
-      diagnosisText = diagnosisText 
+      diagnosisText = diagnosisText
         ? `${diagnosisText}, Other: ${recordForm.diagnosisOther}`
         : `Other: ${recordForm.diagnosisOther}`;
     }
-    
+
     const newMedicalRecord: MedicalRecord = {
       id: `record-${Date.now()}`,
       date: new Date().toISOString().split('T')[0],
@@ -1189,18 +1140,18 @@ export default function MedicalRecordsPage() {
       prescriptionOther: recordForm.prescriptionOther.trim() || undefined,
       prescribedDrugs: prescriptionDrugs.length > 0 ? prescriptionDrugs : undefined
     };
-    
+
     const newVisitRecord: VisitRecord = {
       id: `visit-${Date.now()}`,
       date: new Date().toISOString().split('T')[0],
       diagnosis: diagnosisText,
       treatment: prescriptionText,
     };
-    
+
     setAppState(prev => {
       const currentMedicalRecords = prev.medicalRecords[selectedPatient.id] || [];
       const currentVisitRecords = prev.visitRecords[selectedPatient.id] || [];
-      
+
       return {
         ...prev,
         medicalRecords: {
@@ -1213,7 +1164,7 @@ export default function MedicalRecordsPage() {
         }
       };
     });
-    
+
     Alert.alert(
       '✅ Medical Record Saved',
       `Medical record saved for ${selectedPatient.name}\nPrescribed ${prescriptionDrugs.length} medications\n\nDr. Wahid Lotfy`,
@@ -1221,14 +1172,14 @@ export default function MedicalRecordsPage() {
         {
           text: 'View Patient History',
           onPress: () => {
-            setRecordForm({ 
-              symptoms: [], 
+            setRecordForm({
+              symptoms: [],
               symptomsOther: '',
-              findings: [], 
+              findings: [],
               findingsOther: '',
-              diagnosis: [], 
+              diagnosis: [],
               diagnosisOther: '',
-              prescription: [], 
+              prescription: [],
               prescriptionOther: '',
             });
             setPrescriptionDrugs([]);
@@ -1243,14 +1194,14 @@ export default function MedicalRecordsPage() {
           onPress: () => {
             setViewMode('list');
             setSelectedPatient(null);
-            setRecordForm({ 
-              symptoms: [], 
+            setRecordForm({
+              symptoms: [],
               symptomsOther: '',
-              findings: [], 
+              findings: [],
               findingsOther: '',
-              diagnosis: [], 
+              diagnosis: [],
               diagnosisOther: '',
-              prescription: [], 
+              prescription: [],
               prescriptionOther: '',
             });
             setPrescriptionDrugs([]);
@@ -1265,7 +1216,7 @@ export default function MedicalRecordsPage() {
   const toggleMedicalHistorySelection = (category: keyof Omit<MedicalHistory, 'lastUpdated'>, item: string) => {
     setMedicalHistoryForm(prev => {
       let currentArray: string[];
-      
+
       switch (category) {
         case 'medicalHistory':
           currentArray = prev.medicalHistory;
@@ -1288,11 +1239,11 @@ export default function MedicalRecordsPage() {
         default:
           currentArray = [];
       }
-      
+
       const newArray = currentArray.includes(item)
         ? currentArray.filter(i => i !== item)
         : [...currentArray, item];
-      
+
       return {
         ...prev,
         [category]: newArray
@@ -1302,13 +1253,13 @@ export default function MedicalRecordsPage() {
 
   const toggleRecordSelection = (category: keyof typeof recordForm, item: string) => {
     setRecordForm(prev => {
-      if (category === 'symptoms' || category === 'findings' || 
-          category === 'diagnosis' || category === 'prescription') {
+      if (category === 'symptoms' || category === 'findings' ||
+        category === 'diagnosis' || category === 'prescription') {
         const currentArray = prev[category] as string[];
         const newArray = currentArray.includes(item)
           ? currentArray.filter(i => i !== item)
           : [...currentArray, item];
-        
+
         return {
           ...prev,
           [category]: newArray
@@ -1325,45 +1276,47 @@ export default function MedicalRecordsPage() {
         <Text style={styles.sectionTitle}>Patients</Text>
         <Text style={styles.clinicInfo}>Dr. Wahid Lotfy Clinic</Text>
       </View>
-      
-      {appState.patients.map(patient => (
-        <Pressable
-          key={patient.id}
-          style={styles.patientCard}
-          onPress={() => handleSelectPatient(patient)}
-        >
-          <View style={styles.patientInfo}>
-            <View style={[
-              styles.avatar,
-              patient.isNewPatient && styles.newPatientAvatar
-            ]}>
-              {patient.isNewPatient ? (
-                <UserPlus size={24} color={Colors.primary} />
-              ) : (
-                <User size={24} color={Colors.primary} />
-              )}
-            </View>
-            <View style={styles.patientDetails}>
-              <View style={styles.nameRow}>
-                <Text style={styles.patientName}>{patient.name}</Text>
-                {patient.isNewPatient && (
-                  <View style={styles.newBadge}>
-                    <Text style={styles.newBadgeText}>New</Text>
-                  </View>
+
+      {appState.patients
+        .filter(p => !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+        .map(patient => (
+          <Pressable
+            key={patient.id}
+            style={styles.patientCard}
+            onPress={() => handleSelectPatient(patient)}
+          >
+            <View style={styles.patientInfo}>
+              <View style={[
+                styles.avatar,
+                patient.isNewPatient && styles.newPatientAvatar
+              ]}>
+                {patient.isNewPatient ? (
+                  <UserPlus size={24} color={Colors.primary} />
+                ) : (
+                  <User size={24} color={Colors.primary} />
                 )}
               </View>
-              <Text style={styles.patientMeta}>
-                {patient.age}y • {patient.gender} • {patient.bloodType}
-              </Text>
-              <Text style={styles.lastVisit}>
-                {patient.isNewPatient ? 'Needs medical history' : 'Has medical history'}
-                {!patient.isNewPatient && ` • ${appState.visitRecords[patient.id]?.length || 0} visits`}
-              </Text>
+              <View style={styles.patientDetails}>
+                <View style={styles.nameRow}>
+                  <Text style={styles.patientName}>{patient.name}</Text>
+                  {patient.isNewPatient && (
+                    <View style={styles.newBadge}>
+                      <Text style={styles.newBadgeText}>New</Text>
+                    </View>
+                  )}
+                </View>
+                <Text style={styles.patientMeta}>
+                  {patient.age}y • {patient.gender} • {patient.bloodType}
+                </Text>
+                <Text style={styles.lastVisit}>
+                  {patient.isNewPatient ? 'Needs medical history' : 'Has medical history'}
+                  {!patient.isNewPatient && ` • ${appState.visitRecords[patient.id]?.length || 0} visits`}
+                </Text>
+              </View>
             </View>
-          </View>
-          <ChevronRight size={20} color={Colors.text?.secondary || '#666'} />
-        </Pressable>
-      ))}
+            <ChevronRight size={20} color={Colors.text?.secondary || '#666'} />
+          </Pressable>
+        ))}
     </ScrollView>
   );
 
@@ -1604,7 +1557,7 @@ export default function MedicalRecordsPage() {
         </View>
 
         <View style={styles.saveSection}>
-          <Pressable 
+          <Pressable
             style={styles.saveButton}
             onPress={handleSaveMedicalHistory}
           >
@@ -1620,7 +1573,7 @@ export default function MedicalRecordsPage() {
 
   const renderPatientHistory = () => {
     if (!selectedPatient) return null;
-    
+
     const history = appState.medicalHistories[selectedPatient.id];
     const visits = appState.visitRecords[selectedPatient.id] || [];
     const medicalRecords = appState.medicalRecords[selectedPatient.id] || [];
@@ -1632,7 +1585,7 @@ export default function MedicalRecordsPage() {
             <ChevronRight size={20} color={Colors.white} style={{ transform: [{ rotate: '180deg' }] }} />
             <Text style={styles.backText}>Back to Patients</Text>
           </Pressable>
-          
+
           <View style={styles.patientHeaderContent}>
             <View style={styles.avatarLarge}>
               <User size={28} color={Colors.white} />
@@ -1654,7 +1607,7 @@ export default function MedicalRecordsPage() {
               <Text style={styles.updatedDate}>Updated: {history.lastUpdated}</Text>
             )}
           </View>
-          
+
           {history ? (
             <>
               <View style={styles.historySection}>
@@ -1672,7 +1625,7 @@ export default function MedicalRecordsPage() {
                   )}
                 </View>
               </View>
-              
+
               <View style={styles.historySection}>
                 <Text style={styles.sectionLabel}>Family History</Text>
                 <View style={styles.tags}>
@@ -1688,7 +1641,7 @@ export default function MedicalRecordsPage() {
                   )}
                 </View>
               </View>
-              
+
               <View style={styles.historySection}>
                 <Text style={styles.sectionLabel}>Allergies</Text>
                 <View style={styles.tags}>
@@ -1706,7 +1659,7 @@ export default function MedicalRecordsPage() {
                   )}
                 </View>
               </View>
-              
+
               <View style={styles.historySection}>
                 <Text style={styles.sectionLabel}>Past Surgeries</Text>
                 <View style={styles.tags}>
@@ -1722,7 +1675,7 @@ export default function MedicalRecordsPage() {
                   )}
                 </View>
               </View>
-              
+
               <View style={styles.historySection}>
                 <Text style={styles.sectionLabel}>Drug History</Text>
                 <View style={styles.tags}>
@@ -1740,7 +1693,7 @@ export default function MedicalRecordsPage() {
                   )}
                 </View>
               </View>
-              
+
               <View style={styles.historySection}>
                 <Text style={styles.sectionLabel}>Lifestyle</Text>
                 <View style={styles.tags}>
@@ -1768,14 +1721,14 @@ export default function MedicalRecordsPage() {
             <Text style={styles.cardTitle}>Medical Records</Text>
             <Text style={styles.visitCount}>{visits.length} records</Text>
           </View>
-          
+
           {medicalRecords.map(record => (
             <View key={record.id} style={styles.recordItem}>
               <View style={styles.recordDate}>
                 <Text style={styles.recordDateText}>{record.date}</Text>
                 <Text style={styles.recordDoctor}>Dr. Wahid Lotfy</Text>
               </View>
-              
+
               <View style={styles.recordDetails}>
                 <View style={styles.recordRow}>
                   <Text style={styles.recordLabel}>Symptoms:</Text>
@@ -1813,7 +1766,7 @@ export default function MedicalRecordsPage() {
               </View>
             </View>
           ))}
-          
+
           {medicalRecords.length === 0 && (
             <View style={styles.emptyState}>
               <FileText size={32} color={Colors.text?.secondary || '#666'} />
@@ -1823,7 +1776,7 @@ export default function MedicalRecordsPage() {
         </View>
 
         <View style={styles.buttonRow}>
-          <Pressable 
+          <Pressable
             style={styles.progressButton}
             onPress={() => {
               router.push({
@@ -1838,8 +1791,8 @@ export default function MedicalRecordsPage() {
             <TrendingUp size={20} color={Colors.white} />
             <Text style={styles.progressButtonText}>Progress</Text>
           </Pressable>
-          
-          <Pressable 
+
+          <Pressable
             style={styles.addRecordButton}
             onPress={() => setViewMode('record')}
           >
@@ -1857,11 +1810,11 @@ export default function MedicalRecordsPage() {
     return (
       <ScrollView style={styles.recordContainer}>
         <View style={styles.formHeader}>
-          <Pressable 
+          <Pressable
             onPress={() => {
               const hasRecords = appState.medicalRecords[selectedPatient.id]?.length > 0;
               setViewMode(hasRecords ? 'history' : 'list');
-            }} 
+            }}
             style={styles.backButton}
           >
             <ChevronRight size={20} color={Colors.white} style={{ transform: [{ rotate: '180deg' }] }} />
@@ -1881,7 +1834,7 @@ export default function MedicalRecordsPage() {
               <Text style={styles.recordSubtitle}>What the patient reports</Text>
             </View>
           </View>
-          
+
           <View style={styles.choiceGrid}>
             {MEDICAL_RECORD_OPTIONS.symptoms.map(item => (
               <Pressable
@@ -1904,7 +1857,7 @@ export default function MedicalRecordsPage() {
               </Pressable>
             ))}
           </View>
-          
+
           {recordForm.symptoms.includes('Other') && (
             <View style={{ marginTop: 12 }}>
               <TextInput
@@ -1925,7 +1878,7 @@ export default function MedicalRecordsPage() {
               <Text style={styles.recordSubtitle}>Clinical observations</Text>
             </View>
           </View>
-          
+
           <View style={styles.choiceGrid}>
             {MEDICAL_RECORD_OPTIONS.findings.map(item => (
               <Pressable
@@ -1948,7 +1901,7 @@ export default function MedicalRecordsPage() {
               </Pressable>
             ))}
           </View>
-          
+
           {recordForm.findings.includes('Other') && (
             <View style={{ marginTop: 12 }}>
               <TextInput
@@ -1969,7 +1922,7 @@ export default function MedicalRecordsPage() {
               <Text style={styles.recordSubtitle}>Medical assessment</Text>
             </View>
           </View>
-          
+
           <View style={styles.choiceGrid}>
             {MEDICAL_RECORD_OPTIONS.diagnosis.map(item => (
               <Pressable
@@ -1992,7 +1945,7 @@ export default function MedicalRecordsPage() {
               </Pressable>
             ))}
           </View>
-          
+
           {recordForm.diagnosis.includes('Other') && (
             <View style={{ marginTop: 12 }}>
               <TextInput
@@ -2014,9 +1967,9 @@ export default function MedicalRecordsPage() {
               <Text style={styles.recordSubtitle}>Upload or dictate prescription for AI analysis</Text>
             </View>
           </View>
-          
+
           <View style={styles.aiActionButtons}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.aiActionButton}
               onPress={uploadPrescription}
               disabled={isProcessingPrescription}
@@ -2026,8 +1979,8 @@ export default function MedicalRecordsPage() {
                 {isProcessingPrescription ? 'Processing...' : 'Upload Image'}
               </Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={[styles.aiActionButton, styles.asrButton]}
               onPress={() => setShowASRModal(true)}
             >
@@ -2035,7 +1988,7 @@ export default function MedicalRecordsPage() {
               <Text style={styles.aiActionButtonText}>Dictate Prescription</Text>
             </TouchableOpacity>
           </View>
-          
+
           {prescriptionImage ? (
             <View style={styles.prescriptionPreview}>
               <View style={styles.previewHeader}>
@@ -2047,7 +2000,7 @@ export default function MedicalRecordsPage() {
                   </View>
                 )}
               </View>
-              
+
               {isProcessingPrescription ? (
                 <View style={styles.processingContainer}>
                   <View style={styles.spinner} />
@@ -2065,7 +2018,7 @@ export default function MedicalRecordsPage() {
                       </Text>
                     </View>
                   </View>
-                  
+
                   <View style={styles.validationContainer}>
                     <Text style={styles.validationTitle}>📄 Document Analysis:</Text>
                     <View style={styles.validationGrid}>
@@ -2112,7 +2065,7 @@ export default function MedicalRecordsPage() {
                         </Text>
                       </View>
                     </View>
-                    
+
                     {prescriptionAnalysis.acrValidation.recommendations.map((rec: string, idx: number) => (
                       <Text key={idx} style={styles.recommendationText}>
                         {rec.startsWith('✓') ? '✅ ' : rec.startsWith('✗') ? '❌ ' : '⚠️ '}
@@ -2120,7 +2073,7 @@ export default function MedicalRecordsPage() {
                       </Text>
                     ))}
                   </View>
-                  
+
                   {prescriptionAnalysis.nlpAnalysis.warnings.length > 0 && (
                     <View style={[
                       styles.warningsContainer,
@@ -2132,8 +2085,8 @@ export default function MedicalRecordsPage() {
                         <AlertCircle size={18} color="#FFFFFF" />
                         <Text style={styles.warningsTitle}>
                           {prescriptionAnalysis.nlpAnalysis.severity === 'HIGH' ? '🚨 CRITICAL WARNINGS' :
-                           prescriptionAnalysis.nlpAnalysis.severity === 'MEDIUM' ? '⚠️ IMPORTANT WARNINGS' :
-                           'ℹ️ RECOMMENDATIONS'}
+                            prescriptionAnalysis.nlpAnalysis.severity === 'MEDIUM' ? '⚠️ IMPORTANT WARNINGS' :
+                              'ℹ️ RECOMMENDATIONS'}
                         </Text>
                         <View style={styles.warningsCount}>
                           <Text style={styles.warningsCountText}>{prescriptionAnalysis.nlpAnalysis.warnings.length}</Text>
@@ -2146,7 +2099,7 @@ export default function MedicalRecordsPage() {
                       ))}
                     </View>
                   )}
-                  
+
                   <View style={styles.medicationsSummary}>
                     <Text style={styles.summaryTitle}>💊 Extracted Medications:</Text>
                     <Text style={styles.summaryText}>
@@ -2159,13 +2112,30 @@ export default function MedicalRecordsPage() {
                       </View>
                     ))}
                   </View>
-                  
-                  <TouchableOpacity 
+
+                  <TouchableOpacity
                     style={styles.reuploadButton}
                     onPress={uploadPrescription}
                   >
                     <Upload size={16} color={Colors.primary} />
                     <Text style={styles.reuploadText}>Scan Another Prescription</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              {prescriptionError && (
+                <View style={styles.errorContainer}>
+                  <View style={styles.errorHeader}>
+                    <AlertCircle size={20} color={Colors.status?.error || '#FF3B30'} />
+                    <Text style={styles.errorTitle}>Analysis Failed</Text>
+                  </View>
+                  <Text style={styles.errorMessage}>{prescriptionError}</Text>
+                  <TouchableOpacity
+                    style={styles.retryButton}
+                    onPress={uploadPrescription}
+                  >
+                    <Upload size={16} color={Colors.white} />
+                    <Text style={styles.retryButtonText}>Try Another Image</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -2185,26 +2155,26 @@ export default function MedicalRecordsPage() {
             <View style={styles.recordHeaderText}>
               <Text style={styles.recordTitle}>PRESCRIBED MEDICATIONS</Text>
               <Text style={styles.recordSubtitle}>
-                {prescriptionDrugs.length > 0 
+                {prescriptionDrugs.length > 0
                   ? `${prescriptionDrugs.length} medication(s) added`
                   : 'Search and add medications from database'
                 }
               </Text>
             </View>
           </View>
-          
+
           <DrugSearchDropdown
             onSelectDrug={handleSelectDrug}
             placeholder="Search for medication to add..."
             selectedDrugs={prescriptionDrugs.map(pd => pd.drug)}
           />
-          
+
           {prescriptionDrugs.length > 0 && (
             <View style={styles.selectedDrugsContainer}>
               <Text style={styles.selectedDrugsTitle}>
                 Added Medications ({prescriptionDrugs.length})
               </Text>
-              
+
               {prescriptionDrugs.map((item, index) => (
                 <View key={index} style={styles.drugCard}>
                   <View style={styles.drugCardHeader}>
@@ -2219,9 +2189,9 @@ export default function MedicalRecordsPage() {
                       <Trash2 size={16} color={Colors.status?.error || '#FF3B30'} />
                     </TouchableOpacity>
                   </View>
-                  
+
                   <Text style={styles.drugDetails}>{item.drug.activeingredient}</Text>
-                  
+
                   <View style={styles.drugFields}>
                     <View style={styles.drugField}>
                       <Text style={styles.fieldLabel}>Dosage</Text>
@@ -2233,7 +2203,7 @@ export default function MedicalRecordsPage() {
                         placeholderTextColor={Colors.text?.secondary || '#666'}
                       />
                     </View>
-                    
+
                     <View style={styles.drugField}>
                       <Text style={styles.fieldLabel}>Frequency</Text>
                       <View style={styles.frequencyButtons}>
@@ -2256,7 +2226,7 @@ export default function MedicalRecordsPage() {
                         ))}
                       </View>
                     </View>
-                    
+
                     <View style={styles.drugField}>
                       <Text style={styles.fieldLabel}>Duration</Text>
                       <View style={styles.durationButtons}>
@@ -2279,7 +2249,7 @@ export default function MedicalRecordsPage() {
                         ))}
                       </View>
                     </View>
-                    
+
                     <View style={styles.drugField}>
                       <Text style={styles.fieldLabel}>Notes</Text>
                       <TextInput
@@ -2292,7 +2262,7 @@ export default function MedicalRecordsPage() {
                       />
                     </View>
                   </View>
-                  
+
                   <View style={styles.drugFooter}>
                     <Text style={styles.drugCompany}>{item.drug.company}</Text>
                     <Text style={styles.drugPrice}>{item.drug.new_price}</Text>
@@ -2304,7 +2274,7 @@ export default function MedicalRecordsPage() {
         </View>
 
         <View style={styles.actionButtons}>
-          <Pressable 
+          <Pressable
             style={[styles.saveButton, recordForm.diagnosis.length === 0 && styles.saveButtonDisabled]}
             onPress={handleSaveRecord}
             disabled={recordForm.diagnosis.length === 0}
@@ -2329,14 +2299,14 @@ export default function MedicalRecordsPage() {
                   <Ear size={24} color={Colors.primary} />
                   <Text style={styles.modalTitle}>Voice Prescription Dictation</Text>
                 </View>
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => setShowASRModal(false)}
                   style={styles.closeButton}
                 >
                   <X size={24} color={Colors.text?.secondary || '#666'} />
                 </TouchableOpacity>
               </View>
-              
+
               <ScrollView style={styles.asrContainer}>
                 <View style={styles.languageSelector}>
                   <Text style={styles.languageLabel}>Language:</Text>
@@ -2361,7 +2331,7 @@ export default function MedicalRecordsPage() {
                     ))}
                   </ScrollView>
                 </View>
-                
+
                 <View style={styles.recordingStatus}>
                   {isRecording ? (
                     <Animated.View style={[
@@ -2400,7 +2370,7 @@ export default function MedicalRecordsPage() {
                     </View>
                   )}
                 </View>
-                
+
                 <View style={styles.transcriptionContainer}>
                   <View style={styles.transcriptionHeader}>
                     <Text style={styles.transcriptionLabel}>Transcription</Text>
@@ -2408,7 +2378,7 @@ export default function MedicalRecordsPage() {
                       <View style={styles.qualityBadge}>
                         <Text style={styles.qualityText}>
                           {recordingQuality === 'good' ? '✅ Good Quality' :
-                           recordingQuality === 'fair' ? '⚠️ Fair Quality' : '❌ Poor Quality'}
+                            recordingQuality === 'fair' ? '⚠️ Fair Quality' : '❌ Poor Quality'}
                         </Text>
                         <Text style={styles.confidenceText}>
                           {Math.round(speechConfidence * 100)}% confidence
@@ -2416,7 +2386,7 @@ export default function MedicalRecordsPage() {
                       </View>
                     )}
                   </View>
-                  
+
                   <View style={styles.transcriptionBox}>
                     {isProcessingSpeech ? (
                       <View style={styles.processingSpeech}>
@@ -2437,7 +2407,7 @@ export default function MedicalRecordsPage() {
                       </View>
                     )}
                   </View>
-                  
+
                   {transcribedText && !isProcessingSpeech && (
                     <View style={styles.transcriptionEdit}>
                       <Text style={styles.editLabel}>Edit if needed:</Text>
@@ -2452,22 +2422,13 @@ export default function MedicalRecordsPage() {
                     </View>
                   )}
                 </View>
-                
-                <View style={styles.medicalPhrases}>
-                  <Text style={styles.phrasesTitle}>💡 Medical Phrases to Use:</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.phrasesScroll}>
-                    {MEDICAL_PHRASES.slice(0, 10).map((phrase, idx) => (
-                      <View key={idx} style={styles.phraseChip}>
-                        <Text style={styles.phraseText}>{phrase}</Text>
-                      </View>
-                    ))}
-                  </ScrollView>
-                </View>
-                
+
+
+
                 <View style={styles.controlButtons}>
                   <View style={styles.primaryControls}>
                     {!isRecording ? (
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.recordButton}
                         onPress={startRecording}
                       >
@@ -2475,7 +2436,7 @@ export default function MedicalRecordsPage() {
                         <Text style={styles.recordButtonText}>Start Dictation</Text>
                       </TouchableOpacity>
                     ) : (
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.stopButton}
                         onPress={stopRecording}
                       >
@@ -2484,18 +2445,18 @@ export default function MedicalRecordsPage() {
                       </TouchableOpacity>
                     )}
                   </View>
-                  
+
                   {transcribedText && !isProcessingSpeech && (
                     <View style={styles.secondaryControls}>
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={styles.applyButton}
                         onPress={applyASRToPrescription}
                       >
                         <Check size={20} color={Colors.white} />
                         <Text style={styles.applyButtonText}>Apply to Prescription</Text>
                       </TouchableOpacity>
-                      
-                      <TouchableOpacity 
+
+                      <TouchableOpacity
                         style={styles.clearButton}
                         onPress={clearASR}
                       >
@@ -2505,7 +2466,7 @@ export default function MedicalRecordsPage() {
                     </View>
                   )}
                 </View>
-                
+
                 <View style={styles.tipsContainer}>
                   <Text style={styles.tipsTitle}>🎤 Dictation Tips:</Text>
                   <View style={styles.tipsGrid}>
@@ -2549,23 +2510,32 @@ export default function MedicalRecordsPage() {
       />
 
       <View style={styles.container}>
-        {viewMode === 'list' && (
-          <View style={styles.searchContainer}>
-            <Search size={20} color={Colors.text?.secondary || '#666'} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search patients..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholderTextColor={Colors.text?.secondary || '#666'}
-            />
+        {isLoadingData ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.primary} />
+            <Text style={styles.loadingText}>Syncing Clinical Data...</Text>
           </View>
-        )}
+        ) : (
+          <>
+            {viewMode === 'list' && (
+              <View style={styles.searchContainer}>
+                <Search size={20} color={Colors.text?.secondary || '#666'} />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search patients..."
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  placeholderTextColor={Colors.text?.secondary || '#666'}
+                />
+              </View>
+            )}
 
-        {viewMode === 'list' && renderPatientList()}
-        {viewMode === 'medicalHistory' && renderMedicalHistoryForm()}
-        {viewMode === 'history' && renderPatientHistory()}
-        {viewMode === 'record' && renderRecordForm()}
+            {viewMode === 'list' && renderPatientList()}
+            {viewMode === 'medicalHistory' && renderMedicalHistoryForm()}
+            {viewMode === 'history' && renderPatientHistory()}
+            {viewMode === 'record' && renderRecordForm()}
+          </>
+        )}
       </View>
     </>
   );
@@ -2577,7 +2547,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.offWhite,
   },
-  
+
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2598,7 +2568,20 @@ const styles = StyleSheet.create({
     color: Colors.text?.primary || '#000',
     marginLeft: 12,
   },
-  
+
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: Colors.text?.secondary || '#666',
+    fontWeight: '500',
+  },
+
   headerSection: {
     paddingHorizontal: 16,
     paddingTop: 16,
@@ -2614,7 +2597,7 @@ const styles = StyleSheet.create({
     color: Colors.text?.secondary || '#666',
     marginTop: 4,
   },
-  
+
   listContainer: {
     flex: 1,
   },
@@ -2683,7 +2666,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.text?.secondary || '#666',
   },
-  
+
   formHeader: {
     backgroundColor: Colors.primary,
     paddingTop: 60,
@@ -2711,7 +2694,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.9)',
     marginTop: 4,
   },
-  
+
   formContainer: {
     flex: 1,
     backgroundColor: Colors.offWhite,
@@ -2724,7 +2707,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.offWhite,
   },
-  
+
   formSection: {
     backgroundColor: Colors.white,
     borderRadius: 16,
@@ -2748,7 +2731,7 @@ const styles = StyleSheet.create({
     color: Colors.text?.secondary || '#666',
     marginBottom: 16,
   },
-  
+
   patientHeader: {
     backgroundColor: Colors.primary,
     paddingTop: 60,
@@ -2781,7 +2764,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'rgba(255,255,255,0.9)',
   },
-  
+
   card: {
     backgroundColor: Colors.white,
     borderRadius: 16,
@@ -2815,7 +2798,7 @@ const styles = StyleSheet.create({
     color: Colors.text?.secondary || '#666',
     fontWeight: '600',
   },
-  
+
   historySection: {
     marginBottom: 20,
   },
@@ -2856,7 +2839,7 @@ const styles = StyleSheet.create({
   allergyText: {
     color: Colors.status?.error || '#FF3B30',
   },
-  
+
   recordItem: {
     borderBottomWidth: 1,
     borderBottomColor: Colors.border?.light || '#E0E0E0',
@@ -2900,7 +2883,7 @@ const styles = StyleSheet.create({
     color: Colors.secondary,
     fontStyle: 'italic',
   },
-  
+
   emptyState: {
     alignItems: 'center',
     paddingVertical: 40,
@@ -2910,7 +2893,7 @@ const styles = StyleSheet.create({
     color: Colors.text?.secondary || '#666',
     marginTop: 8,
   },
-  
+
   buttonRow: {
     flexDirection: 'row',
     gap: 12,
@@ -2947,7 +2930,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  
+
   recordSection: {
     backgroundColor: Colors.white,
     borderRadius: 16,
@@ -2979,7 +2962,7 @@ const styles = StyleSheet.create({
     color: Colors.text?.secondary || '#666',
     marginTop: 2,
   },
-  
+
   choiceGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -3011,7 +2994,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontWeight: '600',
   },
-  
+
   selectedDrugsContainer: {
     marginTop: 20,
   },
@@ -3147,7 +3130,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.secondary,
   },
-  
+
   saveSection: {
     paddingHorizontal: 16,
     paddingVertical: 20,
@@ -3161,7 +3144,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingHorizontal: 20,
   },
-  
+
   actionButtons: {
     flexDirection: 'row',
     paddingHorizontal: 16,
@@ -3185,7 +3168,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
-  
+
   input: {
     backgroundColor: Colors.offWhite,
     borderWidth: 1,
@@ -3426,7 +3409,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  
+
   aiActionButtons: {
     flexDirection: 'row',
     gap: 12,
@@ -3450,7 +3433,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  
+
   uploadPrompt: {
     padding: 16,
     backgroundColor: '#F8F9FA',
@@ -3497,11 +3480,11 @@ const styles = StyleSheet.create({
   closeButton: {
     padding: 4,
   },
-  
+
   asrContainer: {
     padding: 20,
   },
-  
+
   languageSelector: {
     marginBottom: 20,
   },
@@ -3541,7 +3524,7 @@ const styles = StyleSheet.create({
   languageNameSelected: {
     color: Colors.white,
   },
-  
+
   recordingStatus: {
     marginBottom: 20,
   },
@@ -3587,7 +3570,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     height: 20,
   },
-  
+
   readyState: {
     alignItems: 'center',
     padding: 20,
@@ -3604,7 +3587,7 @@ const styles = StyleSheet.create({
     color: Colors.text?.secondary || '#666',
     textAlign: 'center',
   },
-  
+
   transcriptionContainer: {
     marginBottom: 20,
   },
@@ -3629,7 +3612,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.text?.secondary || '#666',
   },
-  
+
   transcriptionBox: {
     backgroundColor: Colors.offWhite,
     borderRadius: 12,
@@ -3653,13 +3636,13 @@ const styles = StyleSheet.create({
     color: Colors.text?.secondary || '#666',
     textAlign: 'center',
   },
-  
+
   transcriptionText: {
     fontSize: 14,
     color: Colors.text?.primary || '#000',
     lineHeight: 20,
   },
-  
+
   emptyTranscription: {
     alignItems: 'center',
     padding: 20,
@@ -3670,7 +3653,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 8,
   },
-  
+
   transcriptionEdit: {
     marginTop: 12,
   },
@@ -3691,7 +3674,7 @@ const styles = StyleSheet.create({
     minHeight: 100,
     textAlignVertical: 'top',
   },
-  
+
   medicalPhrases: {
     marginBottom: 20,
   },
@@ -3717,7 +3700,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.text?.secondary || '#666',
   },
-  
+
   controlButtons: {
     marginBottom: 20,
   },
@@ -3752,7 +3735,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
-  
+
   secondaryControls: {
     flexDirection: 'row',
     gap: 12,
@@ -3787,7 +3770,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  
+
   tipsContainer: {
     backgroundColor: '#F8F9FA',
     borderRadius: 12,
@@ -3821,5 +3804,46 @@ const styles = StyleSheet.create({
     color: Colors.text?.secondary || '#666',
     marginLeft: 8,
     flex: 1,
+  },
+
+  errorContainer: {
+    backgroundColor: '#FFF5F5',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: Colors.status?.error || '#FF3B30',
+  },
+  errorHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 8,
+  },
+  errorTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.status?.error || '#FF3B30',
+  },
+  errorMessage: {
+    fontSize: 14,
+    color: Colors.text?.primary || '#000',
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  retryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.status?.error || '#FF3B30',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    gap: 8,
+  },
+  retryButtonText: {
+    color: Colors.white,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

@@ -4,20 +4,23 @@ import { Platform } from 'react-native';
 
 // Get base URL based on platform
 const getBaseUrl = () => {
+  // If you are testing on a REAL device, change 'localhost' to your computer's IP address (e.g., '192.168.1.5')
+  const COMPUTER_IP = 'localhost';
+
   if (__DEV__) {
     const url = Platform.select({
-      ios: 'http://localhost:5148',
-      android: 'http://10.0.2.2:5148',
-      web: 'http://localhost:5148',
-      default: 'http://localhost:5148',
+      ios: `http://${COMPUTER_IP}:5148`,
+      android: `http://10.0.2.2:5148`, // 10.0.2.2 is the alias for localhost in Android Emulator
+      web: `http://${COMPUTER_IP}:5148`,
+      default: `http://${COMPUTER_IP}:5148`,
     });
-    console.log(`🌐 Using backend URL: ${url}`);
+    console.log(`🌐 API BASE URL: ${url}`);
     return url;
   }
   return 'https://your-production-url.com';
 };
 
-const API_BASE_URL = getBaseUrl();
+export const API_BASE_URL = getBaseUrl();
 
 // Create axios instance
 const api = axios.create({
@@ -32,9 +35,10 @@ const api = axios.create({
 // Request interceptor for logging
 api.interceptors.request.use(
   (config) => {
-    console.log(`➡️  ${config.method?.toUpperCase()} ${config.url}`);
+    const fullUrl = `${config.baseURL || ''}${config.url || ''}`;
+    console.log(`➡️  ${config.method?.toUpperCase()} ${fullUrl}`);
     if (config.data) {
-      console.log('📦 Request data:', config.data);
+      console.log('📦 Request data:', JSON.stringify(config.data, null, 2));
     }
     return config;
   },
@@ -148,10 +152,10 @@ export const feedbackApi = {
   delete: (id: number) => api.delete(`/api/Feedbacks/${id}`),
 };
 
-// Medical Report API endpoints
 export const medicalReportApi = {
   getAll: () => api.get('/api/medicalreports'),
   getById: (id: number) => api.get(`/api/medicalreports/${id}`),
+  getByPatientId: (patientId: string | number) => api.get(`/api/medicalreports/patient/${patientId}`),
   create: (report: any) => api.post('/api/medicalreports', report),
   update: (id: number, report: any) => api.put(`/api/medicalreports/${id}`, report),
   delete: (id: number) => api.delete(`/api/medicalreports/${id}`),

@@ -1,8 +1,9 @@
+import { appointmentApi, patientApi, paymentApi } from '@/app/services';
 import LogoutModal from '@/components/LogoutModal';
 import RequireRole from '@/components/RequireRole';
 import Colors from '@/constants/colors';
-import { MOCK_APPOINTMENTS, MOCK_PAYMENTS } from '@/constants/mockData';
 import { useAuth } from '@/contexts/AuthContext';
+import { useBackendData } from '@/hooks/useBackendData';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import {
@@ -25,11 +26,10 @@ import {
   Animated,
   Dimensions,
   Image,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
-  View,
+  View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -51,6 +51,13 @@ export default function AssistantDashboard() {
   const shimmerAnim = useRef(new Animated.Value(0)).current;
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  // Fetch all data for assistant stats
+  const { data: allAppointments, loading: loadingApts } = useBackendData(() => appointmentApi.getAll(), []);
+  const { data: allPatients, loading: loadingPatients } = useBackendData(() => patientApi.getAll(), []);
+  const { data: allPayments, loading: loadingPayments } = useBackendData(() => paymentApi.getAll(), []);
+
+  const isLoading = loadingApts || loadingPatients || loadingPayments;
 
   useEffect(() => {
     Animated.parallel([
@@ -116,36 +123,38 @@ export default function AssistantDashboard() {
     setShowLogoutModal(true);
   };
 
-  const confirmLogout = () => {
+  const confirmLogout = async () => {
     setShowLogoutModal(false);
-    logout();
-
-    setTimeout(() => {
-      if (Platform.OS === 'web') {
-        if (typeof window !== 'undefined' && window.location) {
-          window.location.href = '/';
-        }
-      } else {
-        router.replace('/');
-      }
-    }, 50);
+    await logout();
+    router.replace('/');
   };
 
   const cancelLogout = () => {
     setShowLogoutModal(false);
   };
 
-  // Stats calculation for the icons only
-  const todayAppointments = MOCK_APPOINTMENTS.filter(
-    apt => apt.status === 'reserved'
+  const today = new Date().toISOString().split('T')[0];
+
+  const todayAppointmentsCount = (allAppointments || []).filter((apt: any) => {
+    const aptDate = new Date(apt.appointmentDate).toISOString().split('T')[0];
+    return aptDate === today && apt.status !== 'Cancelled';
+  }).length;
+
+  const completedThisMonth = (allAppointments || []).filter((apt: any) => {
+    const aptDate = new Date(apt.appointmentDate);
+    return apt.status === 'Completed' &&
+      aptDate.getMonth() === new Date().getMonth() &&
+      aptDate.getFullYear() === new Date().getFullYear();
+  }).length;
+
+  const emergencyAppointments = (allAppointments || []).filter((apt: any) =>
+    apt.isEmergency && apt.status !== 'Cancelled' &&
+    new Date(apt.appointmentDate).toISOString().split('T')[0] === today
   ).length;
-  const completedThisMonth = MOCK_APPOINTMENTS.filter(
-    apt => apt.status === 'completed' && new Date(apt.date).getMonth() === new Date().getMonth()
-  ).length;
-  const emergencyAppointments = MOCK_APPOINTMENTS.filter(
-    apt => apt.isEmergency && apt.status === 'reserved'
-  ).length;
-  const totalPatients = 12; // From your second image
+
+  const totalPatients = (allPatients || []).length;
+  const pendingPayments = (allPayments || []).filter((p: any) => p.status === 'Pending');
+  const pendingPaymentsAmount = pendingPayments.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
 
   // REMOVED "Aesthetic Medicine" - Added "Total Patients" instead
   const statsData = [
@@ -161,7 +170,7 @@ export default function AssistantDashboard() {
     {
       id: 'scheduled',
       title: 'Scheduled Today',
-      value: String(todayAppointments),
+      value: String(todayAppointmentsCount),
       icon: Calendar,
       color: Colors.white,
       bgColor: Colors.primary,
@@ -467,11 +476,11 @@ export default function AssistantDashboard() {
                 <Calendar size={20} color={Colors.primary} />
                 <Text style={styles.sectionTitle}>Today's Schedule</Text>
                 <View style={styles.sectionCount}>
-                  <Text style={styles.sectionCountText}>{todayAppointments}</Text>
+                  <Text style={styles.sectionCountText}>{todayAppointmentsCount}</Text>
                 </View>
               </View>
 
-              {todayAppointments === 0 ? (
+              {todayAppointmentsCount === 0 ? (
                 <View style={styles.emptyState}>
                   <View style={styles.emptyIllustration}>
                     <Calendar size={48} color={Colors.text.secondary} />
@@ -484,7 +493,10 @@ export default function AssistantDashboard() {
                   <Text style={styles.emptySubtext}>Schedule is clear for today</Text>
                 </View>
               ) : (
-                MOCK_APPOINTMENTS.filter(apt => apt.status === 'reserved').slice(0, 3).map((apt) => (
+                (allAppointments || []).filter((apt: any) => {
+                  const aptDate = new Date(apt.appointmentDate).toISOString().split('T')[0];
+                  return aptDate === today && apt.status !== 'Cancelled';
+                }).slice(0, 3).map((apt: any) => (
                   <Animated.View
                     key={apt.id}
                     style={[
@@ -495,7 +507,9 @@ export default function AssistantDashboard() {
                     <View style={styles.appointmentHeader}>
                       <View style={styles.appointmentTime}>
                         <Clock size={14} color={Colors.text.secondary} />
-                        <Text style={styles.timeText}>{apt.time}</Text>
+                        <Text style={styles.timeText}>
+                          {new Date(apt.appointmentDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </Text>
                       </View>
 
                       <View style={styles.patientStatus}>
@@ -519,9 +533,11 @@ export default function AssistantDashboard() {
                         </Text>
                       </View>
                       <View style={styles.patientDetails}>
-                        <Text style={styles.patientName}>{apt.patientName}</Text>
+                        <Text style={styles.patientName}>
+                          {apt.patient ? `${apt.patient.firstName} ${apt.patient.lastName}` : `Patient #${apt.patientId}`}
+                        </Text>
                         <View style={styles.patientMeta}>
-                          <Text style={styles.specialty}>{apt.specialty}</Text>
+                          <Text style={styles.specialty}>{apt.notes?.split('Specialty: ')[1]?.split(',')[0] || 'Consultation'}</Text>
                           <View style={styles.separator} />
                           <Text style={styles.appointmentType}>Consultation</Text>
                         </View>
@@ -533,7 +549,7 @@ export default function AssistantDashboard() {
             </View>
 
             {/* PENDING PAYMENTS SECTION */}
-            {MOCK_PAYMENTS.filter(p => p.status === 'pending').length > 0 && (
+            {pendingPayments.length > 0 && (
               <View style={styles.paymentsSection}>
                 <View style={styles.sectionHeader}>
                   <AlertCircle size={20} color={Colors.status?.error || '#FF3B30'} />
@@ -541,7 +557,7 @@ export default function AssistantDashboard() {
                     Pending Payments
                   </Text>
                   <View style={[styles.sectionCount, styles.pendingCount]}>
-                    <Text style={styles.sectionCountText}>{MOCK_PAYMENTS.filter(p => p.status === 'pending').length}</Text>
+                    <Text style={styles.sectionCountText}>{pendingPayments.length}</Text>
                   </View>
                 </View>
 
@@ -553,10 +569,10 @@ export default function AssistantDashboard() {
                     <DollarSign size={24} color={Colors.white} />
                     <View style={styles.pendingAlertText}>
                       <Text style={styles.pendingAlertTitle}>
-                        {MOCK_PAYMENTS.filter(p => p.status === 'pending').length} payments pending
+                        {pendingPayments.length} payments pending
                       </Text>
                       <Text style={styles.pendingAlertSubtitle}>
-                        Total: $1,500 • Requires attention
+                        Total: ${pendingPaymentsAmount.toFixed(0)} • Requires attention
                       </Text>
                     </View>
                     <Pressable

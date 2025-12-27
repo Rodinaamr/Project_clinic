@@ -12,18 +12,16 @@ import {
   CreditCard,
   FileText,
   LogOut,
-  MessageSquare,
-  Phone,
+  Phone
 } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Image,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
-  View,
+  View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -88,20 +86,10 @@ export default function PatientDashboard() {
     setShowLogoutModal(true);
   };
 
-  const confirmLogout = () => {
+  const confirmLogout = async () => {
     setShowLogoutModal(false);
-    logout();
-    setTimeout(() => {
-      if (Platform.OS === 'web') {
-        // @ts-ignore - window is available on web
-        if (typeof window !== 'undefined') {
-          // @ts-ignore
-          window.location.href = '/';
-        }
-      } else {
-        router.replace('/');
-      }
-    }, 50);
+    await logout();
+    router.replace('/');
   };
 
   const cancelLogout = () => {
@@ -129,13 +117,6 @@ export default function PatientDashboard() {
       subtitle: 'Payment history',
       color: Colors.gold,
       route: '/patient/payments' as any,
-    },
-    {
-      icon: MessageSquare,
-      title: 'Feedback',
-      subtitle: 'Share your experience',
-      color: Colors.primaryLight,
-      route: '/patient/feedback' as any,
     },
     {
       icon: Phone,

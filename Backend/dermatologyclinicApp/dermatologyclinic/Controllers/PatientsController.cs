@@ -34,15 +34,66 @@ namespace dermatologyclinicApp.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Patient>> Register(Patient patient)
+        public async Task<ActionResult<Patient>> Register([FromBody] Patient patient)
         {
-            if (await _patientRepository.GetPatientByEmailAsync(patient.Email) != null)
-                return BadRequest("Patient with this email already exists.");
+            Console.WriteLine($"📥 Received registration request for: {patient.Email}");
+            
+            if (string.IsNullOrEmpty(patient.Email))
+            {
+                Console.WriteLine("❌ Registration failed: Email is required");
+                return BadRequest("Email is required.");
+            }
 
-            await _patientRepository.AddAsync(patient);
-            await _patientRepository.SaveChangesAsync();
+            try 
+            {
+                if (await _patientRepository.GetPatientByEmailAsync(patient.Email) != null)
+                {
+                    Console.WriteLine($"❌ Registration failed: Email {patient.Email} already exists");
+                    return BadRequest("Patient with this email already exists.");
+                }
 
-            return CreatedAtAction(nameof(GetById), new { id = patient.Id }, patient);
+                await _patientRepository.AddAsync(patient);
+                await _patientRepository.SaveChangesAsync();
+
+                Console.WriteLine($"✅ Registration successful for: {patient.Email}, ID: {patient.Id}");
+                return CreatedAtAction(nameof(GetById), new { id = patient.Id }, patient);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Database Error during registration: {ex.Message}");
+                if (ex.InnerException != null)
+                    Console.WriteLine($"🔍 Inner Exception: {ex.InnerException.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("Test")]
+        public IActionResult Test()
+        {
+            return Ok(new { message = "Patients API is reachable!" });
+        }
+
+        [HttpPost("SignUp")]
+        public async Task<ActionResult<Patient>> SignUp(Patient patient)
+        {
+            return await Register(patient);
+        }
+
+        [HttpPost("Login")]
+        public async Task<ActionResult<Patient>> Login([FromBody] LoginRequest request)
+        {
+            var patient = await _patientRepository.GetPatientByEmailAsync(request.Email);
+            
+            if (patient == null || patient.Password != request.Password)
+                return Unauthorized("Invalid email or password.");
+
+            return Ok(patient);
+        }
+
+        public class LoginRequest
+        {
+            public string Email { get; set; } = string.Empty;
+            public string Password { get; set; } = string.Empty;
         }
     }
 }

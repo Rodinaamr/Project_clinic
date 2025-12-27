@@ -1,6 +1,9 @@
 import createContextHook from '@nkzw/create-context-hook';
-import { useCallback, useMemo, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { patientsApi as patientApi } from '../app/services';
+
+const STORAGE_KEY = 'PROJECT_CLINIC_USER';
 
 const ROLE_IMAGES = {
   patient: 'https://cdn-icons-png.flaticon.com/512/3001/3001764.png',
@@ -22,6 +25,14 @@ export interface User {
   // ✅ Added fields
   age?: number;
   gender?: string;
+
+  // ✅ Clinical & Emergency fields
+  bloodType?: string;
+  allergies?: string;
+  medications?: string;
+  emergencyName?: string;
+  emergencyPhone?: string;
+  emergencyRelation?: string;
 }
 
 const MOCK_USERS: User[] = [
@@ -69,7 +80,45 @@ const MOCK_CREDENTIALS: Record<string, { password: string; userId: string }> = {
 
 export const [AuthProvider, useAuth] = createContextHook(() => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // 1. Load user from storage on mount
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        console.log('🔄 Session Trace: Checking for stored user...');
+        const stored = await AsyncStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsedUser = JSON.parse(stored);
+          console.log('✅ Session Found:', parsedUser.email);
+          setUser(parsedUser);
+        } else {
+          console.log('ℹ️ No Session Found - Staying on Landing Page');
+        }
+      } catch (e) {
+        console.error('❌ Failed to load user from storage:', e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadUser();
+  }, []);
+
+  // 2. Persist user to storage whenever it changes
+  useEffect(() => {
+    const saveUser = async () => {
+      try {
+        if (user) {
+          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+        } else {
+          await AsyncStorage.removeItem(STORAGE_KEY);
+        }
+      } catch (e) {
+        console.error('Failed to save user to storage:', e);
+      }
+    };
+    saveUser();
+  }, [user]);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
@@ -116,8 +165,16 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     return false;
   }, []);
 
-  const logout = useCallback(() => {
-    setUser(null);
+  const logout = useCallback(async () => {
+    try {
+      console.log('🚀 Executing Logout: Clearing Storage...');
+      await AsyncStorage.removeItem(STORAGE_KEY);
+      console.log('✅ Storage Cleared. Resetting User State...');
+      setUser(null);
+    } catch (e) {
+      console.error('❌ Logout Failed:', e);
+      setUser(null); // Fallback
+    }
   }, []);
 
   const register = useCallback(
@@ -128,11 +185,11 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
       phone: string,
       age?: string | number,
       gender?: string
-    ): Promise<boolean> => {
+    ): Promise<{ success: boolean; error?: string }> => {
       // Client-side validation (extra check)
       if (!password || password.length < 6) {
         setIsLoading(false);
-        return false;
+        return { success: false, error: 'Password must be at least 6 characters' };
       }
 
       setIsLoading(true);
@@ -164,10 +221,14 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
           address: '' // Optional
         };
 
-        console.log('Registering with payload:', payload);
+        console.log('🚀 Sending registration to backend...');
+        console.log('📍 Endpoint: POST /api/Patients');
+        console.log('📦 Payload:', JSON.stringify(payload, null, 2));
 
         // using the new service (we need to update import too)
         const response = await patientApi.create(payload);
+
+        console.log('📥 Backend Response:', response.status, response.data);
 
         // backend returns created patient
         const created = response?.data;
@@ -185,19 +246,44 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
 
           setUser(newUser);
           setIsLoading(false);
-          return true;
+          return { success: true };
         }
 
         setIsLoading(false);
-        return false;
+        return { success: false, error: 'Failed to create user account' };
       } catch (err: any) {
-        console.error('Registration error detailing:', err.response?.data || err.message);
+        // Robust error extraction from ASP.NET Core validation responses
+        let errorMsg = 'Network connection error';
+
+        if (err.response) {
+          const data = err.response.data;
+
+          if (typeof data === 'string') {
+            errorMsg = data;
+          } else if (data.errors) {
+            // Flatten the errors object from ASP.NET validation
+            const validationErrors = Object.values(data.errors).flat();
+            errorMsg = validationErrors.join(', ');
+          } else if (data.message) {
+            errorMsg = data.message;
+          } else if (data.title) {
+            errorMsg = data.title;
+          }
+        } else if (err.message) {
+          errorMsg = err.message;
+        }
+
+        console.error('Registration error detailing:', errorMsg);
         setIsLoading(false);
-        return false;
+        return { success: false, error: errorMsg };
       }
     },
     []
   );
+
+  const updateUser = useCallback((updatedUser: Partial<User>) => {
+    setUser((prev) => (prev ? { ...prev, ...updatedUser } : null));
+  }, []);
 
   return useMemo(
     () => ({
@@ -207,7 +293,8 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
       login,
       logout,
       register,
+      updateUser,
     }),
-    [user, isLoading, login, logout, register]
+    [user, isLoading, login, logout, register, updateUser]
   );
 });

@@ -1,10 +1,9 @@
-declare const window: any;
-
+import { appointmentsApi } from '@/app/services';
 import LogoutModal from '@/components/LogoutModal';
 import RequireRole from '@/components/RequireRole';
 import Colors from '@/constants/colors';
-import { MOCK_APPOINTMENTS } from '@/constants/mockData';
 import { useAuth } from '@/contexts/AuthContext';
+import { useBackendData } from '@/hooks/useBackendData';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import {
@@ -29,14 +28,15 @@ import {
   Dimensions,
   Easing,
   Image,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
-  View,
+  View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import PubMedWidget from '../../components/PubMedWidget';
+
+declare const window: any;
 
 export default function DoctorDashboard() {
   const router = useRouter();
@@ -50,6 +50,12 @@ export default function DoctorDashboard() {
   const shimmerAnim = useRef(new Animated.Value(0)).current;
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  // Fetch today's appointments for this doctor
+  const { data: doctorAppointments, loading, error, refetch } = useBackendData(
+    () => user?.id ? appointmentsApi.getAll() : Promise.resolve({ data: [] }),
+    [user?.id]
+  );
 
   useEffect(() => {
     Animated.parallel([
@@ -114,19 +120,10 @@ export default function DoctorDashboard() {
     setShowLogoutModal(true);
   };
 
-  const confirmLogout = () => {
+  const confirmLogout = async () => {
     setShowLogoutModal(false);
-    logout();
-
-    setTimeout(() => {
-      if (Platform.OS === 'web') {
-        if (typeof window !== 'undefined') {
-          window.location.href = '/';
-        }
-      } else {
-        router.replace('/');
-      }
-    }, 50);
+    await logout();
+    router.replace('/');
   };
 
   const cancelLogout = () => {
@@ -134,12 +131,17 @@ export default function DoctorDashboard() {
   };
 
   const today = new Date().toISOString().split('T')[0];
-  const todayAppointments = MOCK_APPOINTMENTS.filter(
-    apt => apt.date === today && apt.status === 'reserved'
-  );
-  const emergencyCases = MOCK_APPOINTMENTS.filter(
-    apt => apt.isEmergency && apt.status === 'reserved'
-  ).length;
+
+  // Filter appointments for the logged-in doctor if needed, or showing all for now if doctorId is not strictly enforced in basic mode
+  const currentDoctorAppointments = (doctorAppointments || []).filter((apt: any) => {
+    const aptDate = new Date(apt.appointmentDate).toISOString().split('T')[0];
+    return aptDate === today;
+  });
+
+  const todayAppointments = currentDoctorAppointments.filter((apt: any) => apt.status !== 'Cancelled');
+
+  const emergencyCases = todayAppointments.filter((apt: any) => apt.isEmergency).length;
+  const completedCount = (doctorAppointments || []).filter((apt: any) => apt.status === 'Completed').length;
 
   // Create shimmer interpolation
   const shimmerTranslate = shimmerAnim.interpolate({
@@ -339,10 +341,10 @@ export default function DoctorDashboard() {
                     </View>
                     <View style={styles.statInfo}>
                       <Text style={styles.statNumber}>
-                        {MOCK_APPOINTMENTS.filter(apt => apt.status === 'completed').length}
+                        {completedCount}
                       </Text>
                       <Text style={styles.statLabel}>Completed</Text>
-                      <Text style={styles.statSub}>This Month</Text>
+                      <Text style={styles.statSub}>Total</Text>
                     </View>
                   </Pressable>
                 </View>
@@ -372,7 +374,7 @@ export default function DoctorDashboard() {
                   <Text style={styles.emptySubtext}>Your schedule is clear</Text>
                 </View>
               ) : (
-                todayAppointments.map(apt => (
+                todayAppointments.map((apt: any) => (
                   <Animated.View
                     key={apt.id}
                     style={[
@@ -390,7 +392,9 @@ export default function DoctorDashboard() {
                       <View style={styles.appointmentHeader}>
                         <View style={styles.appointmentTime}>
                           <Clock size={14} color={Colors.text.secondary} />
-                          <Text style={styles.timeText}>{apt.time}</Text>
+                          <Text style={styles.timeText}>
+                            {new Date(apt.appointmentDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </Text>
                           {apt.isEmergency && (
                             <View style={styles.emergencyIndicator}>
                               <View style={styles.emergencyPulseSmall} />
@@ -408,7 +412,7 @@ export default function DoctorDashboard() {
                             styles.statusText,
                             apt.isEmergency && styles.statusTextEmergency
                           ]}>
-                            {apt.isEmergency ? 'EMERGENCY' : 'REGULAR'}
+                            {apt.isEmergency ? 'EMERGENCY' : apt.status.toUpperCase()}
                           </Text>
                         </View>
                       </View>
@@ -416,15 +420,17 @@ export default function DoctorDashboard() {
                       <View style={styles.patientInfo}>
                         <View style={styles.patientAvatarPlaceholder}>
                           <Text style={styles.patientInitial}>
-                            {apt.patientName.charAt(0).toUpperCase()}
+                            {apt.patient?.firstName?.charAt(0).toUpperCase() || 'P'}
                           </Text>
                         </View>
                         <View style={styles.patientDetails}>
-                          <Text style={styles.patientName}>{apt.patientName}</Text>
+                          <Text style={styles.patientName}>
+                            {apt.patient ? `${apt.patient.firstName} ${apt.patient.lastName}` : `Patient #${apt.patientId}`}
+                          </Text>
                           <View style={styles.patientMeta}>
-                            <Text style={styles.specialty}>{apt.specialty}</Text>
+                            <Text style={styles.specialty}>{apt.notes?.split('Specialty: ')[1]?.split(',')[0] || 'General'}</Text>
                             <View style={styles.separator} />
-                            <Text style={styles.appointmentType}>Consultation</Text>
+                            <Text style={styles.appointmentType}>{apt.status}</Text>
                           </View>
                         </View>
                       </View>

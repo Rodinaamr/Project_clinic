@@ -51,6 +51,11 @@ export default function PaymentsPage() {
           { paddingBottom: insets.bottom + 20 },
         ]}
       >
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryLabel}>Total Amount Paid</Text>
+          <Text style={styles.summaryAmount}>${totalPaid.toFixed(2)}</Text>
+        </View>
+
         {isLoading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={Colors.gold} />

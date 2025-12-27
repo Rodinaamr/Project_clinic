@@ -18,7 +18,7 @@ export default function LandingPage() {
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
   const insets = useSafeAreaInsets();
-  
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const scaleAnim1 = useRef(new Animated.Value(0.8)).current;
@@ -50,6 +50,8 @@ export default function LandingPage() {
   }, []);
   // ==================== END CONNECTION TEST ====================
 
+  /* 
+  // Disable auto-redirect per user request to always see the landing page
   useEffect(() => {
     if (isAuthenticated && user) {
       if (user.role === 'patient') {
@@ -61,6 +63,7 @@ export default function LandingPage() {
       }
     }
   }, [isAuthenticated, user, router]);
+  */
 
   useEffect(() => {
     Animated.parallel([

@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\egypt\\Downloads\\Project_clinic-main (1)\\Project_clinic-main\\Backend\\dermatologyclinicApp\\dermatologyclinic\\dermatologyclinic.csproj": {}
+    "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\dermatologyclinic.csproj": {}
   },
   "projects": {
-    "C:\\Users\\egypt\\Downloads\\Project_clinic-main (1)\\Project_clinic-main\\Backend\\dermatologyclinicApp\\dermatologyclinic\\dermatologyclinic.csproj": {
+    "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\dermatologyclinic.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\egypt\\Downloads\\Project_clinic-main (1)\\Project_clinic-main\\Backend\\dermatologyclinicApp\\dermatologyclinic\\dermatologyclinic.csproj",
+        "projectUniqueName": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\dermatologyclinic.csproj",
         "projectName": "dermatologyclinic",
-        "projectPath": "C:\\Users\\egypt\\Downloads\\Project_clinic-main (1)\\Project_clinic-main\\Backend\\dermatologyclinicApp\\dermatologyclinic\\dermatologyclinic.csproj",
-        "packagesPath": "C:\\Users\\egypt\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\egypt\\Downloads\\Project_clinic-main (1)\\Project_clinic-main\\Backend\\dermatologyclinicApp\\dermatologyclinic\\obj\\",
+        "projectPath": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\dermatologyclinic.csproj",
+        "packagesPath": "C:\\Users\\20114\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\20114\\Downloads\\New folder\\Project_clinic\\Backend\\dermatologyclinicApp\\dermatologyclinic\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\egypt\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\20114\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -77,6 +78,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"
+            },
+            "Tesseract": {
+              "target": "Package",
+              "version": "[5.2.0, )"
             }
           },
           "imports": [
@@ -98,7 +103,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

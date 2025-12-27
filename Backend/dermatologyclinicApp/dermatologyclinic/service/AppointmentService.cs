@@ -16,6 +16,23 @@ namespace dermatologyclinicApp.Services
             _appointmentRepository = appointmentRepository;
         }
 
+        public async Task<Appointment?> GetByIdAsync(int id)
+        {
+            return await _appointmentRepository.GetByIdAsync(id);
+        }
+
+        public async Task<IEnumerable<Appointment>> GetByPatientIdAsync(int patientId)
+        {
+            var appointments = await _appointmentRepository.GetAllAsync();
+            return appointments.Where(a => a.PatientId == patientId).OrderByDescending(a => a.AppointmentDate).ToList();
+        }
+
+        public async Task<IEnumerable<Appointment>> GetByDoctorIdAsync(int doctorId)
+        {
+            var appointments = await _appointmentRepository.GetAllAsync();
+            return appointments.Where(a => a.DoctorId == doctorId).OrderByDescending(a => a.AppointmentDate).ToList();
+        }
+
         public async Task<Appointment> CreateAppointmentAsync(Appointment appointment)
         {
             var start = appointment.AppointmentDate;

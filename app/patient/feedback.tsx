@@ -26,7 +26,13 @@ export default function DoctorFeedbackView() {
       try {
         const response = await feedbacksApi.getAll();
         if (response.data) {
-          setFeedbackList(response.data);
+          // If user is a doctor, only show their feedback
+          if (user?.role === 'doctor') {
+            const filtered = response.data.filter((f: any) => String(f.doctorId) === String(user.id));
+            setFeedbackList(filtered);
+          } else {
+            setFeedbackList(response.data);
+          }
         }
       } catch (err) {
         console.error('Error fetching feedback:', err);
@@ -35,7 +41,7 @@ export default function DoctorFeedbackView() {
       }
     };
     fetchFeedback();
-  }, []);
+  }, [user?.id, user?.role]);
 
   // Calculate stats from real data
   const totalReviews = feedbackList.length;

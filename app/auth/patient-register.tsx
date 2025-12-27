@@ -62,12 +62,12 @@ export default function PatientRegisterPage() {
       return;
     }
 
-    const success = await register(name, email, password, phone, age, gender);
+    const result = await register(name, email, password, phone, age, gender);
 
-    if (success) {
+    if (result.success) {
       router.replace('/patient/dashboard' as any);
     } else {
-      Alert.alert('Registration Failed', 'Please try again');
+      Alert.alert('Registration Failed', result.error || 'Please try again');
     }
   };
 

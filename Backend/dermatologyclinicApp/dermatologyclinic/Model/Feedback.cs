@@ -14,8 +14,11 @@ namespace dermatologyclinicApp.Models
         public int Rating { get; set; }
         public DateTime FeedbackDate { get; set; } = DateTime.Now;
         public int PatientId { get; set; }
+        public int? DoctorId { get; set; }
         [ForeignKey("PatientId")]
         public virtual Patient? Patient { get; set; }
+        [ForeignKey("DoctorId")]
+        public virtual Doctor? Doctor { get; set; }
     }
 }
 

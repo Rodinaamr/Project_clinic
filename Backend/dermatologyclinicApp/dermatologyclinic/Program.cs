@@ -50,6 +50,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.WriteIndented = true;
     });
@@ -76,7 +77,7 @@ if (app.Environment.IsDevelopment())
     Console.WriteLine($"   • Swagger: https://localhost:7078/swagger");
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
@@ -90,8 +91,10 @@ try
         if (dbContext.Database.CanConnect())
         {
             Console.WriteLine("✅ Database connection successful!");
-            Console.WriteLine("📊 Creating database tables if not exist...");
+            
+            // Schema sync complete. Keeping EnsureCreated for future runs.
             dbContext.Database.EnsureCreated();
+            Console.WriteLine("✅ Database schema verified!");
 
             // Seed database
             Console.WriteLine("🌱 Seeding database...");

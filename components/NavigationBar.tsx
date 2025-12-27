@@ -3,12 +3,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { usePathname, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Dimensions,
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import PatientSidebar from './PatientSidebar';
 
@@ -28,7 +28,6 @@ const navItems: NavItem[] = [
   { name: 'Appointments', icon: 'calendar', route: '/patient/book-appointment' },
   { name: 'Payments', icon: 'card', route: '/patient/payments' },
   { name: 'Contact', icon: 'call', route: '/patient/contact' },
-  { name: 'Feedback', icon: 'chatbubble', route: '/patient/feedback' },
 ];
 
 const doctorNavItems: NavItem[] = [
@@ -51,7 +50,7 @@ export default function NavigationBar() {
   const pathname = usePathname();
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const { user } = useAuth();
-  
+
   const isAuthPage = pathname?.startsWith('/auth') || pathname === '/';
   if (isAuthPage) {
     return null;
@@ -77,7 +76,7 @@ export default function NavigationBar() {
       {isDesktop ? (
         <View style={[styles.desktopNav, { backgroundColor }]}>
           {/* Logo - Wahid Lofty Clinics */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.logo}
             onPress={() => handleNavigation('/patient/dashboard')}
           >
@@ -94,7 +93,7 @@ export default function NavigationBar() {
                 key={item.route}
                 style={[
                   styles.navButton,
-                  isActive(item.route) && { 
+                  isActive(item.route) && {
                     backgroundColor: '#3498db20',
                   },
                 ]}
@@ -107,7 +106,7 @@ export default function NavigationBar() {
                 />
                 <Text style={[
                   styles.navText,
-                  { 
+                  {
                     color: isActive(item.route) ? '#3498db' : '#555',
                   }
                 ]}>
@@ -149,7 +148,7 @@ export default function NavigationBar() {
               />
               <Text style={[
                 styles.mobileText,
-                { 
+                {
                   color: isActive(item.route) ? '#3498db' : '#555',
                 }
               ]}>
@@ -157,7 +156,7 @@ export default function NavigationBar() {
               </Text>
             </TouchableOpacity>
           ))}
-          
+
           {/* More button */}
           <TouchableOpacity
             style={styles.mobileButton}
