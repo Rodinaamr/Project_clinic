@@ -177,9 +177,9 @@ Emergency Contact: ${profile.emergencyName} (${profile.emergencyPhone})
 Generated on: ${new Date().toLocaleDateString()}
     `;
 
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    if (Platform.OS === 'web') {
       // @ts-ignore
-      const doc = window.document;
+      const doc = document;
       const element = doc.createElement('a');
       // @ts-ignore
       const file = new Blob([reportData], { type: 'text/plain' });

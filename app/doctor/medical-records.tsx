@@ -987,7 +987,7 @@ export default function MedicalRecordsPage() {
 
       const extractedText = await extractPrescriptionText(imageUri);
       const parsedData = parsePrescriptionData(extractedText);
-      const nlpAnalysis = analyzePrescription(extractedText, patientAllergies);
+      const nlpAnalysis = await analyzePrescription(extractedText, patientAllergies);
       const acrValidation = await validateMedicalDocument(imageUri);
 
       const analysis = {
