@@ -2,57 +2,52 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, Modal, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import api from '../services/api';
 
-// Mock Data for Meeting Summaries
-const MOCK_SUMMARIES = [
-    {
-        id: '1',
-        patientName: 'Sarah Johnson',
-        date: '2025-12-19',
-        time: '14:30',
-        type: 'Follow-up',
-        duration: '25 min',
-        summary: 'Patient reported improvement in acne symptoms after using the prescribed topical retinoid. Some dryness noted. Recommended moisturizer adjustment and continuing varying current treatment plan. Next follow-up in 4 weeks.',
-        actionItems: ['Continue Tretinoin 0.05%', 'Add Hyaluronic Acid serum', 'Schedule follow-up'],
-        sentiment: 'Positive',
-    },
-    {
-        id: '2',
-        patientName: 'Michael Chen',
-        date: '2025-12-19',
-        time: '11:00',
-        type: 'Initial Consultation',
-        duration: '45 min',
-        summary: 'New patient presenting with suspicious mole on left shoulder. Asymmetry and border irregularity observed. Dermoscopy performed. Biopsy recommended to rule out melanoma. Patient consented to procedure today.',
-        actionItems: ['Perform Punch Biopsy', 'Send sample to pathology', 'Call patient with results'],
-        sentiment: 'Concerned',
-    },
-    {
-        id: '3',
-        patientName: 'Emma Davis',
-        date: '2025-12-18',
-        time: '09:15',
-        type: 'Emergency',
-        duration: '15 min',
-        summary: 'Severe allergic reaction (hives) on arms and neck. Likely contact dermatitis from new laundry detergent. Prescribed oral antihistamines and topical steroid cream. Advised to wash clothes in hypoallergenic detergent.',
-        actionItems: ['Prescribe Prednisone', 'Advise allergen avoidance', 'Monitor for 48 hours'],
-        sentiment: 'Stable',
-    },
-];
+// Interface matching Backend DTO
+interface MeetingSummary {
+    id: string;
+    patientName: string;
+    date: string;
+    time: string;
+    type: string;
+    duration: string;
+    summary: string;
+    actionItems: string[];
+    sentiment: string;
+}
 
 export default function MeetingSummaries() {
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedSummary, setSelectedSummary] = useState<typeof MOCK_SUMMARIES[0] | null>(null);
+    const [summaries, setSummaries] = useState<MeetingSummary[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedSummary, setSelectedSummary] = useState<MeetingSummary | null>(null);
 
-    const filteredSummaries = MOCK_SUMMARIES.filter(item =>
+    useEffect(() => {
+        fetchSummaries();
+    }, []);
+
+    const fetchSummaries = async () => {
+        try {
+            const response = await api.get('/MeetingSummaries');
+            setSummaries(response.data);
+        } catch (error) {
+            console.error('Failed to fetch summaries:', error);
+            Alert.alert('Error', 'Could not load meeting summaries.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const filteredSummaries = summaries.filter(item =>
         item.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.summary.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const renderSummaryCard = (item: typeof MOCK_SUMMARIES[0]) => (
+    const renderSummaryCard = (item: MeetingSummary) => (
         <TouchableOpacity
             key={item.id}
             activeOpacity={0.9}
