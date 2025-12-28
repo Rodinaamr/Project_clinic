@@ -8,7 +8,7 @@
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-7.0-512BD4)
 
 ## 🌐 Live Deployment
-**Application is live at:** https://rodinasmr.github.io/Project_clinic/
+**Application is live at:** https://Rodinaamr.github.io/Project_clinic/
 
 ---
 
@@ -380,7 +380,7 @@ dotnet run
 ### **Web Deployment (GitHub Pages)**
 The application is automatically deployed to GitHub Pages on each push to `main` branch.
 
-**Live URL:** https://rodinasmr.github.io/Project_clinic/
+**Live URL:** https://Rodinaamr.github.io/Project_clinic/
 
 ### **Mobile Deployment**
 ```bash
