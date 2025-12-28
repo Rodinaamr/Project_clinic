@@ -1,50 +1,74 @@
-# Welcome to your Expo app 👋
+# 🏥 Dermatology Clinic Management System
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A comprehensive clinical management platform featuring a **React Native (Expo)** mobile/web application and a **.NET Core Web API** backend. Designed to streamline patient care, appointment scheduling, and clinical workflows for dermatologists.
 
-## Get started
+## 🚀 Project Overview
 
-1. Install dependencies
+This project is a full-stack solution for dermatology clinics, providing specialized interfaces for Doctors, Patients, and Clinic Assistants.
 
-   ```bash
+### Key Features
+- **Doctor Dashboard**: Manage patient records, appointment summaries, and treatment plans.
+- **Patient Portal**: Book appointments, view prescriptions, and track treatment progress.
+- **Assistant Tools**: Handle check-ins, scheduling, and administrative tasks.
+- **Real-time Integration**: Seamless communication between the frontend and the .NET backend API.
+
+---
+
+## 🏗️ Project Structure
+
+The repository is divided into two main parts:
+
+| Component | Technology | Directory |
+| :--- | :--- | :--- |
+| **Frontend** | React Native + Expo | `/` (Root) |
+| **Backend** | .NET Core + Entity Framework | `/Backend/dermatologyclinicApp` |
+
+---
+
+## 🛠️ Getting Started
+
+### 1. Backend Setup (.NET)
+1. Navigate to the backend directory:
+   ```powershell
+   cd Backend/dermatologyclinicApp
+   ```
+2. Restore dependencies:
+   ```powershell
+   dotnet restore
+   ```
+3. Update the database (ensure SQL Server is running):
+   ```powershell
+   dotnet ef database update
+   ```
+4. Start the API:
+   ```powershell
+   dotnet run --project dermatologyclinic
+   ```
+
+### 2. Frontend Setup (Expo)
+1. Stay in the root directory and install dependencies:
+   ```powershell
    npm install
    ```
-
-2. Start the app
-
-   ```bash
+2. Start the development server:
+   ```powershell
    npx expo start
    ```
+3. Open on your device or emulator via the Expo Go app.
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 🤝 Contributing
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+We are an organization-driven clinical project. To contribute:
+1. Check the [CONTRIBUTING.md](./CONTRIBUTING.md) guide.
+2. Ensure you follow our coding standards for both C# and TypeScript.
+3. Submit a Pull Request for any features or bug fixes.
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## 📄 License
+This project is for internal clinic use and authorized collaborators.
 
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+*Created by the Dermatology Clinic Dev Team.*
