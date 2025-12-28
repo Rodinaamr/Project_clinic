@@ -19,7 +19,7 @@ namespace dermatologyclinicApp.Models
 
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
-            optionsBuilder.UseMySQL(
+            optionsBuilder.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection")
             );
 

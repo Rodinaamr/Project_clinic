@@ -8,7 +8,6 @@ namespace dermatologyclinicApp.Models
     {
         [Key]
         public int Id { get; set; }
-<<<<<<< HEAD
         [Required]
         public string TreatmentType { get; set; } = string.Empty;
         public string? Description { get; set; }
@@ -18,22 +17,6 @@ namespace dermatologyclinicApp.Models
         public int DoctorId { get; set; }
         [ForeignKey("PatientId")]
         public virtual Patient? Patient { get; set; }
-=======
-
-        [Required]
-        public string TreatmentType { get; set; } = string.Empty; // Laser, Chemical Peel, etc.
-
-        public string? Description { get; set; }
-        public DateTime TreatmentDate { get; set; } = DateTime.Now;
-        public string? Results { get; set; }
-
-        public int PatientId { get; set; }
-        public int DoctorId { get; set; }
-
-        [ForeignKey("PatientId")]
-        public virtual Patient? Patient { get; set; }
-
->>>>>>> origin/main
         [ForeignKey("DoctorId")]
         public virtual Doctor? Doctor { get; set; }
     }

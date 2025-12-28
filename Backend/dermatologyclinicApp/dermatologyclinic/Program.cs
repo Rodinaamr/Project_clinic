@@ -36,9 +36,9 @@ if (string.IsNullOrEmpty(connectionString))
 
 Console.WriteLine($"🔗 Database Connection String found.");
 
-// Add DbContext with MySQL
+// Add DbContext with SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySQL(connectionString));
+    options.UseSqlServer(connectionString));
 
 // ========== REPOSITORIES ==========
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
